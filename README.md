@@ -1,8 +1,8 @@
-# lifecycle
+# AWS template
 
-## Functions
+## Lifecycle functions
 
-1. Create new project template with lifecycle repo as submodule
+1. Fork aws_template repo
 1. Create new dev brach from master
 1. Deploy dev branch to AWS
 1. Commit & push dev branch once a day
