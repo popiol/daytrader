@@ -41,8 +41,8 @@
 1. Deploy dev branch to AWS
 1. Commit & push dev branch once a day
 1. Automated tests of dev deployment
+1. Create release branch from master
 1. Merge from dev to release
-1. Merge from master to release
 1. Deploy release branch to AWS
 1. Automated tests of release deployment
 1. Merge from release to master
