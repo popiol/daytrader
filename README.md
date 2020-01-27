@@ -13,7 +13,7 @@
 1. Install Terraform
 
 <pre>
-sudo apt-get install unzip
+sudo apt install unzip
 wget https://releases.hashicorp.com/terraform/0.12.20/terraform_0.12.20_linux_amd64.zip
 unzip terraform_0.12.20_linux_amd64.zip
 sudo mv terraform /usr/local/bin/
