@@ -32,17 +32,9 @@ echo "Fetch upstream"
 
 git fetch upstream
 
-echo "Switch to master"
+echo "Reset to upstream"
 
-git checkout master
-
-echo "Merge with upstream"
-
-git merge upstream/master
-
-echo "Set upstream to origin"
-
-git push --set-upstream origin master
+git reset --hard upstream/master
 
 echo "Clear README.md file"
 
@@ -54,9 +46,9 @@ git add .
 
 echo "Commit"
 
-git commit -am 'Merge with aws_template'
+git commit -am "Fork aws_template"
 
 echo "Push"
 
-git push
+git push -fu origin master
 
