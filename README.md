@@ -19,14 +19,16 @@
     sudo mv terraform /usr/local/bin/
     terraform --version
     </pre>
-  
+
 1. Clone this repo
   
     `git clone https://github.com/popiol/aws_template.git`
   
-1. Create new project
+1. Create new github repo on github.com
   
-    `aws_template/lifecycle/fork_template.sh <new_project_name>`
+1. Fork aws_template into your new repo
+  
+    `aws_template/lifecycle/fork_template.sh <new_repo_name>`
   
 1. Go to your new project 
   
