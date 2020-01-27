@@ -28,7 +28,7 @@
   
 1. Fork aws_template into your new repo
   
-    `aws_template/lifecycle/fork_template.sh <new_repo_name>`
+    `aws_template/lifecycle/fork_template.sh <new_repo_clone_url>`
   
 1. Go to your new project 
   
