@@ -36,6 +36,10 @@ echo "Reset to upstream"
 
 git reset --hard upstream/master
 
+echo "Remove upstream"
+
+git remote rm upstream
+
 echo "Clear README.md file"
 
 echo "# $repo_name" > README.md

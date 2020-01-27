@@ -1,0 +1,38 @@
+#!/bin/bash
+
+echo "Add upstream repo"
+
+git remote add upstream https://github.com/popiol/aws_template.git
+
+echo "Checkout master"
+
+git checkout master
+
+echo "Pull"
+
+git pull
+
+echo "Fetch upstream"
+
+git fetch upstream
+
+echo "Merge with upstream"
+
+git merge --no-edit -X theirs upstream/master
+
+echo "Remove upstream"
+
+git remote rm upstream
+
+echo "Add"
+
+git add .
+
+echo "Commit"
+
+git commit -am "Pull aws_template changes"
+
+echo "Push"
+
+git push -fu origin master
+
