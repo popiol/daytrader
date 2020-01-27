@@ -32,7 +32,7 @@
   
 1. Go to your new project 
   
-    `cd <new_project_name>`
+    `cd <new_repo_name>`
   
 ## Lifecycle functions
 
