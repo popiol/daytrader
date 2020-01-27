@@ -8,12 +8,12 @@ fi
 
 repo_url=$1
 
-#git clone $repo_url
+git clone $repo_url
 
-#if [ $? -gt 0 ]; then
-#	echo "Invalid repo URL"
-#	exit 1
-#fi
+if [ $? -gt 0 ]; then
+	echo "Invalid repo URL"
+	exit 1
+fi
 
 repo_name="$(basename -- $repo_url)"
 repo_name="${repo_name%.*}"
@@ -40,4 +40,23 @@ echo "Merge with upstream"
 
 git merge upstream/master
 
+echo "Set upstream to origin"
+
+git push --set-upstream origin master
+
+echo "Clear README.md file"
+
+echo "# $repo_name" > README.md
+
+echo "Add"
+
+git add .
+
+echo "Commit"
+
+git commit -am 'Merge with aws_template'
+
+echo "Push"
+
+git push
 
