@@ -12,25 +12,25 @@
   
 1. Install Terraform
   
-  <pre>
-  sudo apt install unzip
-  wget https://releases.hashicorp.com/terraform/0.12.20/terraform_0.12.20_linux_amd64.zip
-  unzip terraform_0.12.20_linux_amd64.zip
-  sudo mv terraform /usr/local/bin/
-  terraform --version
-  </pre>
+    <pre>
+    sudo apt install unzip
+    wget https://releases.hashicorp.com/terraform/0.12.20/terraform_0.12.20_linux_amd64.zip
+    unzip terraform_0.12.20_linux_amd64.zip
+    sudo mv terraform /usr/local/bin/
+    terraform --version
+    </pre>
   
 1. Clone this repo
   
-  `git clone https://github.com/popiol/aws_template.git`
+    `git clone https://github.com/popiol/aws_template.git`
   
 1. Create new project
   
-  `aws_template/lifecycle/fork_template.sh <new_project_name>`
+    `aws_template/lifecycle/fork_template.sh <new_project_name>`
   
 1. Go to your new project 
   
-  `cd <new_project_name>`
+    `cd <new_project_name>`
   
 ## Lifecycle functions
 
