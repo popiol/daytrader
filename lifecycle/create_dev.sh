@@ -8,7 +8,11 @@ fi
 
 branch_name="dev/$1"
 
+echo "Checkout master"
+
 git checkout master
+
+echo "Pull"
 
 git pull
 
