@@ -37,6 +37,7 @@
 ## Lifecycle functions
 
 1. Fork aws_template repo
+1. Pull most recent aws_template files
 1. Create new dev brach from master
 1. Deploy dev branch to AWS
 1. Commit & push dev branch once a day
