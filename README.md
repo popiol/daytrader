@@ -3,9 +3,9 @@
 ## Installation
 
 1. Install Git CLI
-  
-  `sudo apt install git`
-  
+    
+    `sudo apt install git`
+    
 1. Install AWS CLI
   
   `sudo apt install awscli`
