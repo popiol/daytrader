@@ -24,7 +24,7 @@
   
     `git clone https://github.com/popiol/aws_template.git`
   
-1. Create new github repo on github.com
+1. Create new repo on github.com
   
 1. Fork aws_template into your new repo
   
