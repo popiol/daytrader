@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ -z $1 ]; then
+if [ -z "$1" ]; then
 	echo "Missing argument."
 	echo "Usage: $(basename -- $0) <new_repo_url>"
 	exit 1
@@ -31,6 +31,10 @@ git remote add upstream https://github.com/popiol/aws_template.git
 echo "Fetch upstream"
 
 git fetch upstream
+
+echo "Checkout master"
+
+git checkout master
 
 echo "Reset to upstream"
 
