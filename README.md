@@ -40,14 +40,12 @@
 1. Pull most recent aws_template files
 1. Create new dev brach from master
 1. Delete branch
-1. Deploy dev branch to AWS
-1. Commit & push dev branch once a day
+1. Deploy branch to AWS
+1. Undeploy branch from AWS
+1. Commit & push all branches once a day
 1. Automated tests of dev deployment
 1. Create release branch from master
 1. Merge from dev to release
-1. Deploy release branch to AWS
 1. Automated tests of release deployment
 1. Merge from release to master
-1. Deploy master branch to AWS
 1. Automated tests of prod deployment
-1. Commit & push master branch once a day
