@@ -2,6 +2,10 @@
 
 ## Installation
 
+1. Install Python
+
+    `sudo apt install python3-pip`
+
 1. Install Git CLI
     
     `sudo apt install git`
