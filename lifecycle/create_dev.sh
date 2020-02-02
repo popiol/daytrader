@@ -10,9 +10,6 @@ branch_name=$1
 branch_name=`echo $branch_name | sed "s/^.*\///g"`
 branch_name=dev/$branch_name
 
-echo $branch_name
-exit 0
-
 echo "Checkout master"
 
 git checkout master
