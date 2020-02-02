@@ -18,7 +18,7 @@ git fetch upstream
 
 echo "Merge with upstream"
 
-git merge --no-edit -s ours upstream/master
+git merge --no-edit -X theirs upstream/master
 
 echo "Remove upstream"
 

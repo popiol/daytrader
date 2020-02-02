@@ -6,7 +6,12 @@ if [ -z $1 ]; then
 	exit 1
 fi
 
-branch_name="dev/$1"
+branch_name=$1
+branch_name=`echo $branch_name | sed "s/^.*\///g"`
+branch_name=dev/$branch_name
+
+echo $branch_name
+exit 0
 
 echo "Checkout master"
 
