@@ -60,8 +60,8 @@ echo "App ver: $app_ver"
 echo "App: $app"
 echo "App ID: $app_id"
 
-echo "/
-aws_id=\"$aws_id\"
+echo \
+"app_id=\"$app_id\"
 app=\"$app\"
 app_ver=\"$app_ver\"
 app_stage=\"$stage\"
@@ -77,6 +77,11 @@ cd terraform
 
 python ../lifecycle/add_tags.py
 
+echo "Init terraform"
+
+rm terraform.tfstate*
+terraform init
+
 echo "Import from AWS to terraform"
 
 aws_ids=`aws resourcegroupstaggingapi get-resources --tag-filters Key=App,Values=$app,Key=AppVer,Values=$app_ver --output text | grep RESOURCETAGMAPPINGLIST | cut -d$'\t' -f 2 | rev | cut -d '/' -f 1 | cut -d ':' -f 1 | rev | tr "\n" "|"`
@@ -86,7 +91,7 @@ terr_ids=`aws resourcegroupstaggingapi get-resources --tag-filters Key=App,Value
 echo "AWS ID's: $aws_ids"
 echo "Terraform ID's: $terr_ids"
 
-python ../lifecycle/import_resources.py $aws_ids $terr_ids
+python ../lifecycle/import_resources.py "$aws_ids" "$terr_ids"
 
 if [ $? -gt 0 ]; then
 	exit 1

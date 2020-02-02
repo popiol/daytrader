@@ -14,7 +14,8 @@ if len(aws_ids) != len(terr_ids):
     exit(1)
 
 for aws_id, terr_id in zip(aws_ids, terr_ids):
-    res = os.system('terraform import {0} {1}'.format(terr_id, aws_id))
+    if not aws_id or not terr_id: continue
+    res = os.system('terraform import -var-file="../config.ini" {0} {1}'.format(terr_id, aws_id))
     if res > 0:
         print('Import failed for {0} {1}'.format(terr_id, aws_id))
         exit(1)
