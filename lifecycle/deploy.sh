@@ -7,6 +7,34 @@ if [ -z "$1" ]; then
 fi
 
 branch_name=$1
+branch_name=`echo $branch_name | sed "s/origin\///"`
+
+echo "Checkout $branch_name"
+
+git checkout $branch_name
+
+if [ $? -gt 0 ]; then
+	res=1
+	if [[ $branch_name == */* ]]; then
+		branch_name=`echo $branch_name | sed "s/^.*\///"`
+		echo "Checkout $branch_name"
+		git checkout $branch_name
+		res=$?
+    fi
+	if [ $res -gt 0 ]; then
+		branch_name="dev/$branch_name"
+		echo "Checkout $branch_name"
+		git checkout $branch_name
+	fi
+fi
+
+if [ $? -gt 0 ]; then
+	echo "Incorrect branch name"
+	exit 1
+fi
+
+echo "Calc params"
+
 app_ver="$(basename -- $branch_name)"
 stage="$(basename -- $(dirname $branch_name))"
 
@@ -27,10 +55,10 @@ repo_name="${repo_name%.*}"
 app=$repo_name
 app_id="${repo_name}_${app_ver}"
 
-echo "Stage $stage"
-echo "App ver $app_ver"
-echo "App $app"
-echo "App ID $app_id"
+echo "Stage: $stage"
+echo "App ver: $app_ver"
+echo "App: $app"
+echo "App ID: $app_id"
 
 echo "/
 aws_id=\"$aws_id\"
@@ -38,15 +66,6 @@ app=\"$app\"
 app_ver=\"$app_ver\"
 app_stage=\"$stage\"
 " > config.ini
-
-echo "Checkout"
-
-git checkout $branch_name
-
-if [ $? -gt 0 ]; then
-	echo "Incorrect branch name"
-	exit 1
-fi
 
 echo "Pull"
 
@@ -63,6 +82,9 @@ echo "Import from AWS to terraform"
 aws_ids=`aws resourcegroupstaggingapi get-resources --tag-filters Key=App,Values=$app,Key=AppVer,Values=$app_ver --output text | grep RESOURCETAGMAPPINGLIST | cut -d$'\t' -f 2 | rev | cut -d '/' -f 1 | cut -d ':' -f 1 | rev | tr "\n" "|"`
 
 terr_ids=`aws resourcegroupstaggingapi get-resources --tag-filters Key=App,Values=$app,Key=AppVer,Values=$app_ver --output text | grep TerraformID | rev | cut -d$'\t' -f 1 | rev | tr "\n" "|"`
+
+echo "AWS ID's: $aws_ids"
+echo "Terraform ID's: $terr_ids"
 
 python ../lifecycle/import_resources.py $aws_ids $terr_ids
 

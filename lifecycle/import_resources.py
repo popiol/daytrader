@@ -2,7 +2,8 @@ import sys
 import os
 
 if len(sys.argv) < 3:
-    print("Missing arguments. Usage: {1} <aws_ids> <terr_ids>".format(sys.argv[0]))
+    s = "Missing arguments. Usage: {0} <aws_ids> <terr_ids>"
+    print(s.format(os.path.basename(sys.argv[0])))
     exit(1)
 
 aws_ids = sys.argv[1].split('|')
@@ -13,9 +14,9 @@ if len(aws_ids) != len(terr_ids):
     exit(1)
 
 for aws_id, terr_id in zip(aws_ids, terr_ids):
-    res = os.system('terraform import {1} {2}'.format(terr_id, aws_id))
+    res = os.system('terraform import {0} {1}'.format(terr_id, aws_id))
     if res > 0:
-        print('Import failed for {1} {2}'.format(terr_id, aws_id))
+        print('Import failed for {0} {1}'.format(terr_id, aws_id))
         exit(1)
 
 print('Import complete')
