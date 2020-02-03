@@ -14,7 +14,7 @@
   
     `sudo apt install awscli`
     
-    Configure `vi .aws/config`, `vi .aws/credentials`
+    Configure `.aws/config`, `.aws/credentials`
   
 1. Install Terraform
   
