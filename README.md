@@ -13,6 +13,8 @@
 1. Install AWS CLI
   
     `sudo apt install awscli`
+    
+    Configure `.aws/config`, `.aws/credentials`
   
 1. Install Terraform
   
