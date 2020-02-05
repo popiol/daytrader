@@ -6,6 +6,13 @@ if [ -z "$1" ]; then
 	exit 1
 fi
 
+undeploy=0
+if [ ! -z "$2" ]; then
+	if [ "$2" = "undeploy" ]; then
+		undeploy=1
+	fi
+fi
+
 branch_name=$1
 branch_name=`echo $branch_name | sed "s/origin\///"`
 
@@ -84,9 +91,21 @@ terraform init
 
 echo "Import from AWS to terraform"
 
-aws_ids=`aws resourcegroupstaggingapi get-resources --tag-filters Key=App,Values=$app,Key=AppVer,Values=$app_ver --output text | grep RESOURCETAGMAPPINGLIST | cut -d$'\t' -f 2 | rev | cut -d '/' -f 1 | cut -d ':' -f 1 | rev | tr "\n" "|"`
+aws_ids=`aws resourcegroupstaggingapi get-resources --tag-filters Key=App,Values=$app,Key=AppVer,Values=$app_ver --output text | grep RESOURCETAGMAPPINGLIST | cut -d$'\t' -f 2 | rev | cut -d '/' -f 1 | cut -d ':' -f 1 | rev | tr "\n" "|" | sed "s/^|//"`
 
-terr_ids=`aws resourcegroupstaggingapi get-resources --tag-filters Key=App,Values=$app,Key=AppVer,Values=$app_ver --output text | grep TerraformID | rev | cut -d$'\t' -f 1 | rev | tr "\n" "|"`
+terr_ids=`aws resourcegroupstaggingapi get-resources --tag-filters Key=App,Values=$app,Key=AppVer,Values=$app_ver --output text | grep TerraformID | rev | cut -d$'\t' -f 1 | rev | tr "\n" "|" | sed "s/|$//"`
+
+role_ids=`aws iam list-roles --path-prefix /$app/$app_ver/ --output text | grep ROLES | rev | cut -d$'\t' -f 1 | rev`
+role_terr_ids=''
+while read role_id
+do
+	terr_id=`aws iam list-role-tags --role-name $role_id | sed -z "s/\",\n/\", /g" | grep TerraformID | rev | cut -d ':' -f 1 | rev | cut -d '"' -f 2`
+	role_terr_ids="$role_terr_ids|$terr_id"
+done <<< `echo $role_ids`
+
+role_ids=`echo $role_ids | tr "\n" "|" | sed "s/|$//"`
+aws_ids="${aws_ids}${role_ids}"
+terr_ids=`echo "${terr_ids}${role_terr_ids}" | sed "s/^|\||$//g"`
 
 echo "AWS ID's: $aws_ids"
 echo "Terraform ID's: $terr_ids"
@@ -97,9 +116,15 @@ if [ $? -gt 0 ]; then
 	exit 1
 fi
 
-echo "Apply Terraform"
+if [ ! "$undeploy" = "1" ]; then
+	echo "Apply Terraform"
 
-terraform apply -var-file="../config.ini" -auto-approve
+	terraform apply -var-file="../config.ini" -auto-approve
+else
+	echo "Destroy"
+
+	terraform destroy -var-file="../config.ini" -auto-approve
+fi
 
 echo "Git add"
 
