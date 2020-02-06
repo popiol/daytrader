@@ -9,6 +9,11 @@ fi
 branch_name=$1
 branch_name=`echo $branch_name | sed "s/origin\///"`
 
+echo "Add & commit"
+
+git add .
+git commit -am 'Auto commit `date "+%Y-%m-%d %H:%M:%S"`'
+
 echo "Checkout $branch_name"
 
 git checkout $branch_name

@@ -1,5 +1,10 @@
 #!/bin/bash
 
+echo "Add & commit"
+
+git add .
+git commit -am 'Auto commit `date "+%Y-%m-%d %H:%M:%S"`'
+
 echo "Add upstream repo"
 
 git remote add upstream https://github.com/popiol/aws_template.git
