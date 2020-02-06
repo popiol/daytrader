@@ -48,6 +48,7 @@
 1. Delete branch
 1. Deploy branch to AWS
 1. Undeploy branch from AWS
+1. Undeploy all other than provided list of branches
 1. Commit & push all branches once a day
 1. Automated tests of dev deployment
 1. Create release branch from master
