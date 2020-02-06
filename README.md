@@ -46,6 +46,7 @@
 1. Pull most recent aws_template files
 1. Create new dev brach from master
 1. Delete branch
+1. Undelete branch
 1. Deploy branch to AWS
 1. Undeploy branch from AWS
 1. Undeploy all other than provided list of branches
