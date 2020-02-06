@@ -5,7 +5,7 @@ branch_name=release
 echo "Add & commit"
 
 git add .
-git commit -am 'Auto commit `date "+%Y-%m-%d %H:%M:%S"`'
+git commit -am "Auto commit `date '+%Y-%m-%d %H:%M:%S'`"
 
 echo "Checkout master"
 

@@ -13,7 +13,7 @@ branch_name=dev/$branch_name
 echo "Add & commit"
 
 git add .
-git commit -am 'Auto commit `date "+%Y-%m-%d %H:%M:%S"`'
+git commit -am "Auto commit `date '+%Y-%m-%d %H:%M:%S'`"
 
 echo "Checkout master"
 

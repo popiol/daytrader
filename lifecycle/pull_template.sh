@@ -3,7 +3,7 @@
 echo "Add & commit"
 
 git add .
-git commit -am 'Auto commit `date "+%Y-%m-%d %H:%M:%S"`'
+git commit -am "Auto commit `date '+%Y-%m-%d %H:%M:%S'`"
 
 echo "Add upstream repo"
 
@@ -21,9 +21,9 @@ echo "Fetch upstream"
 
 git fetch upstream
 
-echo "Merge with upstream"
+echo "Reset lifecycle scripts"
 
-git merge --no-edit -s ours upstream/master
+git checkout upstream/master -- lifecycle
 
 echo "Remove upstream"
 
