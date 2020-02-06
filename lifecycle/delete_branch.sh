@@ -16,6 +16,10 @@ if [ "$just_clean" != "1" ]; then
 branch_name=$1
 branch_name=`echo $branch_name | sed "s/origin\///"`
 
+echo "Commit"
+
+git commit -am "Auto-commit"
+
 echo "Checkout $branch_name"
 
 git checkout $branch_name

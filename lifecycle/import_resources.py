@@ -13,9 +13,11 @@ if len(aws_ids) != len(terr_ids):
     print('Input tables count mismatch')
     exit(1)
 
+varfile = '-var-file="../config.ini" ' if os.path.isfile('../config.ini') else '' 
+
 for aws_id, terr_id in zip(aws_ids, terr_ids):
     if not aws_id or not terr_id: continue
-    res = os.system('terraform import -var-file="../config.ini" {0} {1}'.format(terr_id, aws_id))
+    res = os.system('terraform import {2}{0} {1}'.format(terr_id, aws_id, varfile))
     if res > 0:
         print('Import failed for {0} {1}'.format(terr_id, aws_id))
         exit(1)

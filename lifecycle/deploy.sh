@@ -6,13 +6,6 @@ if [ -z "$1" ]; then
 	exit 1
 fi
 
-undeploy=0
-if [ ! -z "$2" ]; then
-	if [ "$2" = "undeploy" ]; then
-		undeploy=1
-	fi
-fi
-
 branch_name=$1
 branch_name=`echo $branch_name | sed "s/origin\///"`
 
@@ -116,15 +109,9 @@ if [ $? -gt 0 ]; then
 	exit 1
 fi
 
-if [ ! "$undeploy" = "1" ]; then
-	echo "Apply Terraform"
+echo "Apply Terraform"
 
-	terraform apply -var-file="../config.ini" -auto-approve
-else
-	echo "Destroy"
-
-	terraform destroy -var-file="../config.ini" -auto-approve
-fi
+terraform apply -var-file="../config.ini" -auto-approve
 
 echo "Git add"
 
