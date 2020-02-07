@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "quotes_bucket" {
-  bucket = replace(var.app_id,"_","-")}"-quotes"
+  bucket = replace()"-quotes"
   acl    = "private"
 
   tags = {
