@@ -16,6 +16,13 @@ resource "aws_iam_role" "lambdarole" {
   ]
 }
 EOF
+
+  tags = {
+    App = var.app
+    AppVer = var.app_ver
+    AppStage = var.app_stage
+    TerraformID = "aws_iam_role.lambdarole"
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {

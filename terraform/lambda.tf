@@ -12,5 +12,12 @@ resource "aws_lambda_function" "l_hello_world" {
     subnet_ids         = [aws_subnet.subnet1.id]
     security_group_ids = [aws_vpc.vpc1.default_security_group_id]
   }
+
+  tags = {
+    App = var.app
+    AppVer = var.app_ver
+    AppStage = var.app_stage
+    TerraformID = "aws_lambda_function.l_hello_world"
+  }
 }
 
