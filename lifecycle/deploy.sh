@@ -93,7 +93,7 @@ aws_ids=`aws resourcegroupstaggingapi get-resources --tag-filters Key=App,Values
 
 terr_ids=`aws resourcegroupstaggingapi get-resources --tag-filters Key=App,Values=$app,Key=AppVer,Values=$app_ver --output text | grep TerraformID | rev | cut -d$'\t' -f 1 | rev | tr "\n" "|" | sed "s/|$//"`
 
-role_ids=`aws iam list-roles --path-prefix /$app/$app_ver/ --output text | grep ROLES | rev | cut -d$'\t' -f 1 | rev`
+role_ids=`aws iam list-roles --path-prefix /$app/$app_ver/ --output text | grep ROLES | rev | cut -d$'\t' -f 1 | rev | sed -z "s/\n$//"`
 role_terr_ids=''
 while read role_id
 do
