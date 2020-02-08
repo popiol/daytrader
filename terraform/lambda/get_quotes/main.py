@@ -15,14 +15,14 @@ def lambda_handler(event, context):
     print("bucket:",bucket_name)
 
     url_templ = 'https://markets.businessinsider.com/index/components/s&p_500?p={0}'
-    dt = datetime.date.today().strftime('%Y%m%d')
+    dt = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
     res = {'bucket_name':bucket_name, 'files':[]}
-    file_name_templ = 'businessinsider_{0}.html'
+    file_name_templ = 'html/businessinsider_{0}_{1}.html'
 
-    for n in range(1,2):
+    for n in range(1,11):
         url = url_templ.format(n)
         data = urlopen(url)
-        file_name = file_name_templ.format(dt)
+        file_name = file_name_templ.format(dt, n)
         s3.upload_fileobj(data, bucket_name, file_name)
         res['files'].append(file_name)
         
