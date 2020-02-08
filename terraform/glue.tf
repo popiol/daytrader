@@ -1,12 +1,5 @@
 resource "aws_glue_catalog_database" "quotes" {
   name = "${var.app_id}_quotes"
-
-	tags = {
-		App = var.app
-		AppVer = var.app_ver
-		AppStage = var.app_stage
-		TerraformID = "aws_glue_catalog_database.quotes"
-	}
 }
 
 resource "aws_glue_crawler" "quotes" {
