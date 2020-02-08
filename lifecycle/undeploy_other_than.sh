@@ -17,6 +17,7 @@ app=$repo_name
 echo "App: $app"
 
 nremoved=1
+nitems_prev=0
 
 while [ $nremoved -gt 0 ]
 do
@@ -68,6 +69,11 @@ do
 		nremoved=$((nremoved+1))
 	fi
 done
+
+if [ $nitems_prev -gt 0 ]; then
+	nremoved=$((nitems_prev-nitems))
+fi
+nitems_prev=$nitems
 
 echo ""
 echo "Items to removed: $nitems"

@@ -125,9 +125,6 @@ do
 	target_terr_ids="$target_terr_ids|aws_cloudwatch_event_target.$terr_id"
 done
 
-echo "Target ID's: $target_ids"
-echo "Target terraform ID's: $target_terr_ids"
-
 role_ids=`echo $role_ids | tr "\n" "|" | sed "s/|$//"`
 aws_ids="${aws_ids}${role_ids}"
 terr_ids=`echo "${terr_ids}${role_terr_ids}" | sed "s/^|\||$//g"`
