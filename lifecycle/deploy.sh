@@ -82,6 +82,20 @@ cd terraform
 
 python ../lifecycle/add_tags.py
 
+echo "Zip lambda functions"
+
+cd lambda
+funcs=`ls -d1 */ | sed "s/\/$//" | tr '\n' ' '`
+
+for func in $funcs
+do
+	cd $func
+	zip -r ../$func.zip .
+	cd ..
+done
+
+cd ..
+
 echo "Init terraform"
 
 rm terraform.tfstate*
@@ -93,13 +107,13 @@ aws_ids=`aws resourcegroupstaggingapi get-resources --tag-filters Key=App,Values
 
 terr_ids=`aws resourcegroupstaggingapi get-resources --tag-filters Key=App,Values=$app,Key=AppVer,Values=$app_ver --output text | grep TerraformID | rev | cut -d$'\t' -f 1 | rev | tr "\n" "|" | sed "s/|$//"`
 
-role_ids=`aws iam list-roles --path-prefix /$app/$app_ver/ --output text | grep ROLES | rev | cut -d$'\t' -f 1 | rev`
+role_ids=`aws iam list-roles --path-prefix /$app/$app_ver/ --output text | grep ROLES | rev | cut -d$'\t' -f 1 | rev | tr '\n' ' '`
 role_terr_ids=''
-while read role_id
+for role_id in $role_ids
 do
 	terr_id=`aws iam list-role-tags --role-name $role_id | sed -z "s/\",\n/\", /g" | grep TerraformID | rev | cut -d ':' -f 1 | rev | cut -d '"' -f 2`
 	role_terr_ids="$role_terr_ids|$terr_id"
-done <<< `echo $role_ids`
+done
 
 role_ids=`echo $role_ids | tr "\n" "|" | sed "s/|$//"`
 aws_ids="${aws_ids}${role_ids}"
