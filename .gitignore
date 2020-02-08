@@ -2,4 +2,6 @@ config.ini
 terraform/terraform.tfstate*
 terraform/.terraform/*
 terraform/lambda/*zip
+logs/*
+!logs/README.md
 

@@ -1,4 +1,4 @@
-resource "aws_s3_bucket" "quotes_bucket" {
+resource "aws_s3_bucket" "quotes" {
 	bucket = "popiol.${replace(var.app_id,"_","-")}-quotes"
 	acl    = "private"
 
@@ -6,7 +6,7 @@ resource "aws_s3_bucket" "quotes_bucket" {
 		App = var.app
     AppVer = var.app_ver
     AppStage = var.app_stage
-    TerraformID = "aws_s3_bucket.quotes_bucket"
+    TerraformID = "aws_s3_bucket.quotes"
   }
 }
 
