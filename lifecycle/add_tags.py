@@ -4,7 +4,8 @@ import os
 
 no_tag_resources = [
     'aws_iam_role_policy',
-    'aws_iam_role_policy_attachment'
+    'aws_iam_role_policy_attachment',
+    'aws_cloudwatch_event_target'
 ]
 
 for fname in glob.glob('*tf'):
