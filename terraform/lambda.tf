@@ -14,10 +14,10 @@ resource "aws_lambda_function" "l_get_quotes" {
 	}
 
 	tags = {
-	  App = var.app
-	  AppVer = var.app_ver
-	  AppStage = var.app_stage
-	  TerraformID = "aws_lambda_function.l_get_quotes"
+		App = var.app
+		AppVer = var.app_ver
+		AppStage = var.app_stage
+		TerraformID = "aws_lambda_function.l_get_quotes"
 	}
 }
 
