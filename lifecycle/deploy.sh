@@ -115,9 +115,24 @@ do
 	role_terr_ids="$role_terr_ids|$terr_id"
 done
 
+rule_ids=`aws resourcegroupstaggingapi get-resources --tag-filters Key=App,Values=$app,Key=AppVer,Values=$app_ver --output text | grep RESOURCETAGMAPPINGLIST | grep ":rule/" | cut -d$'\t' -f 2 | rev | cut -d '/' -f 1 | cut -d ':' -f 1 | rev | tr "\n" " "`
+target_ids=''
+target_terr_ids=''
+for rule_id in $rule_ids
+do
+	target_ids="$target_ids|$rule_id/$rule_id"
+	terr_id=`echo $rule_id | sed "s/^${app_id}_//"`
+	target_terr_ids="$target_terr_ids|aws_cloudwatch_event_target.$terr_id"
+done
+
+echo "Target ID's: $target_ids"
+echo "Target terraform ID's: $target_terr_ids"
+
 role_ids=`echo $role_ids | tr "\n" "|" | sed "s/|$//"`
 aws_ids="${aws_ids}${role_ids}"
 terr_ids=`echo "${terr_ids}${role_terr_ids}" | sed "s/^|\||$//g"`
+aws_ids="${aws_ids}${target_ids}"
+terr_ids="${terr_ids}${target_terr_ids}"
 
 echo "AWS ID's: $aws_ids"
 echo "Terraform ID's: $terr_ids"

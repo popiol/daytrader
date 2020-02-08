@@ -31,7 +31,7 @@ for fname in glob.glob('*tf'):
             elif state > 0 and depth == 0:
                 state = 0
                 outline = "{0}tags = {{\n{0}{1}App = var.app\n{0}{1}AppVer = var.app_ver\n{0}{1}AppStage = var.app_stage\n{0}{1}TerraformID = \"{2}\"\n{0}}}\n}}\n"
-                outline = outline.format('  ','  ',terr_id)
+                outline = outline.format("\t","\t",terr_id)
                 if not empty:
                     outline = "\n" + outline
             elif state > 0 and re.sub(r"\s","",line).startswith('tags='):
