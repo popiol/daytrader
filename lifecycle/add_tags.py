@@ -5,6 +5,7 @@ import os
 no_tag_resources = [
     'aws_iam_role_policy',
     'aws_iam_role_policy_attachment',
+    'aws_iam_policy_document',
     'aws_cloudwatch_event_target',
     'aws_glue_catalog_database'
 ]
