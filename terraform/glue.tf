@@ -26,6 +26,13 @@ resource "aws_s3_bucket_object" "scripts" {
 	key	= "scripts/${each.value}"
 	source = "scripts/${each.value}"
 	etag = filemd5("scripts/${each.value}")
+
+	tags = {
+		App = var.app
+		AppVer = var.app_ver
+		AppStage = var.app_stage
+		TerraformID = "aws_s3_bucket_object.scripts"
+	}
 }
 
 resource "aws_glue_job" "html2csv" {
@@ -34,6 +41,13 @@ resource "aws_glue_job" "html2csv" {
 
 	command {
 		script_location = "s3://${aws_s3_bucket.quotes.bucket}/scripts/html2csv.py"
+	}
+
+	tags = {
+		App = var.app
+		AppVer = var.app_ver
+		AppStage = var.app_stage
+		TerraformID = "aws_glue_job.html2csv"
 	}
 }
 
