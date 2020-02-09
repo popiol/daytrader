@@ -21,8 +21,8 @@ resource "aws_glue_crawler" "quotes" {
 }
 
 resource "aws_s3_bucket_object" "scripts" {
-	for_each = fileset("scripts/", "*")
-	bucket = "s3://${aws_s3_bucket.quotes.bucket}"
+	for_each = fileset("scripts/", "*py")
+	bucket = aws_s3_bucket.quotes.id
 	key	= "scripts/${each.value}"
 	source = "scripts/${each.value}"
 	etag = filemd5("scripts/${each.value}")
