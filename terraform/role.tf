@@ -8,7 +8,10 @@ resource "aws_iam_role" "lambdarole" {
 		{
 			"Action": "sts:AssumeRole",
 			"Principal": {
-				"Service": "lambda.amazonaws.com"
+				"Service": [
+					"lambda.amazonaws.com",
+					"glue.amazonaws.com"
+				]
 			},
 			"Effect": "Allow",
 			"Sid": ""
