@@ -32,6 +32,6 @@ resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
 
 resource "aws_iam_role_policy_attachment" "glue_policy_attachment" {
 	role = aws_iam_role.lambdarole.name
-	policy_arn = "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole
+	policy_arn = "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
 }
 
