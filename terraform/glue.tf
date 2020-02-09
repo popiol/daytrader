@@ -23,7 +23,7 @@ resource "aws_glue_crawler" "quotes" {
 resource "aws_s3_bucket_object" "scripts" {
 	for_each = fileset("scripts/", "*py")
 	bucket = aws_s3_bucket.quotes.id
-	key	= "scripts/${each.value}"
+	key	= "aws-glue-scripts/${each.value}"
 	source = "scripts/${each.value}"
 	etag = filemd5("scripts/${each.value}")
 
@@ -40,7 +40,9 @@ resource "aws_glue_job" "html2csv" {
 	role_arn = aws_iam_role.lambdarole.arn
 
 	command {
+		name = "pythonshell"
 		script_location = "s3://${aws_s3_bucket.quotes.bucket}/scripts/html2csv.py"
+		python_version = "3"
 	}
 
 	tags = {
