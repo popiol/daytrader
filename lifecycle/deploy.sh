@@ -103,10 +103,14 @@ terraform init
 
 echo "Import from AWS to terraform"
 
+acct_id=`aws sts get-caller-identity --output text | cut -d$'\t' -f 2 | cut -d ':' -f 5`
+
+#Basic resources
 aws_ids=`aws resourcegroupstaggingapi get-resources --tag-filters Key=App,Values=$app,Key=AppVer,Values=$app_ver --output text | grep RESOURCETAGMAPPINGLIST | cut -d$'\t' -f 2 | rev | cut -d '/' -f 1 | cut -d ':' -f 1 | rev | tr "\n" "|" | sed "s/^|//"`
 
 terr_ids=`aws resourcegroupstaggingapi get-resources --tag-filters Key=App,Values=$app,Key=AppVer,Values=$app_ver --output text | grep TerraformID | rev | cut -d$'\t' -f 1 | rev | tr "\n" "|" | sed "s/|$//"`
 
+#Roles
 role_ids=`aws iam list-roles --path-prefix /$app/$app_ver/ --output text | grep ROLES | rev | cut -d$'\t' -f 1 | rev | tr '\n' ' '`
 role_terr_ids=''
 for role_id in $role_ids
@@ -114,7 +118,11 @@ do
 	terr_id=`aws iam list-role-tags --role-name $role_id | sed -z "s/\",\n/\", /g" | grep TerraformID | rev | cut -d ':' -f 1 | rev | cut -d '"' -f 2`
 	role_terr_ids="$role_terr_ids|$terr_id"
 done
+role_ids=`echo $role_ids | tr "\n" "|" | sed "s/|$//"`
+aws_ids="${aws_ids}${role_ids}"
+terr_ids=`echo "${terr_ids}${role_terr_ids}" | sed "s/^|\||$//g"`
 
+#Cloudwatch rules
 rule_ids=`aws resourcegroupstaggingapi get-resources --tag-filters Key=App,Values=$app,Key=AppVer,Values=$app_ver --output text | grep RESOURCETAGMAPPINGLIST | grep ":rule/" | cut -d$'\t' -f 2 | rev | cut -d '/' -f 1 | cut -d ':' -f 1 | rev | tr "\n" " "`
 target_ids=''
 target_terr_ids=''
@@ -124,12 +132,21 @@ do
 	terr_id=`echo $rule_id | sed "s/^${app_id}_//"`
 	target_terr_ids="$target_terr_ids|aws_cloudwatch_event_target.$terr_id"
 done
-
-role_ids=`echo $role_ids | tr "\n" "|" | sed "s/|$//"`
-aws_ids="${aws_ids}${role_ids}"
-terr_ids=`echo "${terr_ids}${role_terr_ids}" | sed "s/^|\||$//g"`
 aws_ids="${aws_ids}${target_ids}"
 terr_ids="${terr_ids}${target_terr_ids}"
+
+#Glue
+glue_ids=`aws glue get-databases --output text | grep DATABASELIST | grep -P "\t${app_id}_" | rev | cut -d$'\t' -f 1 | rev | tr '\n' ' '`
+glue_terr_ids=''
+for id in $glue_ids
+do
+	terr_id=`echo $id | sed "s/^${app_id}_//"`
+	glue_terr_ids="$glue_terr_ids|aws_glue_catalog_database.$terr_id"
+done
+glue_ids=`echo "|$glue_ids" | tr ' ' '|' | sed "s/|$//" | sed "s/|/|$acct_id:/g"`
+glue_ids2=`aws glue list-crawlers --tags Key=App,Value=daytrader --output text`
+aws_ids="${aws_ids}${glue_ids}"
+terr_ids="${terr_ids}${glue_terr_ids}"
 
 echo "AWS ID's: $aws_ids"
 echo "Terraform ID's: $terr_ids"
