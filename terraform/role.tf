@@ -38,3 +38,22 @@ resource "aws_iam_role_policy_attachment" "glue_policy_attachment" {
 	policy_arn = "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
 }
 
+resource "aws_iam_role_policy" "s3_access" {
+	name = "${var.app_id}_s3_access"
+	role = aws_iam_role.lambdarole.id
+	policy = data.aws_iam_policy_document.s3_access_doc.json
+}
+
+data "aws_iam_policy_document" "s3_access_doc" {
+	statement {
+		actions = [
+			"s3:GetObject",
+			"s3:PutObject",
+			"s3:DeleteObject"
+		]
+		resources = [
+			"${aws_s3_bucket.quotes.arn}/*"
+		]
+	}
+}
+
