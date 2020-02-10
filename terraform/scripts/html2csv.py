@@ -11,6 +11,7 @@ if 'GLUE_INSTALLATION' in os.environ.keys():
 import boto3
 import argparse
 import pandas as pd
+import re
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--scriptLocation')
@@ -36,13 +37,15 @@ for key in files:
     html = html[pos1:pos2]
     table = pd.read_html(html)[0]
     new_cols = {}
-    mapping = {'+/-':'change','%':'percent',':':'',' ':'_'}
+    mapping = {'+/-':'change','%':'',':':'',' ':'_','.':''}
     for col in table.columns:
         old_col = col
         for k in mapping:
             col = col.replace(k, mapping[k])
+        col = re.sub(r"_+$", r"", col)
         new_cols[old_col] = col
     table.rename(columns=new_cols, inplace=True)
+    table.index.rename('id', inplace=True)
     csv = table.to_csv()
     csv_key = key.replace('html/','').replace('.html','.csv')
     nodes = csv_key.split('_')

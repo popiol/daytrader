@@ -2,11 +2,24 @@ resource "aws_glue_catalog_database" "quotes" {
 	name = "${var.app_id}_quotes"
 }
 
-resource "aws_glue_crawler" "quotes" {
+resource "aws_glue_classifier" "in_quotes" {
+	name = "${var.app_id}_in_quotes"
+
+	csv_classifier {
+		allow_single_column    = false
+		contains_header        = "PRESENT"
+		delimiter              = ","
+		disable_value_trimming = false
+		quote_symbol           = "\""
+	}
+}
+
+resource "aws_glue_crawler" "in_quotes" {
 	database_name = aws_glue_catalog_database.quotes.name
-	name = "quotes"
-	table_prefix = "${var.app_id}_"
+	name = "${var.app_id}_in_quotes"
+	table_prefix = "in_quotes_"
 	role = aws_iam_role.lambdarole.arn
+	classifiers = [aws_glue_classifier.in_quotes.name]
 
 	s3_target {
 		path = "s3://${aws_s3_bucket.quotes.bucket}"
