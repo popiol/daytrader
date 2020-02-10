@@ -35,8 +35,19 @@ for key in files:
     pos2 = html.find('</table>', pos1) + len('</table>')
     html = html[pos1:pos2]
     table = pd.read_html(html)[0]
+    new_cols = {}
+    mapping = {'+/-':'change','%':'percent',':':'',' ':'_'}
+    for col in table.columns:
+        old_col = col
+        for k in mapping:
+            col = col.replace(k, mapping[k])
+        new_cols[old_col] = col
+    table.rename(columns=new_cols, inplace=True)
     csv = table.to_csv()
-    csv_key = key.replace('html','csv')
+    csv_key = key.replace('html/','').replace('.html','.csv')
+    nodes = csv_key.split('_')
+    dtd = nodes[1][0:8]
+    csv_key = 'csv/date={0}/{1}'.format(dtd, csv_key)
     outfiles.append(csv_key)
     s3.put_object(Bucket=bucket, Key=csv_key, Body=bytearray(csv, 'utf-8'))
 
