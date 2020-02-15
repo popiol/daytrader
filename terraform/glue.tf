@@ -29,7 +29,7 @@ resource "aws_glue_crawler" "in_quotes" {
 		App = var.app
 		AppVer = var.app_ver
 		AppStage = var.app_stage
-		TerraformID = "aws_glue_crawler.quotes"
+		TerraformID = "aws_glue_crawler.in_quotes"
 	}
 }
 

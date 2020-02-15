@@ -8,4 +8,11 @@ resource "aws_security_group" "security1" {
     protocol = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+	tags = {
+		App = var.app
+		AppVer = var.app_ver
+		AppStage = var.app_stage
+		TerraformID = "aws_security_group.security1"
+	}
 }
