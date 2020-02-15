@@ -28,25 +28,11 @@ resource "aws_route_table" "route1" {
 resource "aws_route_table_association" "route1_subnet1" {
 	subnet_id = aws_subnet.subnet1.id
 	route_table_id = aws_route_table.route1.id
-
-	tags = {
-		App = var.app
-		AppVer = var.app_ver
-		AppStage = var.app_stage
-		TerraformID = "aws_route_table_association.route1_subnet1"
-	}
 }
 
 resource "aws_route_table_association" "route1_subnet2" {
 	subnet_id = aws_subnet.subnet2.id
 	route_table_id = aws_route_table.route1.id
-
-	tags = {
-		App = var.app
-		AppVer = var.app_ver
-		AppStage = var.app_stage
-		TerraformID = "aws_route_table_association.route1_subnet2"
-	}
 }
 
 resource "aws_nat_gateway" "nat1" {
