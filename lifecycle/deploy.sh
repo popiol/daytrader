@@ -144,9 +144,21 @@ do
 	glue_terr_ids="$glue_terr_ids|aws_glue_catalog_database.$terr_id"
 done
 glue_ids=`echo "|$glue_ids" | tr ' ' '|' | sed "s/|$//" | sed "s/|/|$acct_id:/g"`
-glue_ids2=`aws glue list-crawlers --tags Key=App,Value=daytrader --output text`
-aws_ids="${aws_ids}${glue_ids}"
-terr_ids="${terr_ids}${glue_terr_ids}"
+glue_ids2=`aws glue list-crawlers --tags Key=App,Value=$app,Key=AppVer,Value=$app_ver --output text | grep CRAWLERNAMES | cut -d$'\t' -f 2 | tr '\n' ' '`
+glue_ids3=''
+glue_terr_ids3=''
+for id in $glue_ids2
+do
+	class_ids=`aws glue get-crawler --name $id --output text | grep CLASSIFIERS | cut -d$'\t' -f 2`
+	class_terr_ids=`echo "$class_ids" | sed "s/${app_id}_//" | sed "s/\(.*\)/aws_glue_classifier.\1/" | tr '\n' '|'`
+	class_ids=`echo "$class_ids" | tr '\n' '|'`
+	glue_ids3="$glue_ids3|$class_ids"
+	glue_terr_ids3="$glue_terr_ids3|$class_terr_ids"
+done
+echo "Classifiers: $glue_ids3"
+echo "Classifiers Terr ID's: $glue_ids3"
+aws_ids="${aws_ids}${glue_ids}${glue_ids3}"
+terr_ids="${terr_ids}${glue_terr_ids}${glue_terr_ids3}"
 
 echo "AWS ID's: $aws_ids"
 echo "Terraform ID's: $terr_ids"
