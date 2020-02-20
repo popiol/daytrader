@@ -9,7 +9,6 @@ resource "aws_lambda_function" "l_get_quotes" {
 
 	vpc_config {
 		subnet_ids = [
-			aws_subnet.subnet1.id,
 			aws_subnet.subnet2.id
 		]
 		security_group_ids = [aws_security_group.security1.id]
