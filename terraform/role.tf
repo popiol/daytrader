@@ -1,30 +1,21 @@
 resource "aws_iam_role" "lambdarole" {
 	name = "${var.app_id}_role"
 	path = "/${var.app}/${var.app_ver}/"
-
-	assume_role_policy = <<EOF
-{
-	"Statement": [
-		{
-			"Action": "sts:AssumeRole",
-			"Principal": {
-				"Service": [
-					"lambda.amazonaws.com",
-					"glue.amazonaws.com"
-				]
-			},
-			"Effect": "Allow",
-			"Sid": ""
-		}
-	]
+	assume_role_policy = data.aws_iam_policy_document.lambdarole_doc.json
 }
-EOF
 
-	tags = {
-		App = var.app
-		AppVer = var.app_ver
-		AppStage = var.app_stage
-		TerraformID = "aws_iam_role.lambdarole"
+data "aws_iam_policy_document" "lambdarole_doc" {
+	statement {
+		actions = [
+			"sts:AssumeRole"
+		]
+		principals {
+			type = "Service"
+			identifiers = [
+				"lambda.amazonaws.com",
+				#"glue.amazonaws.com"
+			]
+		}
 	}
 }
 
@@ -38,13 +29,13 @@ resource "aws_iam_role_policy_attachment" "glue_policy_attachment" {
 	policy_arn = "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
 }
 
-resource "aws_iam_role_policy" "s3_access" {
-	name = "${var.app_id}_s3_access"
+resource "aws_iam_role_policy" "lambda_policies" {
+	name = "${var.app_id}_lambda_policies"
 	role = aws_iam_role.lambdarole.id
-	policy = data.aws_iam_policy_document.s3_access_doc.json
+	policy = data.aws_iam_policy_document.lambda_policies_doc.json
 }
 
-data "aws_iam_policy_document" "s3_access_doc" {
+data "aws_iam_policy_document" "lambda_policies_doc" {
 	statement {
 		actions = [
 			"s3:GetObject",
@@ -53,6 +44,15 @@ data "aws_iam_policy_document" "s3_access_doc" {
 		]
 		resources = [
 			"${aws_s3_bucket.quotes.arn}/*"
+		]
+	}
+
+	statement {
+		actions = [
+			"lambda:*"
+		]
+		resources = [
+			"*"
 		]
 	}
 }

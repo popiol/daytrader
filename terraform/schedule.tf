@@ -1,6 +1,6 @@
 resource "aws_cloudwatch_event_rule" "get_quotes" {
 	name = "${var.app_id}_get_quotes"
-	schedule_expression = "cron(31 14-23 ? * 2-6 *)"
+	schedule_expression = "cron(31 13-21 ? * 2-6 *)"
 
 	tags = {
 		App = var.app
