@@ -1,0 +1,1 @@
+Creates lambda function, attaches policies to input role, sets crontab CloudWatch trigger.
