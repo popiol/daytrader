@@ -1,5 +1,14 @@
 #!/bin/bash
 
+if [ -z $1 ]; then
+    echo "Branch not specified"
+    exit 1
+else
+    branch=$1
+fi
+
+export APP_VER=$branch
+
 CONFIG_DIR=/home/gitlab-runner
 
 source $CONFIG_DIR/config.ini
