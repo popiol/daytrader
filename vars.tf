@@ -1,11 +1,7 @@
-variable "app" {
-	type = map(string)
-}
-
-variable "aws_region" {
-	type = string
-}
-
-variable "aws_user" {
-	type = string
+variable "inp" {
+	type = object({
+		app = map(string)
+		aws_region = string
+		aws_user = string
+	})
 }

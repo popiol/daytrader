@@ -7,13 +7,13 @@ terraform {
 }
 
 provider "aws" {
-	region  = var.aws_region
+	region  = var.inp.aws_region
 }
 
 module "s3_quotes" {
 	source = "./bucket"
 	bucket_name = "quotes"
-	inp = var
+	inp = var.inp
 }
 
 module "lambda_role" {
@@ -21,7 +21,7 @@ module "lambda_role" {
 	role_name = "lambda"
 	service = "lambda"
 	custom_policies = [module.s3_quotes.access_policy]
-	inp = var
+	inp = var.inp
 }
 
 module "get_quotes" {
@@ -30,7 +30,7 @@ module "get_quotes" {
 	crontab_entry = "cron(31 13-21 ? * 2-6 *)"
 	bucket_name = module.s3_quotes.bucket_name
 	role = module.lambda_role.role_arn
-	inp = var
+	inp = var.inp
 }
 
 module "glue_role" {
@@ -39,12 +39,12 @@ module "glue_role" {
 	service = "glue"
 	custom_policies = [module.s3_quotes.access_policy]
 	attached_policies = ["AWSGlueServiceRole"]
-	inp = var
+	inp = var.inp
 }
 
 module "etl" {
 	source = "./glue"
 	bucket_name = module.s3_quotes.bucket_name
 	role = module.glue_role.role_arn
-	inp = var
+	inp = var.inp
 }
