@@ -18,13 +18,13 @@ data "aws_iam_policy_document" "main" {
 }
 
 resource "aws_iam_role_policy_attachment" "main" {
-    for_each = toset(var.attached)
+    for_each = toset(var.attached_policies)
 	role = aws_iam_role.main.name
 	policy_arn = "arn:aws:iam::aws:policy/service-role/${each.key}"
 }
 
 resource "aws_iam_role_policy" "main" {
-    for_each = toset(var.custom)
+    for_each = toset(var.custom_policies)
 	name = aws_iam_role.main.name
 	role = aws_iam_role.main.id
 	policy = each.key
