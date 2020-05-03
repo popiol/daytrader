@@ -30,7 +30,7 @@ resource "aws_s3_bucket_object" "scripts" {
 	key	= "scripts/${each.value}"
 	source = "scripts/${each.value}"
 	etag = filemd5("scripts/${each.value}")
-	tags = var.tags
+	tags = var.inp.app
 }
 
 module "html2csv" {
