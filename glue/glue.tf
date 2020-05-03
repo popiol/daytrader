@@ -40,7 +40,7 @@ module "html2csv" {
 	inp = var.inp
 }
 
-module "crawler_in_quotes" {
+module "crawler_quotes" {
 	source = "./crawler"
 	catalog_name = aws_glue_catalog_database.quotes.name
 	crawler_name = "quotes"
