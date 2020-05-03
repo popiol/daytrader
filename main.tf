@@ -18,8 +18,8 @@ module "s3_quotes" {
 
 module "lambda_role" {
 	source = "./role"
+	role_name = "lambda"
 	service = "lambda"
-	name = "lambda"
 	custom_policies = [module.s3_quotes.access_policy]
 	inp = var
 }
@@ -35,6 +35,7 @@ module "get_quotes" {
 
 module "glue_role" {
 	source = "./role"
+	role_name = "glue"
 	service = "glue"
 	custom_policies = [module.s3_quotes.access_policy]
 	attached_policies = ["AWSGlueServiceRole"]

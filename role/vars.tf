@@ -6,6 +6,14 @@ variable "inp" {
     })
 }
 
+variable "role_name" {
+	type = string
+}
+
+variable "service" {
+	type = string
+}
+
 variable "attached" {
 	type = list(string)
     default = []

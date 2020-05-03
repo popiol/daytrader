@@ -1,5 +1,5 @@
 resource "aws_iam_role" "main" {
-	name = "${var.inp.app.id}_${var.name}"
+	name = "${var.inp.app.id}_${var.role_name}"
 	assume_role_policy = data.aws_iam_policy_document.main.json
 }
 
