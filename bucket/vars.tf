@@ -3,11 +3,11 @@ variable "bucket_name" {
 }
 
 variable "inp" {
-	type = object(
+	type = object({
         app = map(string)
         aws_region = string
         user = string
-    )
+    })
 }
 
 variable "role" {
