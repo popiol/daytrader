@@ -1,12 +1,14 @@
 #!/bin/bash
 
-if [ -z $1 ]; then
-    echo "Branch not specified"
-    exit 1
-else
-    branch=$1
-fi
+#if [ -z $1 ]; then
+#    echo "Branch not specified"
+#    exit 1
+#else
+#    branch=$1
+#fi
 
+echo CI_COMMIT_BRANCH=$CI_COMMIT_BRANCH
+branch=$CI_COMMIT_BRANCH
 export APP_VER=$branch
 
 envsubst < config.tfvars > config.tfvars.new
