@@ -6,4 +6,4 @@ app = {
 
 aws_region = "${AWS_REGION}"
 
-aws_user = "popiol"
+aws_user = "${AWS_USER}"
