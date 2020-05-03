@@ -6,6 +6,6 @@ variable "inp" {
 	type = object({
         app = map(string)
         aws_region = string
-        user = string
+        aws_user = string
     })
 }
