@@ -1,8 +1,8 @@
 terraform {
 	backend "s3" {
-		bucket = var.statefile_bucket
-		key = "${var.app}/${var.app_ver}/tfstate"
-		region = var.aws_region
+		bucket = ${STATEFILE_BUCKET}
+		key = "${APP_NAME}/${APP_VER}/tfstate"
+		region = ${AWS_REGION}
 	}
 }
 
