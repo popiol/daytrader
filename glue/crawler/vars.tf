@@ -10,6 +10,10 @@ variable "crawler_name" {
 	type = string
 }
 
+variable "catalog_name" {
+	type = string
+}
+
 variable "classifiers" {
 	type = list(string)
 }
