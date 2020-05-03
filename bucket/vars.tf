@@ -9,3 +9,7 @@ variable "inp" {
         aws_user = string
     })
 }
+
+variable "archived_paths" {
+    type = list(string)
+}

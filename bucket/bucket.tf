@@ -2,6 +2,26 @@ resource "aws_s3_bucket" "main" {
 	bucket = "${var.inp.aws_user}.${replace(var.inp.app.id,"_","-")}-${var.bucket_name}"
 	acl = "private"
 	tags = var.inp.app
+
+	dynamic "lifecycle_rule" {
+		for_each = toset(var.archived_paths)
+
+		content {
+			id = "archive${replace(each.key,"/","_")}"
+			enabled = true
+			prefix = each.key
+
+			transition {
+				days = 30
+				storage_class = "STANDARD_IA"
+			}
+
+			transition {
+				days = 360
+				storage_class = "GLACIER"
+			}
+		}
+	}
 }
 
 data "aws_iam_policy_document" "access" {

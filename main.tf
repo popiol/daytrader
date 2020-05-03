@@ -13,6 +13,7 @@ provider "aws" {
 module "s3_quotes" {
 	source = "./bucket"
 	bucket_name = "quotes"
+	archived_paths = ["/html","/csv"]
 	inp = var.inp
 }
 
