@@ -25,11 +25,11 @@ module "crawler_in_quotes" {
 }
 
 resource "aws_s3_bucket_object" "scripts" {
-	for_each = fileset("scripts/", "*py")
+	for_each = fileset("./", "*py")
 	bucket = var.bucket_name
-	key	= "scripts/${each.value}"
-	source = "scripts/${each.value}"
-	etag = filemd5("scripts/${each.value}")
+	key	= "./${each.value}"
+	source = "./${each.value}"
+	etag = filemd5("./${each.value}")
 	tags = var.inp.app
 }
 
