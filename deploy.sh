@@ -11,14 +11,14 @@ export APP_VER=$branch
 
 CONFIG_DIR=/home/gitlab-runner
 
-source $CONFIG_DIR/config.ini
+#source $CONFIG_DIR/config.ini
 
 echo APP_NAME=$APP_NAME
 echo APP_VER=$APP_VER
-echo APP_ID=$APP_ID
 echo AWS_USER=$AWS_USER
 echo AWS_REGION=$AWS_REGION
 echo STATEFILE_BUCKET=$STATEFILE_BUCKET
+ls -ltr
 
 envsubst < config.tfvars > config.tfvars.new
 
