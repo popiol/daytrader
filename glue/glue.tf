@@ -36,6 +36,7 @@ resource "aws_s3_bucket_object" "scripts" {
 module "html2csv" {
 	source = "./pythonjob"
 	script_name = "html2csv"
+	bucket_name = var.bucket_name
 	role = var.role
 	inp = var.inp
 }
@@ -53,6 +54,7 @@ module "crawler_quotes" {
 module "clean_quotes" {
 	source = "./pythonjob"
 	script_name = "clean_quotes"
+	bucket_name = var.bucket_name
 	role = var.role
 	inp = var.inp
 }
