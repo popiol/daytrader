@@ -9,20 +9,11 @@ fi
 
 export APP_VER=$branch
 
-echo APP_NAME=$APP_NAME
-echo APP_VER=$APP_VER
-echo AWS_USER=$AWS_USER
-echo AWS_REGION=$AWS_REGION
-echo STATEFILE_BUCKET=$STATEFILE_BUCKET
-
 envsubst < config.tfvars > config.tfvars.new
-
 mv config.tfvars.new config.tfvars
 
-#envsubst < main.tf > main.tf.new
-
-#mv main.tf.new main.tf
+envsubst < main.tf > main.tf.new
+mv main.tf.new main.tf
 
 terraform init
-
 terraform apply -var-file=config.tfvars
