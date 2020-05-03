@@ -15,7 +15,7 @@ resource "aws_glue_classifier" "csv" {
 }
 
 module "crawler_in_quotes" {
-	source = "crawler"
+	source = "./crawler"
 	catalog_name = aws_glue_catalog_database.quotes.name
 	crawler_name = "in_quotes"
 	classifiers = [aws_glue_classifier.csv.name]
@@ -34,14 +34,14 @@ resource "aws_s3_bucket_object" "scripts" {
 }
 
 module "html2csv" {
-	source = "pythonjob"
+	source = "./pythonjob"
 	script_name = "html2csv"
 	role = var.role
 	inp = var.inp
 }
 
 module "crawler_in_quotes" {
-	source = "crawler"
+	source = "./crawler"
 	catalog_name = aws_glue_catalog_database.quotes.name
 	crawler_name = "quotes"
 	classifiers = [aws_glue_classifier.csv.name]
@@ -51,7 +51,7 @@ module "crawler_in_quotes" {
 }
 
 module "clean_quotes" {
-	source = "pythonjob"
+	source = "./pythonjob"
 	script_name = "clean_quotes"
 	role = var.role
 	inp = var.inp

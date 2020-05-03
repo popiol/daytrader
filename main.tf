@@ -11,13 +11,13 @@ provider "aws" {
 }
 
 module "s3_quotes" {
-	source = "bucket"
+	source = "./bucket"
 	bucket_name = "quotes"
 	inp = var
 }
 
 module "lambda_role" {
-	source = "role"
+	source = "./role"
 	service = "lambda"
 	name = "lambda"
 	custom_policies = [module.s3_quotes.access_policy]
@@ -25,7 +25,7 @@ module "lambda_role" {
 }
 
 module "get_quotes" {
-	source = "lambda"
+	source = "./lambda"
 	function_name = "get_quotes"
 	crontab_entry = "cron(31 13-21 ? * 2-6 *)"
 	bucket_name = module.s3_quotes.bucket_name
@@ -34,7 +34,7 @@ module "get_quotes" {
 }
 
 module "glue_role" {
-	source = "role"
+	source = "./role"
 	service = "glue"
 	custom_policies = [module.s3_quotes.access_policy]
 	attached_policies = ["AWSGlueServiceRole"]
@@ -42,7 +42,7 @@ module "glue_role" {
 }
 
 module "etl" {
-	source = "glue"
+	source = "./glue"
 	bucket_name = module.s3_quotes.bucket_name
 	role = module.glue_role.role_arn
 	inp = var
