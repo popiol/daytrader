@@ -9,7 +9,3 @@ variable "inp" {
         user = string
     })
 }
-
-variable "role" {
-	type = string
-}
