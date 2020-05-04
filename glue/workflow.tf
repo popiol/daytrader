@@ -37,8 +37,8 @@ resource "aws_glue_trigger" "crawler_in_quotes" {
 
   predicate {
     conditions {
-      job_name = module.crawler_in_quotes.crawler_name
-      state = "SUCCEEDED"
+      crawler_name = module.crawler_in_quotes.crawler_name
+      crawl_state = "SUCCEEDED"
     }
   }
 
