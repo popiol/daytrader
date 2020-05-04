@@ -1,5 +1,5 @@
 resource "aws_glue_workflow" "quotes" {
-  name = "${var.app.id}_quotes"
+  name = "${var.inp.app.id}_quotes"
 }
 
 resource "aws_glue_trigger" "start" {
