@@ -19,4 +19,4 @@ done
 cd ..
 
 terraform init
-terraform apply -var-file=config.tfvars -target module.lambda_role
+terraform apply -var-file=config.tfvars -auto-approve

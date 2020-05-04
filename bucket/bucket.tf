@@ -7,9 +7,9 @@ resource "aws_s3_bucket" "main" {
 		for_each = toset(var.archived_paths)
 
 		content {
-			id = "archive${replace(each.key,"/","_")}"
+			id = "archive${replace(lifecycle_rule.key,"/","_")}"
 			enabled = true
-			prefix = each.key
+			prefix = lifecycle_rule.key
 
 			transition {
 				days = 30

@@ -3,7 +3,7 @@ resource "aws_glue_catalog_database" "quotes" {
 }
 
 resource "aws_glue_classifier" "csv" {
-	name = "${var.inp.app.id}_in_quotes"
+	name = "${var.inp.app.id}_csv"
 
 	csv_classifier {
 		allow_single_column    = false
