@@ -24,15 +24,6 @@ module "crawler_in_quotes" {
 	inp = var.inp
 }
 
-resource "aws_s3_bucket_object" "scripts" {
-	for_each = fileset(path.module, "*py")
-	bucket = var.bucket_name
-	key = "/scripts/${each.value}"
-	source = "${path.module}/${each.value}"
-	etag = filemd5("${path.module}/${each.value}")
-	tags = var.inp.app
-}
-
 module "html2csv" {
 	source = "./pythonjob"
 	script_name = "html2csv"
