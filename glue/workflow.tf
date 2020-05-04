@@ -3,7 +3,7 @@ resource "aws_glue_workflow" "quotes" {
 }
 
 resource "aws_glue_trigger" "start" {
-  name = "start"
+  name = "${var.inp.app.id}_start"
   type = "SCHEDULED"
   schedule = "cron(0 6 ? * 7 *)"
   workflow_name = aws_glue_workflow.quotes.name
@@ -14,7 +14,7 @@ resource "aws_glue_trigger" "start" {
 }
 
 resource "aws_glue_trigger" "html2csv" {
-  name = "html2csv"
+  name = "${var.inp.app.id}_html2csv"
   type = "CONDITIONAL"
   workflow_name = aws_glue_workflow.quotes.name
 
@@ -31,7 +31,7 @@ resource "aws_glue_trigger" "html2csv" {
 }
 
 resource "aws_glue_trigger" "crawler_in_quotes" {
-  name = "crawler_in_quotes"
+  name = "${var.inp.app.id}_crawler_in_quotes"
   type = "CONDITIONAL"
   workflow_name = aws_glue_workflow.quotes.name
 
@@ -48,7 +48,7 @@ resource "aws_glue_trigger" "crawler_in_quotes" {
 }
 
 resource "aws_glue_trigger" "clean_quotes" {
-  name = "clean_quotes"
+  name = "${var.inp.app.id}_clean_quotes"
   type = "CONDITIONAL"
   workflow_name = aws_glue_workflow.quotes.name
 
