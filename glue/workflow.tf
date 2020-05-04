@@ -3,8 +3,9 @@ resource "aws_glue_workflow" "quotes" {
 }
 
 resource "aws_glue_trigger" "start" {
-  name          = "start"
-  type          = "SCHEDULED"
+  name = "start"
+  type = "SCHEDULED"
+  schedule = "cron(0 6 ? * 7 *)"
   workflow_name = aws_glue_workflow.quotes.name
 
   actions {
@@ -13,14 +14,14 @@ resource "aws_glue_trigger" "start" {
 }
 
 resource "aws_glue_trigger" "html2csv" {
-  name          = "html2csv"
-  type          = "CONDITIONAL"
+  name = "html2csv"
+  type = "CONDITIONAL"
   workflow_name = aws_glue_workflow.quotes.name
 
   predicate {
     conditions {
       job_name = module.html2csv.job_name
-      state    = "SUCCEEDED"
+      state = "SUCCEEDED"
     }
   }
 
@@ -30,14 +31,14 @@ resource "aws_glue_trigger" "html2csv" {
 }
 
 resource "aws_glue_trigger" "crawler_in_quotes" {
-  name          = "crawler_in_quotes"
-  type          = "CONDITIONAL"
+  name = "crawler_in_quotes"
+  type = "CONDITIONAL"
   workflow_name = aws_glue_workflow.quotes.name
 
   predicate {
     conditions {
       job_name = module.crawler_in_quotes.crawler_name
-      state    = "SUCCEEDED"
+      state = "SUCCEEDED"
     }
   }
 
@@ -47,14 +48,14 @@ resource "aws_glue_trigger" "crawler_in_quotes" {
 }
 
 resource "aws_glue_trigger" "clean_quotes" {
-  name          = "clean_quotes"
-  type          = "CONDITIONAL"
+  name = "clean_quotes"
+  type = "CONDITIONAL"
   workflow_name = aws_glue_workflow.quotes.name
 
   predicate {
     conditions {
       job_name = module.clean_quotes.job_name
-      state    = "SUCCEEDED"
+      state = "SUCCEEDED"
     }
   }
 
