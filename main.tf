@@ -28,7 +28,7 @@ module "lambda_role" {
 module "get_quotes" {
 	source = "./lambda"
 	function_name = "get_quotes"
-	crontab_entry = "cron(31 13-21 ? * 2-6 *)"
+	crontab_entry = "cron(31 12-21 ? * 2-6 *)"
 	bucket_name = module.s3_quotes.bucket_name
 	role = module.lambda_role.role_arn
 	inp = var.inp
