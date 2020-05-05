@@ -5,7 +5,6 @@ import os
 import datetime
 
 def lambda_handler(event, context):
-    lam = boto3.client('lambda')
     s3 = boto3.client('s3')
     bucket_name = event['bucket_name']
     print("bucket:",bucket_name)
