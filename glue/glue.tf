@@ -6,11 +6,11 @@ resource "aws_glue_classifier" "csv" {
 	name = "${var.inp.app.id}_csv"
 
 	csv_classifier {
-		allow_single_column    = false
-		contains_header        = "PRESENT"
-		delimiter              = ","
+		allow_single_column = false
+		contains_header = "PRESENT"
+		delimiter = ","
 		disable_value_trimming = false
-		quote_symbol           = "\""
+		quote_symbol = "\""
 	}
 }
 

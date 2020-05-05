@@ -7,11 +7,7 @@ import datetime
 def lambda_handler(event, context):
     lam = boto3.client('lambda')
     s3 = boto3.client('s3')
-    print("FunctionName=",context.function_name)
-    arn = context.invoked_function_arn
-    print("ARN:",arn)
-    tags = lam.list_tags(Resource=arn)['Tags']
-    bucket_name = 'popiol.{0}-{1}-quotes'.format(tags['App'], tags['AppVer'])
+    bucket_name = event['bucket_name']
     print("bucket:",bucket_name)
 
     url_templ = 'https://markets.businessinsider.com/index/components/s&p_500?p={0}'
