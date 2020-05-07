@@ -5,9 +5,12 @@ stages:
 deploy:
   stage: deploy
   script:
-    - ./deploy.sh
+    - ./get_vars.sh
+    - terraform init
+    - terraform apply -var-file=config.tfvars -auto-approve
 
 test:
   stage: test
   script:
+    - ./get_vars.sh
     - python3 -m unittest discover test
