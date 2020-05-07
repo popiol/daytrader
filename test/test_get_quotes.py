@@ -20,7 +20,7 @@ class TestGetQuotes(unittest.TestCase):
                 if val[0] == '"' and val[-1] == '"':
                     self.vars[key] = val[1:-1]
         self.bucket_name = "{}.{}-quotes".format(self.vars['aws_user'], self.vars['id'].replace('_','-'))
-        print("bucket_name =", self.bucket_name)
+
 
     def test_local(self):
         sys.path.insert(0, os.getcwd())
@@ -32,14 +32,15 @@ class TestGetQuotes(unittest.TestCase):
         files = res['body']['files']
         s3 = boto3.resource('s3')
         for key in files:
+            print("file =", key)
             obj = s3.Object(self.bucket_name, key)
             html = obj.get()['Body'].read().decode('utf-8')
-            assert(re.match("<table.+<th.+Name.*</th>", html))
-            assert(re.match("<table.+<th.+Latest Price.*</th>", html))
-            assert(re.match("<table.+<th.+Low.*</th>", html))
-            assert(re.match("<table.+<th.+High.*</th>", html))
-            assert(re.match("<table.+<th.+Time.*</th>", html))
-            assert(re.match("<table.+<th.+Date.*</th>", html))
+            assert(re.match("<table.+<th.+Name.*</th>", html, re.MULTILINE))
+            assert(re.match("<table.+<th.+Latest Price.*</th>", html, re.MULTILINE))
+            assert(re.match("<table.+<th.+Low.*</th>", html, re.MULTILINE))
+            assert(re.match("<table.+<th.+High.*</th>", html, re.MULTILINE))
+            assert(re.match("<table.+<th.+Time.*</th>", html, re.MULTILINE))
+            assert(re.match("<table.+<th.+Date.*</th>", html, re.MULTILINE))
 
 
 if __name__ == '__main__':
