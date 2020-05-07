@@ -1,7 +1,13 @@
 stages:
   - deploy
-
+  - test
+  
 deploy:
   stage: deploy
   script:
     - ./deploy.sh
+
+test:
+  stage: test
+  script:
+    - python3 -m unittest discover test
