@@ -56,5 +56,6 @@ class TestGetQuotes():
             LogType = 'None',
             Payload = json.dumps(vars),
         )
-        self.check_result(bucket_name, res['Payload'].read().decode('utf-8'))
+        res = json.loads(res['Payload'].read().decode('utf-8'))
+        self.check_result(bucket_name, res)
         
