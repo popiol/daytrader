@@ -7,7 +7,7 @@ deploy:
   script:
     - ./get_vars.sh
     - terraform init
-    - terraform plan -var-file=config.tfvars -target=module.s3_quotes
+    - terraform apply -var-file=config.tfvars -auto-approve -target=module.s3_quotes
     - terraform apply -var-file=config.tfvars -auto-approve
 
 test:
