@@ -54,7 +54,7 @@ class TestGetQuotes():
             FunctionName = vars['id'] + '_get_quotes',
             InvocationType = 'RequestResponse',
             LogType = 'None',
-            Payload = bytearray(json.dumps(vars)),
+            Payload = json.dumps(vars),
         )
         self.check_result(bucket_name, res)
         
