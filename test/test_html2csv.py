@@ -41,7 +41,7 @@ class TestHtml2Csv():
         for obj in bucket.objects.all():
             if obj.last_modified.strftime('%Y%m%d%H%M%S') >= vars['timestamp']:
                 files.append(obj.key)
-        vars['files'] = files
+        vars['keys'] = files
         return vars
 
     def test_status(self, vars):
@@ -54,6 +54,6 @@ class TestHtml2Csv():
     def test_files(self, files):
         bucket_name = files['bucket_name']
         s3 = boto3.resource('s3')
-        for f in files:
+        for f in files['keys']:
             obj = s3.Object(bucket_name, f)
             csv = obj.get()['Body'].read().decode('utf-8')
