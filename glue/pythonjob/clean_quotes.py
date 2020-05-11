@@ -59,8 +59,7 @@ s3bucket = s3.Bucket(bucket)
 objs = s3bucket.objects.all()
 files = []
 for obj in objs:
-    if obj.key.startswith('csv/'):
-        #and obj.storage_class == 'STANDARD' and datetime.date.today()-obj.last_modified.date() < datetime.timedelta(7):
+    if obj.key.startswith('csv/') and obj.storage_class == 'STANDARD' and datetime.date.today()-obj.last_modified.date() < datetime.timedelta(7):
         files.append(obj.key)
 
 #process files
