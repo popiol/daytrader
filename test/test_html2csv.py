@@ -49,7 +49,7 @@ class TestHtml2Csv():
         assert job_status == 'SUCCEEDED'
     
     def test_n_files(self, files):
-        assert len(files['files']) > 0
+        assert len(files['keys']) > 0
 
     def test_files(self, files):
         bucket_name = files['bucket_name']
