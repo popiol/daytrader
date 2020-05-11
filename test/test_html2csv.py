@@ -8,8 +8,12 @@ import json
 import get_vars
 import time
 import datetime
+import csv
+import io
 
 class TestHtml2Csv():
+
+    COLUMNS = ['id','Name','Latest_Price_Previous_Close','Low_High','change','Time_Date','Code']
 
     @pytest.fixture(scope='class')
     def vars(self):
@@ -50,10 +54,25 @@ class TestHtml2Csv():
     
     def test_n_files(self, files):
         assert len(files['keys']) > 0
+    
+    def check_header(self, content):
+        file = io.StringIO(content)
+        reader = csv.reader(file)
+        header = [x.lower() for x in reader.fieldnames]
+        for col in self.COLUMNS:
+            assert col.lower() in header
 
+    def check_count(self, content):
+        file = io.StringIO(content)
+        reader = csv.reader(file)
+        n = sum(1 for row in reader)
+        assert n > 40
+        
     def test_files(self, files):
         bucket_name = files['bucket_name']
         s3 = boto3.resource('s3')
         for f in files['keys']:
             obj = s3.Object(bucket_name, f)
             csv = obj.get()['Body'].read().decode('utf-8')
+            self.check_header(csv)
+            self.check_count(csv)
