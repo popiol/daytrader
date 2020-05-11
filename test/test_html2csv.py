@@ -26,15 +26,14 @@ class TestHtml2Csv():
                 JobName = job_name,
                 RunId = run_id
             )
-            if res['JobRunState'] not in ['STARTING', 'RUNNING', 'STOPPING']:
+            if res['JobRun']['JobRunState'] not in ['STARTING', 'RUNNING', 'STOPPING']:
                 break
             time.sleep(60)
-        vars['job_status'] = res['JobRunState']
+        vars['job_status'] = res['JobRun']['JobRunState']
         return vars
 
     @pytest.fixture(scope='class')
-    def files(self):
-        vars = self.vars()
+    def files(self, vars):
         bucket_name = vars['bucket_name']
         s3 = boto3.resource('s3')
         bucket = s3.Bucket(bucket_name)
