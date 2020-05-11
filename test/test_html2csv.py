@@ -57,14 +57,14 @@ class TestHtml2Csv():
     
     def check_header(self, content):
         file = io.StringIO(content)
-        reader = csv.reader(file)
+        reader = csv.DictReader(file)
         header = [x.lower() for x in reader.fieldnames]
         for col in self.COLUMNS:
             assert col.lower() in header
 
     def check_count(self, content):
         file = io.StringIO(content)
-        reader = csv.DictReader(file)
+        reader = csv.reader(file)
         n = sum(1 for row in reader)
         assert n > 40
         
