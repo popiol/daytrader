@@ -64,7 +64,7 @@ class TestHtml2Csv():
 
     def check_count(self, content):
         file = io.StringIO(content)
-        reader = csv.reader(file)
+        reader = csv.DictReader(file)
         n = sum(1 for row in reader)
         assert n > 40
         
