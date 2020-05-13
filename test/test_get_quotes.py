@@ -5,13 +5,13 @@ import os
 import sys
 import pytest
 import json
-import get_vars
+import myutils
 
 class TestGetQuotes():
 
     @pytest.fixture(scope='class')
     def vars(self):
-        vars = get_vars.get_vars()
+        vars = myutils.get_vars()
         fun = boto3.client('lambda')
         res = fun.invoke(
             FunctionName = vars['id'] + '_get_quotes',
@@ -36,7 +36,15 @@ class TestGetQuotes():
         
     def test_n_files(self, vars):
         res = vars['res']
-        assert len(res['body']['files']) > 0
+        assert len(res['body']['files']) >= 10
+    
+    def test_file_keys(self, vars):
+        res = vars['res']
+        files = res['body']['files']
+        for key in files:
+            assert key.startswith('html/')
+            assert key.endswith('.html')
+            assert re.search(r"[0-9]{14}", key)
     
     def test_files(self, vars):
         bucket_name = vars['bucket_name']
@@ -46,11 +54,11 @@ class TestGetQuotes():
         for key in files:
             obj = s3.Object(bucket_name, key)
             html = obj.get()['Body'].read().decode('utf-8')
-            assert re.search("<table.+<th.+Name.*</th>", html, re.DOTALL)
-            assert re.search("<table.+<th.+Latest Price.*</th>", html, re.DOTALL)
-            assert re.search("<table.+<th.+Low.*</th>", html, re.DOTALL)
-            assert re.search("<table.+<th.+High.*</th>", html, re.DOTALL)
-            assert re.search("<table.+<th.+Time.*</th>", html, re.DOTALL)
-            assert re.search("<table.+<th.+Date.*</th>", html, re.DOTALL)
+            assert re.search(r"<table.+<th.+Name.*</th>", html, re.DOTALL)
+            assert re.search(r"<table.+<th.+Latest Price.*</th>", html, re.DOTALL)
+            assert re.search(r"<table.+<th.+Low.*</th>", html, re.DOTALL)
+            assert re.search(r"<table.+<th.+High.*</th>", html, re.DOTALL)
+            assert re.search(r"<table.+<th.+Time.*</th>", html, re.DOTALL)
+            assert re.search(r"<table.+<th.+Date.*</th>", html, re.DOTALL)
 
     
