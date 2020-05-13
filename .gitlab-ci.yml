@@ -14,7 +14,7 @@ deploy:
     - terraform apply -var-file=config.tfvars -auto-approve
 
 clean:
-  stage: deploy
+  stage: clean
   environment:
     name: $CI_COMMIT_BRANCH
     action: stop
