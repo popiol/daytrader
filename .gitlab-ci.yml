@@ -1,15 +1,31 @@
 stages:
   - deploy
   - test
-  - clean
   
 deploy:
   stage: deploy
+  environment:
+    name: $CI_COMMIT_BRANCH
+    on_stop: clean
   script:
     - ./get_vars.sh
     - terraform init
     - terraform apply -var-file=config.tfvars -auto-approve -target=module.s3_quotes
     - terraform apply -var-file=config.tfvars -auto-approve
+
+clean:
+  stage: deploy
+  environment:
+    name: $CI_COMMIT_BRANCH
+    action: stop
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - git clone $CI_REPOSITORY_URL temprepo
+    - cd temprepo
+    - ./get_vars.sh
+    - terraform init
+    - terraform destroy -var-file=config.tfvars -auto-approve
 
 test:
   stage: test
@@ -19,19 +35,3 @@ test:
     - python3 -m pytest test/test_get_quotes.py
     - python3 -m pytest test/test_html2csv.py
     - python3 -m pytest test/test_clean_quotes.py
-
-clean_temp_deploy:
-  stage: clean
-  rules:
-    - if: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME == 'master'
-      when: never
-    - if: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME == $CI_DEFAULT_BRANCH
-      when: never
-    - if: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME == $CI_COMMIT_BRANCH
-      when: never
-    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_COMMIT_BRANCH
-      when: on_success
-  script:
-    - ./get_vars.sh source
-    - terraform init
-    - terraform destroy -var-file=config.tfvars -auto-approve
