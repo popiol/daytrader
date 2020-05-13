@@ -41,7 +41,7 @@ class TestCleanQuotes():
         s3 = boto3.resource('s3')
         bucket_name = vars['bucket_name']
         obj = s3.Object(bucket_name, 'csv/date=20200101/fake_20200202151515.csv')
-        obj.put(Body=f)
+        obj.put(Body=f.getvalue())
 
     @pytest.fixture(scope='class')
     def vars(self):
