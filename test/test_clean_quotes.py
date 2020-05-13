@@ -33,7 +33,7 @@ class TestCleanQuotes():
         writer.writerow(row)
 
     def create_fake_file(self, vars):
-        f = o.StringIO()
+        f = io.StringIO()
         writer = csv.DictWriter(f, fieldnames=self.REJ_COLUMNS[:-1])
         self.write_wrong_id(writer)
         self.write_wrong_code(writer)
