@@ -6,6 +6,9 @@ elif [ "$1" != "source" ]; then
 	echo "Invalid parameter: $1"
 	echo "Usage: $(basename -- $0) [source]"
 	exit 1
+elif [ -z "$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME" ]; then
+	echo "This is not a merge request"
+	exit 1
 else
 	export APP_VER=$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
 fi
