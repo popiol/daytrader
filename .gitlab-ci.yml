@@ -14,12 +14,13 @@ deploy:
     - terraform apply -var-file=config.tfvars -auto-approve
 
 clean:
-  stage: clean
+  stage: deploy
   environment:
     name: $CI_COMMIT_BRANCH
     action: stop
   variables:
     GIT_STRATEGY: none
+  when: manual
   script:
     - git clone $CI_REPOSITORY_URL temprepo
     - cd temprepo
