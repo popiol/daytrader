@@ -35,6 +35,7 @@ class TestCleanQuotes():
     def create_fake_file(self, vars):
         f = io.StringIO()
         writer = csv.DictWriter(f, fieldnames=self.REJ_COLUMNS[:-1])
+        writer.writeheader()
         self.write_wrong_id(writer)
         self.write_wrong_code(writer)
         self.write_wrong_price(writer)
