@@ -8,4 +8,6 @@ inp = {
   aws_region = "${AWS_REGION}"
 
   aws_user = "${AWS_USER}"
+
+  temporary = "${TEMP_DEPLOY}"
 }

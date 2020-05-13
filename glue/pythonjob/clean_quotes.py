@@ -13,7 +13,7 @@ def logg(x):
     print("---- [{}] ".format(datetime.datetime.now()), x)
 
 
-def transform(row, filename):
+def transform(row):
     out = {}
     
     #id
@@ -21,11 +21,8 @@ def transform(row, filename):
     
     #comp code
     comp_code = row['Code'].upper()
-    assert(len(comp_code) <= 10)
+    assert len(comp_code) <= 10
     out['comp_code'] = comp_code
-    
-    #file name
-    out['file_name'] = filename
     
     #low high
     low_price, high_price = row['Low_High'].split()
@@ -34,18 +31,20 @@ def transform(row, filename):
 
     #date
     dt = dateutil.parser.parse(row['Time_Date'])
-    out['quote_dt'] = dt.strftime("%Y-%m-%d %H:%M:%S")
+    dt = dt.strftime("%Y-%m-%d %H:%M:%S")
+    assert dt > '2020-01-01 00:00:00'
+    out['quote_dt'] = dt
 
     #price
     price = row['Latest_Price_Previous_Close'].split()[0]
     price = float(price.replace(',',''))
-    assert(price > 0)
+    assert price > 0
     out['price'] = price
     
     return out
     
     
-col_names = ['file_name','row_id','quote_dt','comp_code','price','low_price','high_price']
+col_names = ['row_id','quote_dt','comp_code','price','low_price','high_price']
 
 #get bucket name
 args = getResolvedOptions(sys.argv, ['scriptLocation'])
@@ -59,8 +58,7 @@ s3bucket = s3.Bucket(bucket)
 objs = s3bucket.objects.all()
 files = []
 for obj in objs:
-    if obj.key.startswith('csv/'):
-        #and obj.storage_class == 'STANDARD' and datetime.date.today()-obj.last_modified.date() < datetime.timedelta(7):
+    if obj.key.startswith('csv/') and obj.storage_class == 'STANDARD' and datetime.date.today()-obj.last_modified.date() < datetime.timedelta(7):
         files.append(obj.key)
 
 #process files
@@ -84,10 +82,9 @@ for key in files:
     n_rej = 0
     rej_writer = csv.DictWriter(rej, fieldnames=csv_reader.fieldnames+['error_message'])
     rej_writer.writeheader()
-    filename = key.split('/')[-1]
     for row in csv_reader:
         try:
-            out_writer.writerow(transform(row, filename))
+            out_writer.writerow(transform(row))
             n_out += 1
         except:
             row['error_message'] = ' | '.join([x.strip() for x in traceback.format_exc().splitlines()[-2:]])
