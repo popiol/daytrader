@@ -13,7 +13,7 @@ def logg(x):
     print("---- [{}] ".format(datetime.datetime.now()), x)
 
 
-def transform(row, filename):
+def transform(row):
     out = {}
     
     #id
@@ -23,9 +23,6 @@ def transform(row, filename):
     comp_code = row['Code'].upper()
     assert(len(comp_code) <= 10)
     out['comp_code'] = comp_code
-    
-    #file name
-    out['file_name'] = filename
     
     #low high
     low_price, high_price = row['Low_High'].split()
@@ -45,7 +42,7 @@ def transform(row, filename):
     return out
     
     
-col_names = ['file_name','row_id','quote_dt','comp_code','price','low_price','high_price']
+col_names = ['row_id','quote_dt','comp_code','price','low_price','high_price']
 
 #get bucket name
 args = getResolvedOptions(sys.argv, ['scriptLocation'])
@@ -83,10 +80,9 @@ for key in files:
     n_rej = 0
     rej_writer = csv.DictWriter(rej, fieldnames=csv_reader.fieldnames+['error_message'])
     rej_writer.writeheader()
-    filename = key.split('/')[-1]
     for row in csv_reader:
         try:
-            out_writer.writerow(transform(row, filename))
+            out_writer.writerow(transform(row))
             n_out += 1
         except:
             row['error_message'] = ' | '.join([x.strip() for x in traceback.format_exc().splitlines()[-2:]])

@@ -14,7 +14,7 @@ import io
 class TestCleanQuotes():
 
     REJ_COLUMNS = ['id','Name','Latest_Price_Previous_Close','Low_High','change','Time_Date','Code','error_message']
-    COLUMNS = ['file_name','row_id','quote_dt','comp_code','price','low_price','high_price']
+    COLUMNS = ['row_id','quote_dt','comp_code','price','low_price','high_price']
     
     @pytest.fixture(scope='class')
     def vars(self):
