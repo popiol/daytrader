@@ -3,39 +3,62 @@ import re
 import importlib
 import os
 import sys
+import pytest
+import json
+import myutils
 
 class TestGetQuotes():
-    
-    def __init__(self):
-        self.vars = {}
-        with open('config.tfvars','r') as f:
-            for line in f:
-                if '=' not in line:
-                    continue
-                key, val = line.split('=')
-                key = key.strip()
-                val = val.strip()
-                if val[0] == '"' and val[-1] == '"':
-                    self.vars[key] = val[1:-1]
-        self.bucket_name = "{}.{}-quotes".format(self.vars['aws_user'], self.vars['id'].replace('_','-'))
 
-
-    def test_local(self):
-        sys.path.insert(0, os.getcwd())
-        get_quotes = importlib.import_module("lambda.get_quotes.main")
-        res = get_quotes.lambda_handler({"bucket_name": self.bucket_name}, {})
+    @pytest.fixture(scope='class')
+    def vars(self):
+        vars = myutils.get_vars()
+        fun = boto3.client('lambda')
+        res = fun.invoke(
+            FunctionName = vars['id'] + '_get_quotes',
+            InvocationType = 'RequestResponse',
+            LogType = 'None',
+            Payload = json.dumps(vars),
+        )
+        vars['status'] = res['StatusCode']
+        vars['res'] = json.loads(res['Payload'].read().decode('utf-8'))
+        return vars
+        
+    def test_status(self, vars):
+        status = vars['status']
+        assert status == 200
+        res = vars['res']
         assert res['statusCode'] == 200
-        assert res['body']['bucket_name'] == self.bucket_name
-        assert len(res['body']['files']) > 0
+        
+    def test_bucket_name(self, vars):
+        bucket_name = vars['bucket_name']
+        res = vars['res']
+        assert res['body']['bucket_name'] == bucket_name
+        
+    def test_n_files(self, vars):
+        res = vars['res']
+        assert len(res['body']['files']) >= 10
+    
+    def test_file_keys(self, vars):
+        res = vars['res']
+        files = res['body']['files']
+        for key in files:
+            assert key.startswith('html/')
+            assert key.endswith('.html')
+            assert re.search(r"[0-9]{14}", key)
+    
+    def test_files(self, vars):
+        bucket_name = vars['bucket_name']
+        res = vars['res']
         files = res['body']['files']
         s3 = boto3.resource('s3')
         for key in files:
-            print("file =", key)
-            obj = s3.Object(self.bucket_name, key)
+            obj = s3.Object(bucket_name, key)
             html = obj.get()['Body'].read().decode('utf-8')
-            assert re.match("<table.+<th.+Name.*</th>", html, re.DOTALL)
-            assert re.match("<table.+<th.+Latest Price.*</th>", html, re.DOTALL)
-            assert re.match("<table.+<th.+Low.*</th>", html, re.DOTALL)
-            assert re.match("<table.+<th.+High.*</th>", html, re.DOTALL)
-            assert re.match("<table.+<th.+Time.*</th>", html, re.DOTALL)
-            assert re.match("<table.+<th.+Date.*</th>", html, re.DOTALL)
+            assert re.search(r"<table.+<th.+Name.*</th>", html, re.DOTALL)
+            assert re.search(r"<table.+<th.+Latest Price.*</th>", html, re.DOTALL)
+            assert re.search(r"<table.+<th.+Low.*</th>", html, re.DOTALL)
+            assert re.search(r"<table.+<th.+High.*</th>", html, re.DOTALL)
+            assert re.search(r"<table.+<th.+Time.*</th>", html, re.DOTALL)
+            assert re.search(r"<table.+<th.+Date.*</th>", html, re.DOTALL)
+
+    
