@@ -40,11 +40,8 @@ class TestCleanQuotes():
         self.write_wrong_price(writer)
         s3 = boto3.resource('s3')
         bucket_name = vars['bucket_name']
-        bucket = s3.Bucket(bucket_name)
-        bucket.put_object(
-            Key = 'csv/date=20200101/fake_20200202151515.csv',
-            Body = bytearray(f.getvalue())
-        )
+        obj = s3.Object(bucket_name, 'csv/date=20200101/fake_20200202151515.csv')
+        obj.put(Body=f)
 
     @pytest.fixture(scope='class')
     def vars(self):

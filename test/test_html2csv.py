@@ -17,7 +17,6 @@ class TestHtml2Csv():
 
     @pytest.fixture(scope='class')
     def vars(self):
-        print("Vars invoked !!!!!!!!!!!!!!!")
         vars = myutils.get_vars()
         job_name = vars['id'] + '_html2csv'
         res = myutils.run_glue_job(job_name)
