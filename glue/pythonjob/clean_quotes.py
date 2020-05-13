@@ -21,7 +21,7 @@ def transform(row):
     
     #comp code
     comp_code = row['Code'].upper()
-    assert(len(comp_code) <= 10)
+    assert len(comp_code) <= 10
     out['comp_code'] = comp_code
     
     #low high
@@ -31,12 +31,14 @@ def transform(row):
 
     #date
     dt = dateutil.parser.parse(row['Time_Date'])
-    out['quote_dt'] = dt.strftime("%Y-%m-%d %H:%M:%S")
+    dt = dt.strftime("%Y-%m-%d %H:%M:%S")
+    assert dt > '2020-01-01 00:00:00'
+    out['quote_dt'] = dt
 
     #price
     price = row['Latest_Price_Previous_Close'].split()[0]
     price = float(price.replace(',',''))
-    assert(price > 0)
+    assert price > 0
     out['price'] = price
     
     return out

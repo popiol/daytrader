@@ -13,12 +13,43 @@ import io
 
 class TestCleanQuotes():
 
-    REJ_COLUMNS = ['id','Name','Latest_Price_Previous_Close','Low_High','change','Time_Date','Code','error_message']
+    REJ_COLUMNS = ['id','Name','Latest_Price_Previous_Close','Low_High','Time_Date','Code','error_message']
     COLUMNS = ['row_id','quote_dt','comp_code','price','low_price','high_price']
+    SAMPLE = ['1','ASD Inc.','10.10 9.52','10.01 10.20','04:15 PM 07.02.2020','ASD']
     
+    def write_wrong_id(self, writer):
+        row = dict(zip(self.REJ_COLUMNS[:-1], self.SAMPLE))
+        row['id'] = 'asd'
+        writer.writerow(row)
+
+    def write_wrong_code(self, writer):
+        row = dict(zip(self.REJ_COLUMNS[:-1], self.SAMPLE))
+        row['Code'] = '1234567890123456789'
+        writer.writerow(row)
+
+    def write_wrong_price(self, writer):
+        row = dict(zip(self.REJ_COLUMNS[:-1], self.SAMPLE))
+        row['Latest_Price_Previous_Close'] = 'asd'
+        writer.writerow(row)
+
+    def create_fake_file(self, vars):
+        f = o.StringIO()
+        writer = csv.DictWriter(f, fieldnames=self.REJ_COLUMNS[:-1])
+        self.write_wrong_id(writer)
+        self.write_wrong_code(writer)
+        self.write_wrong_price(writer)
+        s3 = boto3.resource('s3')
+        bucket_name = vars['bucket_name']
+        bucket = s3.Bucket(bucket_name)
+        bucket.put_object(
+            Key = 'csv/date=20200101/fake_20200202151515.csv',
+            Body = bytearray(contents)
+        )
+
     @pytest.fixture(scope='class')
     def vars(self):
         vars = myutils.get_vars()
+        self.create_fake_file(vars)
         job_name = vars['id'] + '_clean_quotes'
         res = myutils.run_glue_job(job_name)
         vars.update(res)
@@ -42,10 +73,14 @@ class TestCleanQuotes():
     
     def test_n_files(self, files):
         n_clean = 0
+        n_rejected = 0
         for key in files['keys']:
             if key.startswith('csv_clean'):
                 n_clean += 1
+            else:
+                n_rejected += 1
         assert n_clean >= 10
+        assert n_rejected > 0
     
     def test_file_keys(self, files):
         for key in files['keys']:
