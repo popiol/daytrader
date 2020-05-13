@@ -23,9 +23,12 @@ test:
 clean_temp_deploy:
   stage: clean
   rules:
+    - if: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME == 'master'
+      when: never
+    - if: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME == $CI_DEFAULT_BRANCH
+      when: never  
     - if: $CI_MERGE_REQUEST_ID
-    - if: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME != 'master'
-    - if: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME != $CI_DEFAULT_BRANCH
+      when: on_success
   script:
     - ./get_vars.sh source
     - terraform init
