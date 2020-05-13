@@ -19,7 +19,7 @@ class TestCleanQuotes():
     @pytest.fixture(scope='class')
     def vars(self):
         vars = myutils.get_vars()
-        job_name = vars['id'] + '_clean_csv'
+        job_name = vars['id'] + '_clean_quotes'
         res = myutils.run_glue_job(job_name)
         vars.update(res)
         return vars
