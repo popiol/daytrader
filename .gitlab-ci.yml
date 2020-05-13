@@ -24,6 +24,7 @@ clean:
   when: manual
   except:
     - master
+    - $CI_DEFAULT_BRANCH
   script:
     - git clone $CI_REPOSITORY_URL temprepo
     - cd temprepo
