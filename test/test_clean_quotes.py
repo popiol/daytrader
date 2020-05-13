@@ -43,7 +43,7 @@ class TestCleanQuotes():
         bucket = s3.Bucket(bucket_name)
         bucket.put_object(
             Key = 'csv/date=20200101/fake_20200202151515.csv',
-            Body = bytearray(contents)
+            Body = bytearray(f.getvalue())
         )
 
     @pytest.fixture(scope='class')
