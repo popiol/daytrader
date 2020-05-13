@@ -60,7 +60,8 @@ class TestCleanQuotes():
         bucket = s3.Bucket(bucket_name)
         files = []
         for obj in bucket.objects.all():
-            if obj.last_modified.strftime('%Y%m%d%H%M%S') >= vars['timestamp']:
+            if obj.last_modified.strftime('%Y%m%d%H%M%S') >= vars['timestamp'] 
+            and (obj.key.startswith('csv_clean/') or obj.key.startswith('csv_rejected/')):
                 files.append(obj.key)
         vars['keys'] = files
         return vars
