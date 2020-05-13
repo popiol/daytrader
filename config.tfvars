@@ -9,5 +9,5 @@ inp = {
 
   aws_user = "${AWS_USER}"
 
-  temporary = "${TEMP_BUILD}"
+  temporary = "${TEMP_DEPLOY}"
 }

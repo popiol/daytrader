@@ -1,11 +1,10 @@
 stages:
-  - build
-  - test
   - deploy
+  - test
   - clean
   
-build:
-  stage: build
+deploy:
+  stage: deploy
   script:
     - ./get_vars.sh
     - terraform init
@@ -21,16 +20,13 @@ test:
     - python3 -m pytest test/test_html2csv.py
     - python3 -m pytest test/test_clean_quotes.py
 
-deploy:
-  stage: deploy
-  rules:
-    - if: $CI_COMMIT_BRANCH != 'master'
-  script:
-    - 
-
-clean_temp_build:
+clean_temp_deploy:
   stage: clean
   rules:
-    - if: $CI_COMMIT_BRANCH != 'master'
+    - if: $CI_MERGE_REQUEST_ID
+    - if: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME != 'master'
+    - if: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME != $CI_DEFAULT_BRANCH
   script:
+    - ./get_vars.sh source
+    - terraform init
     - terraform destroy -var-file=config.tfvars -auto-approve
