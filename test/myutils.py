@@ -1,3 +1,7 @@
+import boto3
+import datetime
+import time
+
 def get_vars():
     vars = {}
     with open('config.tfvars','r') as f:
