@@ -1,9 +1,11 @@
 stages:
-  - deploy
+  - build
   - test
+  - deploy
+  - clean
   
-deploy:
-  stage: deploy
+build:
+  stage: build
   script:
     - ./get_vars.sh
     - terraform init
@@ -18,3 +20,17 @@ test:
     - python3 -m pytest test/test_get_quotes.py
     - python3 -m pytest test/test_html2csv.py
     - python3 -m pytest test/test_clean_quotes.py
+
+deploy:
+  stage: deploy
+  rules:
+    - if: $CI_COMMIT_BRANCH != 'master'
+  script:
+    - 
+
+clean_temp_build:
+  stage: clean
+  rules:
+    - if: $CI_COMMIT_BRANCH != 'master'
+  script:
+    - terraform destroy -var-file=config.tfvars -auto-approve

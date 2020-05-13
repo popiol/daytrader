@@ -2,6 +2,12 @@
 
 export APP_VER=$CI_COMMIT_BRANCH
 
+if ["$CI_COMMIT_BRANCH" = "master"]; then
+	export TEMP_BUILD="false"
+else
+	export TEMP_BUILD="true"
+fi
+
 envsubst < config.tfvars > config.tfvars.new
 mv config.tfvars.new config.tfvars
 
