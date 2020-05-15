@@ -1,5 +1,6 @@
 resource "aws_sns_topic" "main" {
 	name = "${var.inp.app.id}_${var.topic}"
+	tags = var.inp.app
 }
 
 resource "aws_sns_topic_subscription" "main" {

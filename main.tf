@@ -24,6 +24,7 @@ module "alerts" {
 		protocol = "Email"
 		endpoint = var.inp.notify_email_addr
 	}]
+	inp = var.inp
 }
 
 module "lambda_role" {
