@@ -14,3 +14,7 @@ variable "inp" {
 variable "archived_paths" {
     type = list(string)
 }
+
+variable "sns_arn" {
+    type = list(string)
+}

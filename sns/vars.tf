@@ -3,17 +3,13 @@ variable "inp" {
         app = map(string)
         aws_region = string
 		aws_user = string
+		notify_email_addr = string
     })
 }
 
-variable "script_name" {
-	type = string
-}
-
-variable "bucket_name" {
-	type = string
-}
-
-variable "role" {
-	type = string
+variable "subscribe" {
+	type = list(object({
+		protocol = string
+		endpoint = string
+	}))
 }

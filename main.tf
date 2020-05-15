@@ -7,7 +7,7 @@ terraform {
 }
 
 provider "aws" {
-	region  = var.inp.aws_region
+	region = var.inp.aws_region
 }
 
 module "s3_quotes" {
@@ -15,6 +15,15 @@ module "s3_quotes" {
 	bucket_name = "quotes"
 	archived_paths = ["/html","/csv"]
 	inp = var.inp
+}
+
+module "alerts" {
+	source = "./sns"
+	topic = "alerts"
+	subscribe = [{
+		protocol = "Email"
+		endpoint = var.inp.notify_email_addr
+	}]
 }
 
 module "lambda_role" {
@@ -29,9 +38,11 @@ module "get_quotes" {
 	source = "./lambda"
 	function_name = "get_quotes"
 	crontab_entry = "cron(31 12-21 ? * 2-6 *)"
-	bucket_name = module.s3_quotes.bucket_name
 	role = module.lambda_role.role_arn
-	inp = var.inp
+	inp = merge(var.inp, {
+		bucket_name = module.s3_quotes.bucket_name
+		sns_arn = module.alerts.arn
+	})
 }
 
 module "glue_role" {
