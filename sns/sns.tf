@@ -6,6 +6,6 @@ resource "aws_sns_topic" "main" {
 resource "aws_sns_topic_subscription" "main" {
     for_each = toset(var.subscribe)
 	topic_arn = aws_sns_topic.main.arn
-	protocol  = each.key.protocol
-	endpoint  = each.key.endpoint
+	protocol = regex("([^:]*):", each.key)[0]
+	endpoint = regex("[^:]*:(.*)", each.key)[0]
 }

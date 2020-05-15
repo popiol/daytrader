@@ -20,10 +20,7 @@ module "s3_quotes" {
 module "alerts" {
 	source = "./sns"
 	topic = "alerts"
-	subscribe = [{
-		protocol = "Email"
-		endpoint = var.inp.notify_email_addr
-	}]
+	subscribe = ["Email:${var.inp.notify_email_addr}"]
 	inp = var.inp
 }
 
