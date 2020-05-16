@@ -19,6 +19,7 @@ class TestGetQuotes():
             LogType = 'None',
             Payload = json.dumps(vars),
         )
+        vars = {}
         vars['status'] = res['StatusCode']
         vars['res'] = json.loads(res['Payload'].read().decode('utf-8'))
         return vars
