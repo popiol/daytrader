@@ -10,7 +10,8 @@
         }
     },
     "Outputs" : {
-        "ARN" : {
+        "ARN" : 
+            "Description" : "gfdhgggg",
             "Value" : { "Ref" : "${topic}" }
         }
     }
