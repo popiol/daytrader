@@ -1,0 +1,17 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Resources" : {
+        "${topic}": {
+            "Type" : "AWS::SNS::Topic",
+            "Properties" : {
+                "DisplayName" : "${display_name}",
+                "Subscription": ${subscribe}
+            }
+        }
+    },
+    "Outputs" : {
+        "ARN" : {
+            "Value" : { "Ref" : "${topic}" }
+        }
+    }
+}

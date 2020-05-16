@@ -1,11 +1,15 @@
-resource "aws_sns_topic" "main" {
-	name = "${var.inp.app.id}_${var.topic}"
-	tags = var.inp.app
+data "template_file" "main" {
+	template = file("${path.module}/sns.json")
+	
+	vars {
+		topic = "${var.inp.app.id}_${var.topic}"
+		display_name  = "Daytrader"
+		subscribe = jsonencode(var.subscribe)
+	}
 }
 
-resource "aws_sns_topic_subscription" "main" {
-    for_each = toset(var.subscribe)
-	topic_arn = aws_sns_topic.main.arn
-	protocol = regex("([^:]*):", each.key)[0]
-	endpoint = regex("[^:]*:(.*)", each.key)[0]
+resource "aws_cloudformation_stack" "main" {
+	name = "${var.inp.app.id}_${var.topic}"
+	template_body = data.template_file.main.rendered
+	tags = var.inp.app
 }

@@ -11,5 +11,8 @@ variable "inp" {
 }
 
 variable "subscribe" {
-	type = list(string)
+	type = list(object({
+		Protocol = string
+		Endpoint = string
+	}))
 }
