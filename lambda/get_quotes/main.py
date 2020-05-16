@@ -3,14 +3,14 @@ from urllib.request import urlopen
 import boto3
 import os
 import datetime
-import pytz
+import dateutil.tz
 
 def lambda_handler(event, context):
     s3 = boto3.client('s3')
     bucket_name = event['bucket_name']
     
     #alert if quotes missing
-    dt = datetime.datetime.now(pytz.timezone('US/Eastern'))
+    dt = datetime.datetime.now(dateutil.tz.gettz('US/Eastern'))
     if dt.hour > 9:
         bucket = s3.Bucket(bucket_name)
         hour = datetime.timedelta(hours=1)
