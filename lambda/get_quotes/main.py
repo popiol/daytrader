@@ -15,8 +15,8 @@ def lambda_handler(event, context):
     if dt.hour > 9:
         hour = datetime.timedelta(hours=1)
         dt2 = (datetime.datetime.now()-hour).strftime('%Y%m%d%H')
-        objs = bucket.filter(Prefix="/html/businessinsider_{}".format(dt2))
-        if len(objs) == 0:
+        objs = bucket.objects.filter(Prefix="/html/businessinsider_{}".format(dt2))
+        if not list(objs):
             sns_arn = event['sns_arn']
             sns = boto3.resource('sns')
             topic = sns.Topic(sns_arn)
