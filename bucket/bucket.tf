@@ -26,6 +26,8 @@ resource "aws_s3_bucket" "main" {
 }
 
 data "aws_iam_policy_document" "access" {
+	policy_id = "${var.inp.app.id}_${var.bucket_name}_s3"
+
 	statement {
 		actions = [
 			"s3:GetObject",

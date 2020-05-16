@@ -7,3 +7,16 @@ resource "aws_cloudformation_stack" "main" {
 	})
 	tags = var.inp.app
 }
+
+data "aws_iam_policy_document" "publish" {
+	policy_id = "${var.inp.app.id}_${var.bucket_name}_sns"
+
+	statement {
+		actions = [
+			"sns:Publish"
+		]
+		resources = [
+			aws_cloudformation_stack.main.outputs["ARN"]
+		]
+	}
+}

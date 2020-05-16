@@ -31,7 +31,10 @@ module "lambda_role" {
 	source = "./role"
 	role_name = "lambda"
 	service = "lambda"
-	custom_policies = [module.s3_quotes.access_policy]
+	custom_policies = [
+		module.s3_quotes.access_policy,
+		module.alerts.publish_policy
+	]
 	inp = var.inp
 }
 

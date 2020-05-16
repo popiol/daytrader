@@ -25,7 +25,7 @@ resource "aws_iam_role_policy_attachment" "main" {
 
 resource "aws_iam_role_policy" "main" {
     for_each = toset(var.custom_policies)
-	name = aws_iam_role.main.name
+	name = jsondecode(each.key)["Id"]
 	role = aws_iam_role.main.id
 	policy = each.key
 }
