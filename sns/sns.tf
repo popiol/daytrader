@@ -9,7 +9,7 @@ resource "aws_cloudformation_stack" "main" {
 }
 
 data "aws_iam_policy_document" "publish" {
-	policy_id = "${var.inp.app.id}_${var.bucket_name}_sns"
+	policy_id = "${var.inp.app.id}_${var.topic}_sns"
 
 	statement {
 		actions = [
