@@ -1,5 +1,5 @@
 resource "aws_cloudformation_stack" "main" {
-	name = "${var.inp.app.id}_${var.topic}"
+	name = replace("${var.inp.app.id}-${var.topic}","_","-")
 	template_body = templatefile("${path.module}/sns.json", {
 		topic = "${var.inp.app.id}_${var.topic}"
 		display_name  = "Daytrader Alerts"
