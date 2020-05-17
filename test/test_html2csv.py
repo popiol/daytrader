@@ -38,7 +38,7 @@ class TestHtml2Csv():
 
     def test_failure(self, vars):
         job_name = vars['job_name']
-        res = myutils.run_glue_job(job_name, {'bucket_name':''})
+        res = myutils.run_glue_job(job_name, {'--bucket_name':''})
         assert res['job_status'] == 'FAILED'
         
     def test_status(self, vars):
