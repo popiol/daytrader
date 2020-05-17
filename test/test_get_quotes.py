@@ -13,10 +13,17 @@ class TestGetQuotes():
     def vars(self):
         vars = myutils.get_vars()
         fun_name = vars['id'] + '_get_quotes'
+        vars['fun_name'] = fun_name
         res = myutils.run_lambda_fun(fun_name, vars)
         vars.update(res)
         return vars
         
+    def test_failure(self, vars):
+        fun_name = vars['fun_name']
+        res = myutils.run_lambda_fun(fun_name, {}, sync=False)
+        status = res['status']
+        assert status == 202
+    
     def test_status(self, vars):
         status = vars['status']
         assert status == 200

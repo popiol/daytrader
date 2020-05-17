@@ -19,6 +19,7 @@ class TestHtml2Csv():
     def vars(self):
         vars = myutils.get_vars()
         job_name = vars['id'] + '_html2csv'
+        vars['job_name'] = job_name
         res = myutils.run_glue_job(job_name)
         vars.update(res)
         return vars
@@ -35,6 +36,11 @@ class TestHtml2Csv():
         vars['keys'] = files
         return vars
 
+    def test_failure(self, vars):
+        job_name = vars['job_name']
+        res = myutils.run_glue_job(job_name, {'--bucket_name':''})
+        assert res['job_status'] == 'FAILED'
+        
     def test_status(self, vars):
         job_status = vars['job_status']
         assert job_status == 'SUCCEEDED'
