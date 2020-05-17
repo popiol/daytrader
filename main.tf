@@ -42,6 +42,7 @@ module "get_quotes" {
 	source = "./lambda"
 	function_name = "get_quotes"
 	crontab_entry = "cron(31 12-21 ? * 2-6 *)"
+	on_failure = [module.alerts.arn]
 	role = module.lambda_role.role_arn
 	inp = merge(var.inp, {
 		bucket_name = module.s3_quotes.bucket_name
@@ -68,4 +69,11 @@ module "etl" {
 		bucket_name = module.s3_quotes.bucket_name
 		alert_topic = module.alerts.arn
 	})
+}
+
+module "glue_error_alert" {
+	source = "./alarm"
+	error_logs = ["/aws-glue/python-jobs/error"]
+	targets = [module.alerts.arn]
+	inp = var.inp
 }
