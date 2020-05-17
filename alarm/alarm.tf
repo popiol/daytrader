@@ -1,5 +1,5 @@
 resource "aws_cloudwatch_metric_alarm" "main" {
-    foreach = toset(var.error_logs)
+    for_each = toset(var.error_logs)
     alarm_name = "${var.inp.app.id}_${replace(each.key,"/","-")}"
     evaluation_periods = "24"
     period = "3600"
