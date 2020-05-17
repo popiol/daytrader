@@ -15,20 +15,30 @@ from lxml import html as htmlparser
 import datetime
 from awsglue.utils import getResolvedOptions
 import sys
+import dateutil.tz
 
-#get bucket name
-args = getResolvedOptions(sys.argv, ['scriptLocation'])
-bucket = args['scriptLocation'].split('/')[2]
+#get params
+args = getResolvedOptions(sys.argv, ['bucket_name','alert_topic'])
+bucket_name = args['bucket_name']
+alert_topic = args['alert_topic']
 
 #get input file list
 s3 = boto3.resource('s3')
-bucket = s3.Bucket(bucket)
+bucket = s3.Bucket(bucket_name)
 
 objs = bucket.objects.all()
 files = []
 for obj in objs:
     if obj.key.startswith('html/') and obj.storage_class == 'STANDARD' and datetime.date.today()-obj.last_modified.date() < datetime.timedelta(7):
         files.append(obj.key)
+
+#alert if input files missing
+if not files:
+    sns = boto3.resource('sns')
+    topic = sns.Topic(alert_topic)
+    topic.publish(
+        Message = "Missing files in html/ from the last week"
+    )
 
 #for logging purpose
 infiles = []

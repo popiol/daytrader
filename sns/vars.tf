@@ -1,8 +1,4 @@
-variable "function_name" {
-	type = string
-}
-
-variable "crontab_entry" {
+variable "topic" {
 	type = string
 }
 
@@ -11,9 +7,12 @@ variable "inp" {
         app = map(string)
         aws_region = string
 		aws_user = string
-	})
+    })
 }
 
-variable "role" {
-	type = string
+variable "subscribe" {
+	type = list(object({
+		Protocol = string
+		Endpoint = string
+	}))
 }

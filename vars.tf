@@ -4,5 +4,6 @@ variable "inp" {
 		aws_region = string
 		aws_user = string
 		temporary = bool
+		notify_email_addr = string
 	})
 }

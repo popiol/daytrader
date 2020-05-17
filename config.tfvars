@@ -10,4 +10,6 @@ inp = {
   aws_user = "${AWS_USER}"
 
   temporary = "${TEMP_DEPLOY}"
+
+  notify_email_addr = "${NOTIFY_EMAIL_ADDR}"
 }
