@@ -13,7 +13,7 @@ class TestGetQuotes():
     def vars(self):
         vars = myutils.get_vars()
         fun_name = vars['id'] + '_get_quotes'
-        res = myutils.run_glue_job(fun_name)
+        res = myutils.run_lambda_fun(fun_name, vars)
         vars.update(res)
         return vars
         
