@@ -58,15 +58,14 @@ module "glue_role" {
 		module.alerts.publish_policy
 	]
 	attached_policies = ["AWSGlueServiceRole"]
-	inp = merge(var.inp, {
-		bucket_name = module.s3_quotes.bucket_name
-		alert_topic = module.alerts.arn
-	})
+	inp = var.inp
 }
 
 module "etl" {
 	source = "./glue"
-	bucket_name = module.s3_quotes.bucket_name
 	role = module.glue_role.role_arn
-	inp = var.inp
+	inp = merge(var.inp, {
+		bucket_name = module.s3_quotes.bucket_name
+		alert_topic = module.alerts.arn
+	})
 }
