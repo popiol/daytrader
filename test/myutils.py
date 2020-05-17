@@ -53,4 +53,6 @@ def run_glue_job(job_name):
             break
         time.sleep(60)
     vars['job_status'] = res['JobRun']['JobRunState']
+    if vars['job_status'] == 'FAILED':
+        vars['aaa_error'] = res['JobRun']['ErrorMessage']
     return vars
