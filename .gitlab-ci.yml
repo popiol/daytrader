@@ -11,8 +11,17 @@ deploy:
   script:
     - ./get_vars.sh
     - terraform init
-    - terraform apply -var-file=config.tfvars -auto-approve -target=module.s3_quotes
+    - terraform apply -var-file=config.tfvars -auto-approve -target=module.s3_quotes -target=module.alerts
     - terraform apply -var-file=config.tfvars -auto-approve
+
+test:
+  stage: test
+  script:
+    - ./get_vars.sh
+    - pip3 install -e .
+    - python3 -m pytest test/test_get_quotes.py
+    - python3 -m pytest test/test_html2csv.py
+    - python3 -m pytest test/test_clean_quotes.py
 
 clean:
   stage: clean
@@ -31,12 +40,3 @@ clean:
     - ./get_vars.sh
     - terraform init
     - terraform destroy -var-file=config.tfvars -auto-approve
-
-test:
-  stage: test
-  script:
-    - ./get_vars.sh
-    - pip3 install -e .
-    - python3 -m pytest test/test_get_quotes.py
-    - python3 -m pytest test/test_html2csv.py
-    - python3 -m pytest test/test_clean_quotes.py

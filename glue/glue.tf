@@ -19,7 +19,7 @@ module "crawler_in_quotes" {
 	catalog_name = aws_glue_catalog_database.quotes.name
 	crawler_name = "in_quotes"
 	classifiers = [aws_glue_classifier.csv.name]
-	s3_path = "s3://${var.bucket_name}/csv"
+	s3_path = "s3://${var.inp.bucket_name}/csv"
 	role = var.role
 	inp = var.inp
 }
@@ -27,7 +27,6 @@ module "crawler_in_quotes" {
 module "html2csv" {
 	source = "./pythonjob"
 	script_name = "html2csv"
-	bucket_name = var.bucket_name
 	role = var.role
 	inp = var.inp
 }
@@ -37,7 +36,7 @@ module "crawler_quotes" {
 	catalog_name = aws_glue_catalog_database.quotes.name
 	crawler_name = "quotes"
 	classifiers = [aws_glue_classifier.csv.name]
-	s3_path = "s3://${var.bucket_name}/csv_clean"
+	s3_path = "s3://${var.inp.bucket_name}/csv_clean"
 	role = var.role
 	inp = var.inp
 }
@@ -45,7 +44,6 @@ module "crawler_quotes" {
 module "clean_quotes" {
 	source = "./pythonjob"
 	script_name = "clean_quotes"
-	bucket_name = var.bucket_name
 	role = var.role
 	inp = var.inp
 }

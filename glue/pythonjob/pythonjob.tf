@@ -6,13 +6,18 @@ resource "aws_glue_job" "main" {
 
 	command {
 		name = "pythonshell"
-		script_location = "s3://${var.bucket_name}/scripts/${var.script_name}.py"
+		script_location = "s3://${var.inp.bucket_name}/scripts/${var.script_name}.py"
 		python_version = "3"
+	}
+
+	default_arguments = {
+		"--bucket_name" = var.inp.bucket_name
+		"--alert_topic" = var.inp.alert_topic
 	}
 }
 
 resource "aws_s3_bucket_object" "script" {
-	bucket = var.bucket_name
+	bucket = var.inp.bucket_name
 	key = "/scripts/${var.script_name}.py"
 	source = "${path.module}/${var.script_name}.py"
 	etag = filemd5("${path.module}/${var.script_name}.py")

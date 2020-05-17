@@ -19,7 +19,5 @@ resource "aws_cloudwatch_event_target" "get_quotes" {
 	target_id = aws_cloudwatch_event_rule.main.name
 	rule = aws_cloudwatch_event_rule.main.name
 	arn = aws_lambda_function.main.arn
-	input = jsonencode(merge(var.inp, {
-		"bucket_name" = var.bucket_name
-	}))
+	input = jsonencode(var.inp)
 }
