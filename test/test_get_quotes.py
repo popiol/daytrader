@@ -22,7 +22,7 @@ class TestGetQuotes():
         fun_name = vars['fun_name']
         res = myutils.run_lambda_fun(fun_name, {}, sync=False)
         status = res['status']
-        assert status >= 300
+        assert status == 202
     
     def test_status(self, vars):
         status = vars['status']
