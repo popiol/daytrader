@@ -37,12 +37,13 @@ def get_vars():
 
     return vars
 
-def run_glue_job(job_name):
+def run_glue_job(job_name, args={}):
     vars = {}
     glue = boto3.client('glue')
     vars['timestamp'] = datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S')
     res = glue.start_job_run(
-        JobName = job_name
+        JobName = job_name,
+        Arguments = args
     )
     run_id = res['JobRunId']
     for _ in range(10):
@@ -58,17 +59,18 @@ def run_glue_job(job_name):
         vars['aaa_error'] = res['JobRun']['ErrorMessage']
     return vars
 
-def run_lambda_fun(fun_name, inp):
+def run_lambda_fun(fun_name, inp, sync=True):
     vars = {}
     fun = boto3.client('lambda')
     res = fun.invoke(
         FunctionName = fun_name,
-        InvocationType = 'RequestResponse',
+        InvocationType = 'RequestResponse' if sync else 'Event',
         LogType = 'None',
         Payload = json.dumps(inp),
     )
     vars['status'] = res['StatusCode']
-    vars['res'] = json.loads(res['Payload'].read().decode('utf-8'))
-    if vars['status'] != 200:
-        vars['aaa_error'] = res['FunctionError']
+    if sync:
+        vars['res'] = json.loads(res['Payload'].read().decode('utf-8'))
+        if vars['status'] != 200:
+            vars['aaa_error'] = res['FunctionError']
     return vars
