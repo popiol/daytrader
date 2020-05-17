@@ -15,13 +15,13 @@ def lambda_handler(event, context):
     if dt.hour > 9:
         hour = datetime.timedelta(hours=1)
         dt2 = (datetime.datetime.now()-hour).strftime('%Y%m%d%H')
-        objs = bucket.objects.filter(Prefix="/html/businessinsider_{}".format(dt2))
+        objs = bucket.objects.filter(Prefix="html/businessinsider_{}".format(dt2))
         if not list(objs):
-            sns_arn = event['sns_arn']
+            sns_arn = event['alert_topic']
             sns = boto3.resource('sns')
             topic = sns.Topic(sns_arn)
             topic.publish(
-                Message = "Missing quotes in /html for {}".format(dt2)
+                Message = "Missing quotes in html/ for {}".format(dt2)
             )
 
     #get new quotes

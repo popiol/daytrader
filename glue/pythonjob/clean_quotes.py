@@ -46,11 +46,13 @@ def transform(row):
     
 col_names = ['row_id','quote_dt','comp_code','price','low_price','high_price']
 
-#get bucket name
-args = getResolvedOptions(sys.argv, ['scriptLocation'])
-bucket = args['scriptLocation'].split('/')[2]
+#get params
+args = getResolvedOptions(sys.argv, ['bucket_name','alert_topic'])
+bucket_name = args['bucket_name']
+alert_topic = args['alert_topic']
 
 logg("Bucket: {}".format(bucket))
+logg("Alerts: {}".format(alert_topic))
 
 #get input file list
 s3 = boto3.resource('s3')
@@ -60,6 +62,14 @@ files = []
 for obj in objs:
     if obj.key.startswith('csv/') and obj.storage_class == 'STANDARD' and datetime.date.today()-obj.last_modified.date() < datetime.timedelta(7):
         files.append(obj.key)
+
+#alert if input files missing
+if not files:
+    sns = boto3.resource('sns')
+    topic = sns.Topic(alert_topic)
+    topic.publish(
+        Message = "Missing files in csv/ from the last week"
+    )
 
 #process files
 for key in files:

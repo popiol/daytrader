@@ -13,7 +13,7 @@ provider "aws" {
 module "s3_quotes" {
 	source = "./bucket"
 	bucket_name = "quotes"
-	archived_paths = ["/html","/csv"]
+	archived_paths = ["html/","csv/"]
 	inp = var.inp
 }
 
@@ -45,7 +45,7 @@ module "get_quotes" {
 	role = module.lambda_role.role_arn
 	inp = merge(var.inp, {
 		bucket_name = module.s3_quotes.bucket_name
-		sns_arn = module.alerts.arn
+		alert_topic = module.alerts.arn
 	})
 }
 
@@ -53,9 +53,15 @@ module "glue_role" {
 	source = "./role"
 	role_name = "glue"
 	service = "glue"
-	custom_policies = [module.s3_quotes.access_policy]
+	custom_policies = [
+		module.s3_quotes.access_policy,
+		module.alerts.publish_policy
+	]
 	attached_policies = ["AWSGlueServiceRole"]
-	inp = var.inp
+	inp = merge(var.inp, {
+		bucket_name = module.s3_quotes.bucket_name
+		alert_topic = module.alerts.arn
+	})
 }
 
 module "etl" {

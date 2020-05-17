@@ -32,7 +32,7 @@ def get_vars():
                 break
         if sns_arn:
             break
-    vars['sns_arn'] = sns_arn
+    vars['alert_topic'] = sns_arn
 
     return vars
 
