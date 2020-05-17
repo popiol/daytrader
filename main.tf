@@ -75,4 +75,5 @@ module "glue_error_alert" {
 	source = "./alarm"
 	error_logs = ["/aws-glue/python-jobs/error"]
 	targets = [module.alerts.arn]
+	inp = var.inp
 }
