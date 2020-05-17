@@ -23,7 +23,7 @@ resource "aws_cloudwatch_event_target" "get_quotes" {
 }
 
 resource "aws_lambda_function_event_invoke_config" "main" {
-	foreach = toset(var.on_failure)
+	for_each = toset(var.on_failure)
 	function_name = aws_lambda_function.main.function_name
 
 	destination_config {
