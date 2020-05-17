@@ -21,3 +21,14 @@ resource "aws_cloudwatch_event_target" "get_quotes" {
 	arn = aws_lambda_function.main.arn
 	input = jsonencode(var.inp)
 }
+
+resource "aws_lambda_function_event_invoke_config" "main" {
+	foreach = toset(var.on_failure)
+	function_name = aws_lambda_function.main.function_name
+
+	destination_config {
+		on_failure {
+			destination = each.key
+		}
+	}
+}

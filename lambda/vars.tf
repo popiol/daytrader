@@ -6,6 +6,10 @@ variable "crontab_entry" {
 	type = string
 }
 
+variable "on_failure" {
+	type = list(string)
+}
+
 variable "inp" {
 	type = object({
         app = map(string)
