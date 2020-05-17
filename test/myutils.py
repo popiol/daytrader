@@ -1,6 +1,7 @@
 import boto3
 import datetime
 import time
+import json
 
 def get_vars():
     vars = {}
@@ -55,4 +56,19 @@ def run_glue_job(job_name):
     vars['job_status'] = res['JobRun']['JobRunState']
     if vars['job_status'] == 'FAILED':
         vars['aaa_error'] = res['JobRun']['ErrorMessage']
+    return vars
+
+def run_lambda_fun(fun_name, inp):
+    vars = {}
+    fun = boto3.client('lambda')
+    res = fun.invoke(
+        FunctionName = fun_name,
+        InvocationType = 'RequestResponse',
+        LogType = 'None',
+        Payload = json.dumps(inp),
+    )
+    vars['status'] = res['StatusCode']
+    vars['res'] = json.loads(res['Payload'].read().decode('utf-8'))
+    if vars['status'] != 200:
+        vars['aaa_error'] = res['FunctionError']
     return vars

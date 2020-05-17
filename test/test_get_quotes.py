@@ -12,15 +12,9 @@ class TestGetQuotes():
     @pytest.fixture(scope='class')
     def vars(self):
         vars = myutils.get_vars()
-        fun = boto3.client('lambda')
-        res = fun.invoke(
-            FunctionName = vars['id'] + '_get_quotes',
-            InvocationType = 'RequestResponse',
-            LogType = 'None',
-            Payload = json.dumps(vars),
-        )
-        vars['status'] = res['StatusCode']
-        vars['res'] = json.loads(res['Payload'].read().decode('utf-8'))
+        fun_name = vars['id'] + '_get_quotes'
+        res = myutils.run_glue_job(fun_name)
+        vars.update(res)
         return vars
         
     def test_status(self, vars):
