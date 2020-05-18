@@ -12,55 +12,18 @@ import traceback
 def logg(x):
     print("---- [{}] ".format(datetime.datetime.now()), x)
 
-
-def transform(row):
-    out = {}
-    
-    #id
-    out['row_id'] = int(row['id']) + 1
-    
-    #comp code
-    comp_code = row['Code'].upper()
-    assert len(comp_code) <= 10
-    out['comp_code'] = comp_code
-    
-    #low high
-    low_price, high_price = row['Low_High'].split()
-    out['low_price'] = float(low_price.replace(',',''))
-    out['high_price'] = float(high_price.replace(',',''))
-
-    #date
-    dt = dateutil.parser.parse(row['Time_Date'])
-    dt = dt.strftime("%Y-%m-%d %H:%M:%S")
-    assert dt > '2020-01-01 00:00:00'
-    out['quote_dt'] = dt
-
-    #price
-    price = row['Latest_Price_Previous_Close'].split()[0]
-    price = float(price.replace(',',''))
-    assert price > 0
-    out['price'] = price
-    
-    return out
-    
-    
-col_names = ['row_id','quote_dt','comp_code','price','low_price','high_price']
-
 #get params
 args = getResolvedOptions(sys.argv, ['bucket_name','alert_topic'])
 bucket_name = args['bucket_name']
 alert_topic = args['alert_topic']
 
-#logg("Bucket: {}".format(bucket))
-#logg("Bucket: {}".format(bucket))
-
 #get input file list
 s3 = boto3.resource('s3')
-bucket = s3.Bucket(bucket)
+bucket = s3.Bucket(bucket_name)
 objs = bucket.objects.all()
 files = []
 for obj in objs:
-    if obj.key.startswith('csv/') and obj.storage_class == 'STANDARD' and datetime.date.today()-obj.last_modified.date() < datetime.timedelta(7):
+    if obj.key.startswith('csv_clean/') and obj.storage_class == 'STANDARD' and datetime.date.today()-obj.last_modified.date() < datetime.timedelta(7):
         files.append(obj.key)
 
 #alert if input files missing
@@ -79,7 +42,7 @@ for key in files:
     if list(bucket.objects.filter(Prefix=clean_key)) or list(bucket.objects.filter(Prefix=rejected_key)):
         continue
     
-    #logg(key)
+    logg(key)
     
     f = bucket.Object(key).get()
     inp = f['Body'].read().decode('utf-8')
@@ -101,7 +64,7 @@ for key in files:
             rej_writer.writerow(row)
             n_rej += 1
     
-    #logg("# out: {}, # rej: {}".format(n_out, n_rej))
+    logg("# out: {}, # rej: {}".format(n_out, n_rej))
     
     if n_out > 0:
         bucket.put_object(Key=clean_key, Body=bytearray(out.getvalue(), 'utf-8'))
