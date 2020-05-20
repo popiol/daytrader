@@ -62,8 +62,8 @@ module "glue_role" {
 	custom_policies = [
 		module.s3_quotes.access_policy,
 		module.alerts.publish_policy,
-		module.dynamodb.module.event_process_log.access_policy,
-		module.dynamodb.module.event_table.access_policy
+		module.dynamodb.access_policy.event_process_log,
+		module.dynamodb.access_polic.event_tabley
 	]
 	attached_policies = ["AWSGlueServiceRole"]
 	inp = var.inp
@@ -75,8 +75,8 @@ module "etl" {
 	inp = merge(var.inp, {
 		bucket_name = module.s3_quotes.bucket_name
 		alert_topic = module.alerts.arn
-		event_process_log = module.dynamodb.module.event_process_log.table_name
-		event_table = module.dynamodb.module.event_table.table_name
+		event_process_log = module.dynamodb.table_name.event_process_log
+		event_table = module.dynamodb.table_name.event_table
 	})
 }
 
