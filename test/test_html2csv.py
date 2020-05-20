@@ -36,15 +36,15 @@ class TestHtml2Csv():
         vars['keys'] = files
         return vars
 
+    def test_status(self, vars):
+        job_status = vars['job_status']
+        assert job_status == 'SUCCEEDED'
+    
     def test_failure(self, vars):
         job_name = vars['job_name']
         res = myutils.run_glue_job(job_name, {'--bucket_name':''})
         assert res['job_status'] == 'FAILED'
         
-    def test_status(self, vars):
-        job_status = vars['job_status']
-        assert job_status == 'SUCCEEDED'
-    
     def test_n_files(self, files):
         assert len(files['keys']) >= 10
     

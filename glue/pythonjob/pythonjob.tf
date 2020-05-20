@@ -11,8 +11,7 @@ resource "aws_glue_job" "main" {
 	}
 
 	default_arguments = {
-		"--bucket_name" = var.inp.bucket_name
-		"--alert_topic" = var.inp.alert_topic
+		for key, val in var.inp : "--${key}" => jsonencode(val)
 	}
 }
 
