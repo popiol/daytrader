@@ -1,7 +1,7 @@
 output "access_policy" {
-  value = {for x in module.table: x => module.x.access_policy}
+  value = data.aws_iam_policy_document.access.json
 }
 
 output "table_name" {
-  value = {for x in module.table: x => module.x.table_name}
+  value = var.table_name
 }
