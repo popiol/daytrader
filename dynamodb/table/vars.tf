@@ -5,3 +5,11 @@ variable "inp" {
         aws_user = string
     })
 }
+
+variable "table_name" {
+    type = string
+}
+
+variable "keys" {
+    type = list(string)
+}

@@ -1,38 +1,13 @@
-resource "aws_dynamodb_table" "main" {
-	name = "${var.inp.app.id}_${var.table_name}"
-	billing_mode = "PAY_PER_REQUEST"
-	hash_key = var.keys[0]
-	range_key = length(var.keys) > 1 ? var.keys[1] : ""
-	
-	dynamic "attribute" {
-		for_each = toset(var.keys)
-
-		content {
-			name = attribute.key
-			type = "S"
-		}
-	}
-	
-	tags = var.inp.app
+module "event_process_log" {
+	source = "./table"
+	table_name = "event_process_log"
+	keys = ["obj_key"]
+	inp = var.inp
 }
 
-data "aws_iam_policy_document" "access" {
-	policy_id = "${var.inp.app.id}_${var.table_name}_tb"
-
-	statement {
-		actions = [
-			"dynamodb:GetItem",
-			"dynamodb:Scan",
-			"dynamodb:Query",
-			"dynamodb:BatchGetItem",
-			"dynamodb:BatchWriteItem",
-			"dynamodb:DeleteItem",
-			"dynamodb:PutItem",
-			"dynamodb:UpdateItem",
-			"dynamodb:DescribeTable"
-		]
-		resources = [
-			"${aws_dynamodb_table.main.arn}/*"
-		]
-	}
+module "event_table" {
+	source = "./table"
+	table_name = "events"
+	keys = ["comp_code", "quote_dt"]
+	inp = var.inp
 }
