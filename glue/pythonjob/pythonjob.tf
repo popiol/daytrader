@@ -11,7 +11,7 @@ resource "aws_glue_job" "main" {
 	}
 
 	default_arguments = {
-		for key, val in var.inp : "--${key}" => regex("^\"*(.*[^\"])\"*$", jsonencode(val))[0]
+		for key, val in var.inp : "--${key}" => trim(jsonencode(val), "\"")
 	}
 }
 
