@@ -84,8 +84,8 @@ module "etl" {
 	inp = merge(var.inp, {
 		bucket_name = module.s3_quotes.bucket_name
 		alert_topic = module.alerts.arn
-		event_process_log = event_process_log.table_name
-		event_table = event_table.table_name
+		event_process_log = module.event_process_log.table_name
+		event_table = module.event_table.table_name
 	})
 }
 
