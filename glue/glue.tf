@@ -2,6 +2,13 @@ resource "aws_glue_catalog_database" "quotes" {
 	name = "${var.inp.app.id}_quotes"
 }
 
+module "html2csv" {
+	source = "./pythonjob"
+	script_name = "html2csv"
+	role = var.role
+	inp = var.inp
+}
+
 resource "aws_glue_classifier" "csv" {
 	name = "${var.inp.app.id}_csv"
 
@@ -24,9 +31,9 @@ module "crawler_in_quotes" {
 	inp = var.inp
 }
 
-module "html2csv" {
+module "clean_quotes" {
 	source = "./pythonjob"
-	script_name = "html2csv"
+	script_name = "clean_quotes"
 	role = var.role
 	inp = var.inp
 }
@@ -41,9 +48,9 @@ module "crawler_quotes" {
 	inp = var.inp
 }
 
-module "clean_quotes" {
+module "events" {
 	source = "./pythonjob"
-	script_name = "clean_quotes"
+	script_name = "events"
 	role = var.role
 	inp = var.inp
 }
