@@ -51,12 +51,9 @@ args = getResolvedOptions(sys.argv, ['bucket_name','alert_topic'])
 bucket_name = args['bucket_name']
 alert_topic = args['alert_topic']
 
-#logg("Bucket: {}".format(bucket))
-#logg("Bucket: {}".format(bucket))
-
 #get input file list
 s3 = boto3.resource('s3')
-bucket = s3.Bucket(bucket)
+bucket = s3.Bucket(bucket_name)
 objs = bucket.objects.all()
 files = []
 for obj in objs:
