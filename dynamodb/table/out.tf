@@ -3,5 +3,5 @@ output "access_policy" {
 }
 
 output "table_name" {
-  value = var.table_name
+  value = aws_dynamodb_table.main.name
 }
