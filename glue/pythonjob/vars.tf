@@ -5,7 +5,7 @@ variable "inp" {
 		aws_user = string
 		bucket_name = string
 		alert_topic = string
-		event_process_log = string
+		log_table = string
 		event_table = string
     })
 }
