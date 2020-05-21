@@ -75,7 +75,7 @@ module "etl" {
 	inp = merge(var.inp, {
 		bucket_name = module.s3_quotes.bucket_name
 		alert_topic = module.alerts.arn
-		event_process_log = module.dynamodb.table_name.event_process_log
+		log_table = module.dynamodb.table_name.event_process_log
 		event_table = module.dynamodb.table_name.event_table
 	})
 }

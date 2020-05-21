@@ -15,15 +15,38 @@ def logg(x):
     print("---- [{}] ".format(datetime.datetime.now()), x)
 
 #get params
-args = getResolvedOptions(sys.argv, ['bucket_name','alert_topic','JOB_NAME'])
+args = getResolvedOptions(sys.argv, ['bucket_name','alert_topic','log_table','event_table'])
 bucket_name = args['bucket_name']
 alert_topic = args['alert_topic']
 log_table_name = args['log_table']
 event_table_name = args['event_table']
-job_name = args['JOB_NAME']
-job_id = args['JOB_RUN_ID']
 
-logg("Job name: {}".format(job_name))
+job_id = None
+glue = boto3.client('glue')
+res = glue.get_job_runs(
+    JobName='daytrader_5-time_series_events'
+)
+while True:
+    if not res['JobRuns']:
+        break
+    for run in res['JobRuns']:
+        if run['JobRunState'] == 'RUNNING':
+            job_id = run['Id']
+            break
+    if job_id is not None:
+        break
+    token = res['NextToken']
+    if not token:
+        break
+    res = glue.get_job_runs(
+        JobName='daytrader_5-time_series_events',
+        NextToken = token
+    )
+    
+if job_id is None:
+    print("Job ID not found")
+    exit()
+
 logg("Job ID: {}".format(job_id))
 
 #get input file list
