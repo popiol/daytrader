@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export APP_VER=$CI_COMMIT_BRANCH
+export APP_VER=`echo "$CI_COMMIT_BRANCH" | tr '[:upper:]' '[:lower:]'`
 
 if [[ "$APP_VER" == "master" || "$APP_VER" == "$CI_DEFAULT_BRANCH" ]]; then
 	export TEMP_DEPLOY="false"

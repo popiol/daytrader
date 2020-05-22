@@ -2,6 +2,7 @@ import boto3
 import datetime
 import time
 import json
+from Glue.Client.exceptions import ConcurrentRunsExceededException
 
 def get_vars():
     vars = {}
@@ -41,37 +42,17 @@ def run_glue_job(job_name, args={}):
     vars = {}
     glue = boto3.client('glue')
 
-    #check if job already running
-    job_id = None
-    res = glue.get_job_runs(
-        JobName = job_name
-    )
     while True:
-        if not res['JobRuns']:
-            break
-        for run in res['JobRuns']:
-            if run['JobRunState'] in ['STARTING', 'RUNNING', 'STOPPING']:
-                job_id = run['Id']
-                break
-        if 'NextToken' not in res:
-            if job_id is None:
-                break
-            time.sleep(10)
-            job_id = None
-            res = glue.get_job_runs(
-                JobName = job_name
-            )
-        else:
-            res = glue.get_job_runs(
+        try:
+            vars['timestamp'] = datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S')
+            res = glue.start_job_run(
                 JobName = job_name,
-                NextToken = res['NextToken']
+                Arguments = args
             )
-
-    vars['timestamp'] = datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S')
-    res = glue.start_job_run(
-        JobName = job_name,
-        Arguments = args
-    )
+        except ConcurrentRunsExceededException:
+            time.sleep(10)
+        else:
+            break
     run_id = res['JobRunId']
     for _ in range(10):
         res = glue.get_job_run(
