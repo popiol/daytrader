@@ -9,6 +9,7 @@ import io
 import traceback
 from boto3.dynamodb.conditions import Key, Attr
 import json
+import math
 
 
 def logg(x):
@@ -158,12 +159,12 @@ for row in csv_reader:
             event[key] = price
         key = 'high{}'.format(period)
         if prev_event is not None:
-            event[key] = max(high_price, prev_event[key] * )
+            event[key] = max(high_price, prev_event[key] * (1-.001*math.exp(-period)))
         else:
             event[key] = high_price
         key = 'low{}'.format(period)
         if prev_event is not None:
-            event[key] = min(low_price, prev_event[key] * period/(period-1))
+            event[key] = min(low_price, prev_event[key] * (1+.001*math.exp(-period)))
         else:
             event[key] = low_price
     hour = int(quote_dt[11:13])
