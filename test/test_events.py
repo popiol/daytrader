@@ -77,8 +77,7 @@ class TestEvents():
         s3 = boto3.resource('s3')
         for key in files['keys']:
             obj = s3.Object(bucket_name, key)
-            content = obj.get()['Body'].read().decode('utf-8')
-            obj = json.load(content)
+            json_obj = json.load(obj.get()['Body'])
             for attr in self.ATTRIBUTES:
-                assert attr in obj
+                assert attr in json_obj
     
