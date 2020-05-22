@@ -39,9 +39,9 @@ while True:
             break
     if job_id is not None:
         break
-    token = res['NextToken']
-    if not token:
+    if 'NextToken' not in res:
         break
+    token = res['NextToken']
     res = glue.get_job_runs(
         JobName=job_name,
         NextToken = token
