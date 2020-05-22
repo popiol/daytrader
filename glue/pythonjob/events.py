@@ -21,6 +21,7 @@ alert_topic = args['alert_topic']
 log_table_name = args['log_table']
 event_table_name = args['event_table']
 
+#get job id
 job_id = None
 glue = boto3.client('glue')
 res = glue.get_job_runs(
@@ -47,7 +48,7 @@ if job_id is None:
     print("Job ID not found")
     exit()
 
-logg("Job ID: {}".format(job_id))
+#logg("Job ID: {}".format(job_id))
 
 #get input file list
 s3 = boto3.resource('s3')
@@ -66,6 +67,7 @@ if not files:
         Message = "Missing files in csv_clean/ from the last week"
     )
 
+#pick the oldest file
 db = boto3.resource('dynamodb')
 log_table = db.Table(log_table_name)
 process_key = None
@@ -73,13 +75,14 @@ for key in files:
     res = log_table.get_item(
         Key = {"obj_key": key}
     )
-    if not res['Item']:
+    if 'Item' not in res:
         if process_key is None or key.split('_')[-1] < process_key.split('_')[-1]:
             process_key = key
 
 if process_key is None:
     exit(0)
 
+#add process log
 log_table.put_item(
     Item = {
         'obj_key': process_key,
@@ -87,8 +90,9 @@ log_table.put_item(
     }
 )
 
-logg("Process key: {}".format(process_key))
+#logg("Process key: {}".format(process_key))
 
+#process records
 f = bucket.Object(process_key).get()
 inp = f['Body'].read().decode('utf-8')
 csv_reader = csv.DictReader(io.StringIO(inp))
@@ -97,16 +101,30 @@ for row in csv_reader:
     comp_code = row['comp_code']
     quote_dt = row['quote_dt']
     price = row['price']
+    low_price = row['low_price']
+    high_price = row['high_price']
+
+    #check price
+    if price < .01:
+        continue
+
+    #check high price
+    if high_price < .01 or high_price < price or high_price > 2 * price:
+        high_price = price
+    
+    #check low price
+    if low_price < .01 or low_price > price or low_price < price / 2:
+        low_price = price
     
     #get last quote_dt
-    res = log_table.query(
+    res = event_table.query(
         KeyConditionExpression = Key('comp_code').eq(comp_code),
         ScanIndexForward = False,
         Limit = 1
     )
     last_quote_dt = None
     if res['Items']:
-        last_quote_dt = res['Items']['quote_dt']
+        last_quote_dt = res['Items'][0]['quote_dt']
         if last_quote_dt >= quote_dt:
             continue
     
@@ -114,7 +132,8 @@ for row in csv_reader:
     event_table.put_item(
         Item = {
             'comp_code': comp_code,
-            'quote_dt' : quote_dt
+            'quote_dt': quote_dt,
+            'source_file': process_key
         }
     )
 
@@ -136,19 +155,29 @@ for row in csv_reader:
             event[key] = price / period + prev_event[key] * (1-1/period)
         else:
             event[key] = price
+        key = 'high{}'.format(period)
+        if prev_event is not None:
+            event[key] = high_price / period + prev_event[key] * (1-1/period)
+        else:
+            event[key] = high_price
+        key = 'low{}'.format(period)
+        if prev_event is not None:
+            event[key] = low_price / period + prev_event[key] * (1-1/period)
+        else:
+            event[key] = low_price
     hour = int(quote_dt[11:13])
     event['start'] = 1 if hour <= 9 else 0
     event['end'] = 1 if hour >= 16 else 0
     ch = price/prev_event['price']-1 if prev_event is not None else 0
     for th in [10,20,40,80]:
-        event['ch>'+th] = 1 if ch > th/100 or ch < 1/(th/100+1)-1 else 0
+        event['ch>{}'.format(th)] = 1 if ch > th/100 or ch < 1/(th/100+1)-1 else 0
     if event['ch>80']:
         scale *= prev_event['price'] / price
     event['scale'] = scale
     
     #add event to s3
     dt = quote_dt[:13].replace('-','').replace(' ','')
-    obj_key = "events/date={}/{}_{}.json".format(dt, comp_code, quote_dt)
+    dt2 = quote_dt.replace('-','').replace(' ','').replace(':','')
+    obj_key = "events/date={}/{}_{}.json".format(dt, comp_code, dt2)
     event = json.dumps(event)
     bucket.put_object(Key=obj_key, Body=bytearray(event, 'utf-8'))
-
