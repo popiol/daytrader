@@ -100,9 +100,9 @@ event_table = db.Table(event_table_name)
 for row in csv_reader:
     comp_code = row['comp_code']
     quote_dt = row['quote_dt']
-    price = row['price']
-    low_price = row['low_price']
-    high_price = row['high_price']
+    price = float(row['price'])
+    low_price = float(row['low_price'])
+    high_price = float(row['high_price'])
 
     #check price
     if price < .01:
