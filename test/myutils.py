@@ -40,6 +40,34 @@ def get_vars():
 def run_glue_job(job_name, args={}):
     vars = {}
     glue = boto3.client('glue')
+
+    #check if job already running
+    glue = boto3.client('glue')
+    job_id = None
+    res = glue.get_job_runs(
+        JobName = job_name
+    )
+    while True:
+        if not res['JobRuns']:
+            break
+        for run in res['JobRuns']:
+            if run['JobRunState'] == 'RUNNING':
+                job_id = run['Id']
+                break
+        if 'NextToken' not in res:
+            if job_id is None:
+                break
+            time.sleep(10)
+            job_id = None
+            res = glue.get_job_runs(
+                JobName = job_name
+            )
+        else:
+            res = glue.get_job_runs(
+                JobName = job_name,
+                NextToken = res['NextToken']
+            )
+
     vars['timestamp'] = datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S')
     res = glue.start_job_run(
         JobName = job_name,

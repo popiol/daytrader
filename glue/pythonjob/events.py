@@ -28,7 +28,7 @@ job_id = None
 job_name = '{}_events'.format(app['id'])
 glue = boto3.client('glue')
 res = glue.get_job_runs(
-    JobName=job_name
+    JobName = job_name
 )
 while True:
     if not res['JobRuns']:
@@ -43,14 +43,13 @@ while True:
         break
     token = res['NextToken']
     res = glue.get_job_runs(
-        JobName=job_name,
+        JobName = job_name,
         NextToken = token
     )
     
 if job_id is None:
     print("Job ID not found")
-    sys.stderr.write("Job ID not found")
-    exit(1)
+    exit(0)
 
 #logg("Job ID: {}".format(job_id))
 
@@ -84,8 +83,7 @@ for key in files:
             process_key = key
 
 if process_key is None:
-    sys.stderr.write("Nothing to process")
-    exit(1)
+    exit(0)
 
 #add process log
 log_table.put_item(
