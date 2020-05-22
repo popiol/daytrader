@@ -147,6 +147,9 @@ for row in csv_reader:
         f = bucket.Object(obj_key).get()
         prev_event = f['Body'].read().decode('utf-8')
         prev_event = json.loads(prev_event)
+        for key in prev_event.keys():
+            if key.startswith('price') or key.startswith('high') or key.startswith('low'):
+                prev_event[key] = float(prev_event[key])
 
     #calc new event
     event = row
