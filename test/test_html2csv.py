@@ -73,7 +73,29 @@ class TestHtml2Csv():
             self.check_count(csv)
 
     def test_failure(self, vars):
+        job_id = None
+        job_name = '{}_html2csv'.format(vars['id'])
+        glue = boto3.client('glue')
+        res = glue.get_job_runs(
+            JobName=job_name
+        )
+        while True:
+            if not res['JobRuns']:
+                break
+            for run in res['JobRuns']:
+                if run['JobRunState'] == 'RUNNING':
+                    job_id = run['Id']
+                    break
+            if job_id is not None:
+                break
+            token = res['NextToken']
+            if not token:
+                break
+            res = glue.get_job_runs(
+                JobName=job_name,
+                NextToken = token
+            )
+            time.sleep(10)
         job_name = vars['job_name']
         res = myutils.run_glue_job(job_name, {'--bucket_name':''})
         assert res['job_status'] == 'FAILED'
-    

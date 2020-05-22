@@ -16,17 +16,19 @@ def logg(x):
     print("---- [{}] ".format(datetime.datetime.now()), x)
 
 #get params
-args = getResolvedOptions(sys.argv, ['bucket_name','alert_topic','log_table','event_table'])
+args = getResolvedOptions(sys.argv, ['bucket_name','alert_topic','log_table','event_table','app'])
 bucket_name = args['bucket_name']
 alert_topic = args['alert_topic']
 log_table_name = args['log_table']
 event_table_name = args['event_table']
+app = json.loads(args['app'])
 
 #get job id
 job_id = None
+job_name = '{}_events'.format(app['id'])
 glue = boto3.client('glue')
 res = glue.get_job_runs(
-    JobName='daytrader_5-time_series_events'
+    JobName=job_name
 )
 while True:
     if not res['JobRuns']:
@@ -41,13 +43,14 @@ while True:
     if not token:
         break
     res = glue.get_job_runs(
-        JobName='daytrader_5-time_series_events',
+        JobName=job_name,
         NextToken = token
     )
     
 if job_id is None:
     print("Job ID not found")
-    exit()
+    sys.stderr.write("Job ID not found")
+    exit(1)
 
 #logg("Job ID: {}".format(job_id))
 
@@ -77,11 +80,12 @@ for key in files:
         Key = {"obj_key": key}
     )
     if 'Item' not in res:
-        if process_key is None or key.split('_')[-1] < process_key.split('_')[-1]:
+        if process_key is None or key.split('_')[-2] < process_key.split('_')[-2]:
             process_key = key
 
 if process_key is None:
-    exit(0)
+    sys.stderr.write("Nothing to process")
+    exit(1)
 
 #add process log
 log_table.put_item(
