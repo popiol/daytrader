@@ -2,7 +2,6 @@ import boto3
 import datetime
 import time
 import json
-from Glue.Client.exceptions import ConcurrentRunsExceededException
 
 def get_vars():
     vars = {}
@@ -49,7 +48,7 @@ def run_glue_job(job_name, args={}):
                 JobName = job_name,
                 Arguments = args
             )
-        except ConcurrentRunsExceededException:
+        except glue.exceptions.ConcurrentRunsExceededException:
             time.sleep(10)
         else:
             break
