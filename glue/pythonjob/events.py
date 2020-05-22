@@ -140,7 +140,8 @@ for row in csv_reader:
     #get prev event
     prev_event = None
     if last_quote_dt is not None:
-        obj_key = "events/{}_{}.json".format(comp_code, last_quote_dt)
+        dt = quote_dt.replace('-','').replace(' ','').replace(':','')
+        obj_key = "events/{}_{}.json".format(comp_code, dt)
         f = bucket.Object(obj_key).get()
         prev_event = f['Body'].read().decode('utf-8')
         prev_event = json.loads(prev_event)
@@ -157,12 +158,12 @@ for row in csv_reader:
             event[key] = price
         key = 'high{}'.format(period)
         if prev_event is not None:
-            event[key] = high_price / period + prev_event[key] * (1-1/period)
+            event[key] = max(high_price, prev_event[key] * )
         else:
             event[key] = high_price
         key = 'low{}'.format(period)
         if prev_event is not None:
-            event[key] = low_price / period + prev_event[key] * (1-1/period)
+            event[key] = min(low_price, prev_event[key] * period/(period-1))
         else:
             event[key] = low_price
     hour = int(quote_dt[11:13])
