@@ -141,8 +141,9 @@ for row in csv_reader:
     #get prev event
     prev_event = None
     if last_quote_dt is not None:
-        dt = last_quote_dt.replace('-','').replace(' ','').replace(':','')
-        obj_key = "events/{}_{}.json".format(comp_code, dt)
+        dt = last_quote_dt[:13].replace('-','').replace(' ','')
+        dt2 = last_quote_dt.replace('-','').replace(' ','').replace(':','')
+        obj_key = "events/date={}/{}_{}.json".format(dt, comp_code, dt2)
         f = bucket.Object(obj_key).get()
         prev_event = f['Body'].read().decode('utf-8')
         prev_event = json.loads(prev_event)
