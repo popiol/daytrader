@@ -1,7 +1,7 @@
 resource "aws_cloudformation_stack" "main" {
-	name = replace("${var.inp.app.id}-${var.topic}","_","-")
+	name = replace("${var.inp.app.id}","_","-")
 	template_body = templatefile("${path.module}/sns.json", {
-		topic = replace(replace("${var.inp.app.id}${var.topic}","_",""),"-","")
+		topic = replace(replace("${var.topic}","_",""),"-","")
 		display_name = "${var.inp.temporary ? "Test " : ""}Daytrader Alerts"
 		subscribe = jsonencode(var.subscribe)
 	})

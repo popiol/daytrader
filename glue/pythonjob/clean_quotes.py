@@ -51,13 +51,10 @@ args = getResolvedOptions(sys.argv, ['bucket_name','alert_topic'])
 bucket_name = args['bucket_name']
 alert_topic = args['alert_topic']
 
-logg("Bucket: {}".format(bucket_name))
-logg("Alerts: {}".format(alert_topic))
-
 #get input file list
 s3 = boto3.resource('s3')
-s3bucket = s3.Bucket(bucket_name)
-objs = s3bucket.objects.all()
+bucket = s3.Bucket(bucket_name)
+objs = bucket.objects.all()
 files = []
 for obj in objs:
     if obj.key.startswith('csv/') and obj.storage_class == 'STANDARD' and datetime.date.today()-obj.last_modified.date() < datetime.timedelta(7):
@@ -76,12 +73,12 @@ for key in files:
     clean_key = key.replace('csv/','csv_clean/')
     rejected_key = key.replace('csv/','csv_rejected/')
     
-    if list(s3bucket.objects.filter(Prefix=clean_key)) or list(s3bucket.objects.filter(Prefix=rejected_key)):
+    if list(bucket.objects.filter(Prefix=clean_key)) or list(bucket.objects.filter(Prefix=rejected_key)):
         continue
     
-    logg(key)
+    #logg(key)
     
-    f = s3bucket.Object(key).get()
+    f = bucket.Object(key).get()
     inp = f['Body'].read().decode('utf-8')
     csv_reader = csv.DictReader(io.StringIO(inp))
     out = io.StringIO()
@@ -101,13 +98,13 @@ for key in files:
             rej_writer.writerow(row)
             n_rej += 1
     
-    logg("# out: {}, # rej: {}".format(n_out, n_rej))
+    #logg("# out: {}, # rej: {}".format(n_out, n_rej))
     
     if n_out > 0:
-        s3bucket.put_object(Key=clean_key, Body=bytearray(out.getvalue(), 'utf-8'))
+        bucket.put_object(Key=clean_key, Body=bytearray(out.getvalue(), 'utf-8'))
     
     if n_rej > 0:
-        s3bucket.put_object(Key=rejected_key, Body=bytearray(rej.getvalue(), 'utf-8'))
+        bucket.put_object(Key=rejected_key, Body=bytearray(rej.getvalue(), 'utf-8'))
 
     out.close()
     rej.close()

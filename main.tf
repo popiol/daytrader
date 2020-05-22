@@ -50,13 +50,20 @@ module "get_quotes" {
 	})
 }
 
+module "dynamodb" {
+	source = "./dynamodb"
+	inp = var.inp
+}
+
 module "glue_role" {
 	source = "./role"
 	role_name = "glue"
 	service = "glue"
 	custom_policies = [
 		module.s3_quotes.access_policy,
-		module.alerts.publish_policy
+		module.alerts.publish_policy,
+		module.dynamodb.access_policy.event_process_log,
+		module.dynamodb.access_policy.event_table
 	]
 	attached_policies = ["AWSGlueServiceRole"]
 	inp = var.inp
@@ -68,6 +75,8 @@ module "etl" {
 	inp = merge(var.inp, {
 		bucket_name = module.s3_quotes.bucket_name
 		alert_topic = module.alerts.arn
+		log_table = module.dynamodb.table_name.event_process_log
+		event_table = module.dynamodb.table_name.event_table
 	})
 }
 

@@ -63,3 +63,20 @@ resource "aws_glue_trigger" "clean_quotes" {
     crawler_name = module.crawler_quotes.crawler_name
   }
 }
+
+resource "aws_glue_trigger" "crawler_quotes" {
+  name = "${var.inp.app.id}_crawler_quotes"
+  type = "CONDITIONAL"
+  workflow_name = aws_glue_workflow.quotes.name
+
+  predicate {
+    conditions {
+      crawler_name = module.crawler_quotes.crawler_name
+      crawl_state = "SUCCEEDED"
+    }
+  }
+
+  actions {
+    job_name = module.events.job_name
+  }
+}
