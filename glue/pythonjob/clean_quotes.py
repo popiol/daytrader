@@ -30,7 +30,7 @@ def transform(row):
     out['high_price'] = float(high_price.replace(',',''))
 
     #date
-    dt = dateutil.parser.parse(row['Time_Date'])
+    dt = datetime.datetime.strptime(row['Time_Date'], "%I:%M %p %d.%m.%Y")
     dt = dt.strftime("%Y-%m-%d %H:%M:%S")
     assert dt > '2020-01-01 00:00:00'
     out['quote_dt'] = dt
