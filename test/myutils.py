@@ -42,7 +42,6 @@ def run_glue_job(job_name, args={}):
     glue = boto3.client('glue')
 
     #check if job already running
-    glue = boto3.client('glue')
     job_id = None
     res = glue.get_job_runs(
         JobName = job_name
@@ -51,7 +50,7 @@ def run_glue_job(job_name, args={}):
         if not res['JobRuns']:
             break
         for run in res['JobRuns']:
-            if run['JobRunState'] == 'RUNNING':
+            if run['JobRunState'] in ['STARTING', 'RUNNING', 'STOPPING']:
                 job_id = run['Id']
                 break
         if 'NextToken' not in res:
