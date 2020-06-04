@@ -10,7 +10,9 @@ import traceback
 from boto3.dynamodb.conditions import Key, Attr
 import json
 import math
+import glue_utils
 
+DATE_FORMAT = '%Y-%m-%d %H-%M-%S'
 
 def logg(x):
     print("---- [{}] ".format(datetime.datetime.now()), x)
@@ -49,7 +51,7 @@ while True:
     
 if job_id is None:
     print("Job ID not found")
-    exit(0)
+    exit()
 
 #logg("Job ID: {}".format(job_id))
 
@@ -83,7 +85,7 @@ for key in files:
             process_key = key
 
 if process_key is None:
-    exit(0)
+    exit()
 
 #add process log
 log_table.put_item(
@@ -128,7 +130,10 @@ for row in csv_reader:
     last_quote_dt = None
     if res['Items']:
         last_quote_dt = res['Items'][0]['quote_dt']
-        if last_quote_dt >= quote_dt:
+        last_quote_dt_minus_th = datetime.datetime.strptime(last_quote_dt, DATE_FORMAT)
+        last_quote_dt_minus_th -= datetime.timedelta(minutes=50)
+        last_quote_dt_minus_th = last_quote_dt_minus_th.strftime(DATE_FORMAT)
+        if last_quote_dt_minus_th >= quote_dt:
             continue
     
     #add event to db
@@ -143,9 +148,7 @@ for row in csv_reader:
     #get prev event
     prev_event = None
     if last_quote_dt is not None:
-        dt = last_quote_dt[:13].replace('-','').replace(' ','')
-        dt2 = last_quote_dt.replace('-','').replace(' ','').replace(':','')
-        obj_key = "events/date={}/{}_{}.json".format(dt, comp_code, dt2)
+        obj_key = glue_utils.create_event_key(comp_code, last_quote_dt)
         f = bucket.Object(obj_key).get()
         prev_event = f['Body'].read().decode('utf-8')
         prev_event = json.loads(prev_event)
@@ -184,8 +187,6 @@ for row in csv_reader:
     event['scale'] = scale
     
     #add event to s3
-    dt = quote_dt[:13].replace('-','').replace(' ','')
-    dt2 = quote_dt.replace('-','').replace(' ','').replace(':','')
-    obj_key = "events/date={}/{}_{}.json".format(dt, comp_code, dt2)
+    obj_key = glue_utils.create_event_key(comp_code, quote_dt)
     event = json.dumps(event)
     bucket.put_object(Key=obj_key, Body=bytearray(event, 'utf-8'))
