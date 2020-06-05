@@ -23,6 +23,7 @@ test:
     - python3 -m pytest test/test_html2csv.py
     - python3 -m pytest test/test_clean_quotes.py
     - python3 -m pytest test/test_events.py
+    - python3 -m pytest test/test_discretize.py
 
 clean:
   stage: clean
