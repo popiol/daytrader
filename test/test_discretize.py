@@ -1,3 +1,4 @@
+from sklearn.preprocessing import KBinsDiscretizer
 import pytest
 import myutils
 import glue.pythonjob.glue_utils as glue_utils

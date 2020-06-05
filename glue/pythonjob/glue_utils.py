@@ -1,3 +1,4 @@
+from sklearn.preprocessing import KBinsDiscretizer
 import pickle
 import random
 import math

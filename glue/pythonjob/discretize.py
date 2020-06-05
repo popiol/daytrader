@@ -71,7 +71,6 @@ for comp_code in comp_codes:
             price_ch.append(price/prev_price-1)
 
 #discretize
-print("Price ch:",price_ch)
 discretizer = KBinsDiscretizer(n_bins=glue_utils.PRICE_CHANGE_N_BINS, encode='ordinal')
 price_ch = np.reshape(price_ch, (-1, 1))
 discretizer.fit(price_ch)
