@@ -10,7 +10,7 @@ import traceback
 from boto3.dynamodb.conditions import Key, Attr
 import json
 import math
-
+import glue_utils
 
 def logg(x):
     print("---- [{}] ".format(datetime.datetime.now()), x)
@@ -49,7 +49,7 @@ while True:
     
 if job_id is None:
     print("Job ID not found")
-    exit(0)
+    exit()
 
 #logg("Job ID: {}".format(job_id))
 
@@ -83,7 +83,7 @@ for key in files:
             process_key = key
 
 if process_key is None:
-    exit(0)
+    exit()
 
 #add process log
 log_table.put_item(
@@ -128,7 +128,10 @@ for row in csv_reader:
     last_quote_dt = None
     if res['Items']:
         last_quote_dt = res['Items'][0]['quote_dt']
-        if last_quote_dt >= quote_dt:
+        last_quote_dt_minus_th = datetime.datetime.strptime(last_quote_dt, glue_utils.DB_DATE_FORMAT)
+        last_quote_dt_minus_th -= datetime.timedelta(minutes=50)
+        last_quote_dt_minus_th = last_quote_dt_minus_th.strftime(glue_utils.DB_DATE_FORMAT)
+        if last_quote_dt_minus_th >= quote_dt:
             continue
     
     #add event to db
@@ -143,14 +146,12 @@ for row in csv_reader:
     #get prev event
     prev_event = None
     if last_quote_dt is not None:
-        dt = last_quote_dt[:13].replace('-','').replace(' ','')
-        dt2 = last_quote_dt.replace('-','').replace(' ','').replace(':','')
-        obj_key = "events/date={}/{}_{}.json".format(dt, comp_code, dt2)
+        obj_key = glue_utils.create_event_key(comp_code, last_quote_dt)
         f = bucket.Object(obj_key).get()
         prev_event = f['Body'].read().decode('utf-8')
         prev_event = json.loads(prev_event)
         for key in prev_event.keys():
-            if key.startswith('price') or key.startswith('high') or key.startswith('low'):
+            if key.startswith('price') or key.startswith('high') or key.startswith('low') or key.startswith('jump'):
                 prev_event[key] = float(prev_event[key])
 
     #calc new event
@@ -173,6 +174,20 @@ for row in csv_reader:
             event[key] = min(low_price, prev_event[key] * (1+.001*math.exp(-period)))
         else:
             event[key] = low_price
+        key = 'jumpup{}'.format(period)
+        if prev_event is not None:
+            key_low = 'low{}'.format(period)
+            jumpup = price - prev_event[key_low]
+            event[key] = max(jumpup, prev_event[key] * (1-.001*math.exp(-period)))
+        else:
+            event[key] = price - low_price
+        key = 'jumpdown{}'.format(period)
+        if prev_event is not None:
+            key_high = 'high{}'.format(period)
+            jumpdown = price - prev_event[key_high]
+            event[key] = min(jumpdown, prev_event[key] * (1-.001*math.exp(-period)))
+        else:
+            event[key] = price - high_price
     hour = int(quote_dt[11:13])
     event['start'] = 1 if hour <= 9 else 0
     event['end'] = 1 if hour >= 16 else 0
@@ -184,8 +199,6 @@ for row in csv_reader:
     event['scale'] = scale
     
     #add event to s3
-    dt = quote_dt[:13].replace('-','').replace(' ','')
-    dt2 = quote_dt.replace('-','').replace(' ','').replace(':','')
-    obj_key = "events/date={}/{}_{}.json".format(dt, comp_code, dt2)
+    obj_key = glue_utils.create_event_key(comp_code, quote_dt)
     event = json.dumps(event)
     bucket.put_object(Key=obj_key, Body=bytearray(event, 'utf-8'))

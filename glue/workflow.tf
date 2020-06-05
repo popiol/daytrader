@@ -64,6 +64,23 @@ resource "aws_glue_trigger" "clean_quotes" {
   }
 }
 
+resource "aws_glue_trigger" "discretize" {
+  name = "${var.inp.app.id}_discretize"
+  type = "CONDITIONAL"
+  workflow_name = aws_glue_workflow.quotes.name
+
+  predicate {
+    conditions {
+      crawler_name = module.crawler_quotes.crawler_name
+      crawl_state = "SUCCEEDED"
+    }
+  }
+
+  actions {
+    job_name = module.discretize.job_name
+  }
+}
+
 resource "aws_glue_trigger" "start_events" {
   name = "${var.inp.app.id}_start_events"
   type = "SCHEDULED"
