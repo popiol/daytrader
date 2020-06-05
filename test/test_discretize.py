@@ -1,8 +1,8 @@
-from sklearn.preprocessing import KBinsDiscretizer
 import pytest
 import myutils
 import glue.pythonjob.glue_utils as glue_utils
 import boto3
+import numpy as np
 
 class TestDiscretize():
 
@@ -26,6 +26,6 @@ class TestDiscretize():
         discretizer = glue_utils.get_discretizer(bucket)
         n_bins = discretizer.n_bins_[0]
         assert n_bins == glue_utils.PRICE_CHANGE_N_BINS
-        proba = [1] * n_bins
+        proba = np.histogram(np.random.normal(size=100), bins=n_bins)[0]
         price_ch = glue_utils.random_price_change(discretizer, proba)
         assert 2 > price_ch > -1
