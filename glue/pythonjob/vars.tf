@@ -7,8 +7,12 @@ variable "inp" {
 		alert_topic = string
 		log_table = string
 		event_table = string
-		extra-py-files = string
     })
+}
+
+variable "extra-py-files" {
+	type = list(string)
+	default = []
 }
 
 variable "script_name" {

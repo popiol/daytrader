@@ -52,16 +52,14 @@ module "events" {
 	source = "./pythonjob"
 	script_name = "events"
 	role = var.role
-	inp = merge(var.inp, {
-		extra-py-files = "s3://${var.inp.bucket_name}/scripts/glue_utils.py"
-	})
+	inp = var.inp
+	extra-py-files = ["s3://${var.inp.bucket_name}/scripts/glue_utils.py"]
 }
 
 module "discretize" {
 	source = "./pythonjob"
 	script_name = "discretize"
 	role = var.role
-	inp = merge(var.inp, {
-		extra-py-files = "s3://${var.inp.bucket_name}/scripts/glue_utils.py"
-	})
+	inp = var.inp
+	extra-py-files = ["s3://${var.inp.bucket_name}/scripts/glue_utils.py"]
 }
