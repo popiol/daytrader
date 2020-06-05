@@ -3,6 +3,7 @@ import random
 import math
 
 PRICE_CHANGE_N_BINS = 10
+DB_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
 
 def create_event_key(comp_code, quote_dt):
     dt = quote_dt[:13].replace('-','').replace(' ','')

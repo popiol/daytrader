@@ -12,8 +12,6 @@ import json
 import math
 import glue_utils
 
-DATE_FORMAT = '%Y-%m-%d %H-%M-%S'
-
 def logg(x):
     print("---- [{}] ".format(datetime.datetime.now()), x)
 
@@ -130,9 +128,9 @@ for row in csv_reader:
     last_quote_dt = None
     if res['Items']:
         last_quote_dt = res['Items'][0]['quote_dt']
-        last_quote_dt_minus_th = datetime.datetime.strptime(last_quote_dt, DATE_FORMAT)
+        last_quote_dt_minus_th = datetime.datetime.strptime(last_quote_dt, glue_utils.DB_DATE_FORMAT)
         last_quote_dt_minus_th -= datetime.timedelta(minutes=50)
-        last_quote_dt_minus_th = last_quote_dt_minus_th.strftime(DATE_FORMAT)
+        last_quote_dt_minus_th = last_quote_dt_minus_th.strftime(glue_utils.DB_DATE_FORMAT)
         if last_quote_dt_minus_th >= quote_dt:
             continue
     
