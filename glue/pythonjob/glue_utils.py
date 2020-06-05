@@ -1,6 +1,7 @@
 import pickle
 import random
 import math
+import numpy as np
 
 PRICE_CHANGE_N_BINS = 10
 DB_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
@@ -17,6 +18,7 @@ def get_discretizer(bucket):
     return pickle.loads(discretizer)
 
 def random_price_change(discretizer, proba):
+    proba = p
     n = len(proba)
     n1 = math.floor(n/2+.01)
     n2 = math.ceil(n/2-.01)
@@ -27,7 +29,7 @@ def random_price_change(discretizer, proba):
     sum2 = sum(proba2)
     proba1 = [x * 2 * sum2 / (sum1+sum2) for x in proba1]
     proba2 = [x * 2 * sum1 / (sum1+sum2) for x in proba2]
-    proba = proba1 + proba_mid + proba2
+    proba = np.concatenate([proba1, proba_mid, proba2])
     proba = [x + .01 for x in proba]
     proba[1] += proba[0]
     proba[-2] += proba[-1]
