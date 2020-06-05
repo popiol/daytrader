@@ -43,6 +43,8 @@ if len(comp_codes) == 0:
     topic.publish(
         Message = "Missing files in events/"
     )
+    print("Missing files in events/")
+    exit()
 
 #create list of price changes
 price_ch = []
@@ -69,6 +71,7 @@ for comp_code in comp_codes:
             price_ch.append(price/prev_price-1)
 
 #discretize
+print("Price ch:",price_ch)
 discretizer = KBinsDiscretizer(n_bins=glue_utils.PRICE_CHANGE_N_BINS, encode='ordinal')
 price_ch = np.reshape(price_ch, (-1, 1))
 discretizer.fit(price_ch)
