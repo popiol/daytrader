@@ -79,4 +79,4 @@ discretizer.fit(price_ch)
 #save discretizer
 discretizer = pickle.dumps(discretizer)
 obj_key = "model/discretizer.pickle"
-bucket.put_object(Key=obj_key, Body=bytearray(discretizer, 'utf-8'))
+bucket.put_object(Key=obj_key, Body=discretizer)

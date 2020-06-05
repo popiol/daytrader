@@ -13,7 +13,7 @@ def create_event_key(comp_code, quote_dt):
 def get_discretizer(bucket):
     obj_key = 'model/discretizer.pickle'
     f = bucket.Object(obj_key).get()
-    discretizer = f['Body'].read().decode('utf-8')
+    discretizer = f['Body'].read()
     return pickle.loads(discretizer)
 
 def random_price_change(discretizer, proba):
