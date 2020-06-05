@@ -63,3 +63,10 @@ module "discretize" {
 	inp = var.inp
 	extra-py-files = ["glue_utils.py"]
 }
+
+module "clear_events" {
+	source = "./pythonjob"
+	script_name = "clear_events"
+	role = var.role
+	inp = var.inp
+}

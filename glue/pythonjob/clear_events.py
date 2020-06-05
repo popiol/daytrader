@@ -10,7 +10,6 @@ import traceback
 from boto3.dynamodb.conditions import Key, Attr
 import json
 import math
-import glue_utils
 
 #get params
 args = getResolvedOptions(sys.argv, ['bucket_name','alert_topic','log_table','event_table','app'])
