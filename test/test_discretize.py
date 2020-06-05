@@ -1,6 +1,6 @@
 import pytest
 import myutils
-import glue_utils
+import glue.pythonjob.glue_utils as glue_utils
 import boto3
 
 class TestDiscretize():
