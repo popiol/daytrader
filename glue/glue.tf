@@ -53,4 +53,13 @@ module "events" {
 	script_name = "events"
 	role = var.role
 	inp = var.inp
+	extra-py-files = ["glue_utils.py"]
+}
+
+module "discretize" {
+	source = "./pythonjob"
+	script_name = "discretize"
+	role = var.role
+	inp = var.inp
+	extra-py-files = ["glue_utils.py"]
 }

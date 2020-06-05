@@ -10,6 +10,11 @@ variable "inp" {
     })
 }
 
+variable "extra-py-files" {
+	type = list(string)
+	default = []
+}
+
 variable "script_name" {
 	type = string
 }
