@@ -26,8 +26,8 @@ resource "aws_s3_bucket_object" "script" {
 resource "aws_s3_bucket_object" "extra-py-files" {
 	for_each = toset(split(",", var.inp.extra-py-files))
 	bucket = var.inp.bucket_name
-	key = "/scripts/${split("/",${each.key})[4]}"
-	source = "${path.module}/${split("/",${each.key})[4]}"
-	etag = filemd5("${path.module}/${split("/",${each.key})[4]}")
+	key = "/scripts/${element(split("/",${each.key}),4)}"
+	source = "${path.module}/${element(split("/",${each.key}),4)}"
+	etag = filemd5("${path.module}/${element(split("/",${each.key}),4)}")
 	tags = var.inp.app
 }
