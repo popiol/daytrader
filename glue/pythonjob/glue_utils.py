@@ -18,18 +18,6 @@ def get_discretizer(bucket):
     return pickle.loads(discretizer)
 
 def random_price_change(discretizer, proba):
-    proba = p
-    n = len(proba)
-    n1 = math.floor(n/2+.01)
-    n2 = math.ceil(n/2-.01)
-    proba1 = proba[:n1]
-    proba2 = proba[n2:]
-    proba_mid = proba[n1:n2]
-    sum1 = sum(proba1)
-    sum2 = sum(proba2)
-    proba1 = [x * 2 * sum2 / (sum1+sum2) for x in proba1]
-    proba2 = [x * 2 * sum1 / (sum1+sum2) for x in proba2]
-    proba = np.concatenate([proba1, proba_mid, proba2])
     proba = [x + .01 for x in proba]
     proba[1] += proba[0]
     proba[-2] += proba[-1]
