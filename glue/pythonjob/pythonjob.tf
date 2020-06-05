@@ -17,7 +17,7 @@ resource "aws_glue_job" "main" {
 
 locals {
 	job_args = merge(var.inp, length(var.extra-py-files)>0 ? {
-		extra-py-files = join(",", var.extra-py-files)
+		extra-py-files = join(",", [for x in var.extra-py-files : "s3://${var.inp.bucket_name}/scripts/${x}"])
 	} : {})
 }
 
@@ -32,8 +32,8 @@ resource "aws_s3_bucket_object" "script" {
 resource "aws_s3_bucket_object" "extra-py-files" {
 	for_each = toset(var.extra-py-files)
 	bucket = var.inp.bucket_name
-	key = "/scripts/${split("/","${each.key}")[4]}"
-	source = "${path.module}/${split("/","${each.key}")[4]}"
-	etag = filemd5("${path.module}/${split("/","${each.key}")[4]}")
+	key = "/scripts/${each.key}"
+	source = "${path.module}/${each.key}"
+	etag = filemd5("${path.module}/${each.key}")
 	tags = var.inp.app
 }

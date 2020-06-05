@@ -27,4 +27,4 @@ class TestDiscretize():
         assert n_bins == glue_utils.PRICE_CHANGE_N_BINS
         proba = [1] * n_bins
         price_ch = glue_utils.random_price_change(discretizer, proba)
-        assert 2 > price_ch > -.9
+        assert 2 > price_ch > -1

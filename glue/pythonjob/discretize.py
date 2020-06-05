@@ -64,7 +64,7 @@ for comp_code in comp_codes:
         event = f['Body'].read().decode('utf-8')
         event = json.loads(event)
         prev_price = price
-        price = event['price']
+        price = float(event['price'])
         if prev_price is not None and prev_price >= .01:
             price_ch.append(price/prev_price-1)
 

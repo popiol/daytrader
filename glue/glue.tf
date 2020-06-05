@@ -53,7 +53,7 @@ module "events" {
 	script_name = "events"
 	role = var.role
 	inp = var.inp
-	extra-py-files = ["s3://${var.inp.bucket_name}/scripts/glue_utils.py"]
+	extra-py-files = ["glue_utils.py"]
 }
 
 module "discretize" {
@@ -61,5 +61,5 @@ module "discretize" {
 	script_name = "discretize"
 	role = var.role
 	inp = var.inp
-	extra-py-files = ["s3://${var.inp.bucket_name}/scripts/glue_utils.py"]
+	extra-py-files = ["glue_utils.py"]
 }

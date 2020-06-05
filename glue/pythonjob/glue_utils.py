@@ -23,5 +23,5 @@ def random_price_change(discretizer, proba):
     start = discretizer.bin_edges_[0][n]
     end = discretizer.bin_edges_[0][n+1]
     start = max(start-(end-start)/2, -.9)
-    end = end+(end-start)/2
+    end = min(end+(end-start)/2, 1.9)
     return random.uniform(start, end)

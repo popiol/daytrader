@@ -151,7 +151,7 @@ for row in csv_reader:
         prev_event = f['Body'].read().decode('utf-8')
         prev_event = json.loads(prev_event)
         for key in prev_event.keys():
-            if key.startswith('price') or key.startswith('high') or key.startswith('low'):
+            if key.startswith('price') or key.startswith('high') or key.startswith('low') or key.startswith('jump'):
                 prev_event[key] = float(prev_event[key])
 
     #calc new event
@@ -174,6 +174,20 @@ for row in csv_reader:
             event[key] = min(low_price, prev_event[key] * (1+.001*math.exp(-period)))
         else:
             event[key] = low_price
+        key = 'jumpup{}'.format(period)
+        if prev_event is not None:
+            key_low = 'low{}'.format(period)
+            jumpup = price - prev_event[key_low]
+            event[key] = max(jumpup, prev_event[key] * (1-.001*math.exp(-period)))
+        else:
+            event[key] = price - low_price
+        key = 'jumpdown{}'.format(period)
+        if prev_event is not None:
+            key_high = 'high{}'.format(period)
+            jumpdown = price - prev_event[key_high]
+            event[key] = min(jumpdown, prev_event[key] * (1-.001*math.exp(-period)))
+        else:
+            event[key] = price - high_price
     hour = int(quote_dt[11:13])
     event['start'] = 1 if hour <= 9 else 0
     event['end'] = 1 if hour >= 16 else 0
