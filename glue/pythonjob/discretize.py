@@ -19,12 +19,13 @@ def logg(x):
     print("---- [{}] ".format(datetime.datetime.now()), x)
 
 #get params
-args = getResolvedOptions(sys.argv, ['bucket_name','alert_topic','log_table','event_table','app'])
+args = getResolvedOptions(sys.argv, ['bucket_name','alert_topic','log_table','event_table','app','temporary'])
 bucket_name = args['bucket_name']
 alert_topic = args['alert_topic']
 log_table_name = args['log_table']
 event_table_name = args['event_table']
 app = json.loads(args['app'])
+temporary = args['temporary']
 
 #get list of all company codes
 s3 = boto3.resource('s3')
@@ -37,7 +38,7 @@ for obj in objs:
         comp_codes[comp_code] = 1
 
 #alert if input files missing
-if len(comp_codes) == 0:
+if not comp_codes:
     sns = boto3.resource('sns')
     topic = sns.Topic(alert_topic)
     topic.publish(
@@ -69,6 +70,14 @@ for comp_code in comp_codes:
         price = float(event['price'])
         if prev_price is not None and prev_price >= .01:
             price_ch.append(price/prev_price-1)
+
+if not price_ch:
+    print("temporary:", temporary)
+    if temporary:
+        price_ch = [0,.01,-.01]
+    else:
+        print("No price changes")
+        exit()
 
 #discretize
 discretizer = KBinsDiscretizer(n_bins=glue_utils.PRICE_CHANGE_N_BINS, encode='ordinal')
