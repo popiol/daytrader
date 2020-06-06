@@ -10,6 +10,7 @@ import traceback
 from boto3.dynamodb.conditions import Key, Attr
 import json
 import math
+import time
 
 #get params
 args = getResolvedOptions(sys.argv, ['bucket_name','alert_topic','log_table','event_table','app'])
@@ -38,11 +39,16 @@ for batch_n in range(math.ceil(len(files)/1000)):
 
 def truncate_table(db, table_name):
     table = db.describe_table(TableName=table_name)['Table']
-    table['BillingMode'] = table['BillingModeSummary']['BillingMode']
     db.delete_table(TableName=table_name)
+    table['BillingMode'] = table['BillingModeSummary']['BillingMode']
     arg_keys = ['AttributeDefinitions', 'TableName', 'KeySchema', 'LocalSecondaryIndexes', 'GlobalSecondaryIndexes', 'BillingMode', 'StreamSpecification', 'SSESpecification', 'Tags']
     args = {x: table[x] for x in arg_keys if x in table}
-    db.create_table(**args)
+    while True:
+        try:
+            db.create_table(**args)
+            break
+        except:
+            time.sleep(10)
 
 #truncate tables
 db = boto3.client('dynamodb')
