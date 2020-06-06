@@ -39,7 +39,9 @@ for batch_n in range(math.ceil(len(files)/1000)):
 def truncate_table(db, table_name):
     table = db.describe_table(TableName=table_name)['Table']
     db.delete_table(TableName=table_name)
-    db.create_table(**table)
+    arg_keys = ['AttributeDefinitions', 'TableName', 'KeySchema', 'LocalSecondaryIndexes', 'GlobalSecondaryIndexes', 'BillingMode', 'ProvisionedThroughput', 'StreamSpecification', 'SSESpecification', 'Tags']
+    args = {table[x] for x in arg_keys}
+    db.create_table(**args)
 
 #truncate tables
 db = boto3.client('dynamodb')
