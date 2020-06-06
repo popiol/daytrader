@@ -166,26 +166,26 @@ for row in csv_reader:
             event[key] = price
         key = 'high{}'.format(period)
         if prev_event is not None:
-            event[key] = max(high_price, prev_event[key] * (1-.001*math.exp(-period)))
+            event[key] = max(high_price, high_price / period + prev_event[key] * (1-1/period))
         else:
             event[key] = high_price
         key = 'low{}'.format(period)
         if prev_event is not None:
-            event[key] = min(low_price, prev_event[key] * (1+.001*math.exp(-period)))
+            event[key] = min(low_price, low_price / period + prev_event[key] * (1-1/period))
         else:
             event[key] = low_price
         key = 'jumpup{}'.format(period)
         if prev_event is not None:
             key_low = 'low{}'.format(period)
             jumpup = price - prev_event[key_low]
-            event[key] = max(jumpup, prev_event[key] * (1-.001*math.exp(-period)))
+            event[key] = max(jumpup, prev_event[key] * (1-1/period))
         else:
             event[key] = price - low_price
         key = 'jumpdown{}'.format(period)
         if prev_event is not None:
             key_high = 'high{}'.format(period)
             jumpdown = price - prev_event[key_high]
-            event[key] = min(jumpdown, prev_event[key] * (1-.001*math.exp(-period)))
+            event[key] = min(jumpdown, prev_event[key] * (1-1/period))
         else:
             event[key] = price - high_price
     hour = int(quote_dt[11:13])
