@@ -37,11 +37,11 @@ for batch_n in range(math.ceil(len(files)/1000)):
     )
 
 def truncate_table(db, table_name):
-    table = db.Table(table_name)
-    table.delete()
-    db.create_table(**table.__dict__)
+    table = db.describe_table(TableName=table_name)['Table']
+    db.delete_table(TableName=table_name)
+    db.create_table(**table)
 
 #truncate tables
-db = boto3.resource('dynamodb')
+db = boto3.client('dynamodb')
 truncate_table(db, log_table_name)
 truncate_table(db, event_table_name)
