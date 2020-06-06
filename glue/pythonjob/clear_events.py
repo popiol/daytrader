@@ -37,8 +37,10 @@ for batch_n in range(math.ceil(len(files)/1000)):
     )
 
 def truncate_table(db, table_name):
-    table = db.delete_table(TableName=table_name)['TableDescription']
-    arg_keys = ['AttributeDefinitions', 'TableName', 'KeySchema', 'LocalSecondaryIndexes', 'GlobalSecondaryIndexes', 'BillingMode', 'StreamSpecification', 'SSESpecification', 'Tags']
+    table = db.describe_table(TableName=table_name)['Table']
+    table['BillingMode'] = table['BillingModeSummary']['BillingMode']
+    db.delete_table(TableName=table_name)
+    arg_keys = ['AttributeDefinitions', 'TableName', 'KeySchema', 'LocalSecondaryIndexes', 'GlobalSecondaryIndexes', 'BillingMode', 'ProvisionedThroughput', 'StreamSpecification', 'SSESpecification', 'Tags']
     args = {x: table[x] for x in arg_keys if x in table}
     db.create_table(**args)
 
