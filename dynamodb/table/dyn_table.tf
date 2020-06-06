@@ -30,7 +30,8 @@ data "aws_iam_policy_document" "access" {
 			"dynamodb:PutItem",
 			"dynamodb:UpdateItem",
 			"dynamodb:DescribeTable",
-			"dynamodb:DeleteTable"
+			"dynamodb:DeleteTable",
+			"dynamodb:CreateTable"
 		]
 		resources = [
 			"${aws_dynamodb_table.main.arn}"
