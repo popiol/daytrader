@@ -1,19 +1,12 @@
 import sys
 import datetime
-import dateutil.parser
 from awsglue.utils import getResolvedOptions
 import boto3
 import csv
-import re
 import io
-import traceback
 from boto3.dynamodb.conditions import Key, Attr
 import json
-import math
 import glue_utils
-
-def logg(x):
-    print("---- [{}] ".format(datetime.datetime.now()), x)
 
 #get params
 args = getResolvedOptions(sys.argv, ['bucket_name','alert_topic','log_table','event_table','app'])
@@ -114,10 +107,12 @@ for row in csv_reader:
     #check high price
     if high_price < .01 or high_price < price or high_price > 2 * price:
         high_price = price
+        row['high_price'] = high_price
     
     #check low price
     if low_price < .01 or low_price > price or low_price < price / 2:
         low_price = price
+        row['low_price'] = low_price
     
     #get last quote_dt
     res = event_table.query(

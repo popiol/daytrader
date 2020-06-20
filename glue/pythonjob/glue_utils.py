@@ -6,6 +6,9 @@ import numpy as np
 PRICE_CHANGE_N_BINS = 10
 DB_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
 
+def logg(x):
+    print("---- [{}] ".format(datetime.datetime.now()), x)
+
 def create_event_key(comp_code, quote_dt):
     dt = quote_dt[:13].replace('-','').replace(' ','')
     dt2 = quote_dt.replace('-','').replace(' ','').replace(':','')
