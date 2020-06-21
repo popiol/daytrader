@@ -38,9 +38,7 @@ if not comp_codes:
     exit()
 
 #get bins
-discretizer = glue_utils.get_discretizer(bucket)
-n_bins = discretizer.n_bins_[0]
-bins = discretizer.bin_edges_[0]
+discretizer = glue_utils.Discretizer(bucket)
 
 #create model
 model = MLPClassifier(warm_start=True)
@@ -66,26 +64,30 @@ for comp_code in comp_codes:
         prev_event = event
         event = f['Body'].read().decode('utf-8')
         event = json.loads(event)
-        if prev_price is None:
+        event = glue_utils.Event(event)
+        if prev_event is None:
             continue
-        price1 = float(prev_event['price']) * float(prev_event['scale'])
-        price2 = float(event['price']) * float(event['scale'])
+        price1 = prev_event.get_price()
+        price2 = event.get_price()
+        high_price2 = event.get_high_price()
+        low_price2 = event.get_low_price()
         if price1 < .01 or price2 < .01:
             continue
+        if high_price2 < .01:
+            high_price2 = price2
+        if low_price2 < .01:
+            low_price2 = price2
         price_ch = price2/price1-1
-        price_class = [1 if x <= price_ch <= bins[i+1] else 0 for i,x in enumerate(bins[:-1])]
-        attrs = ['low_price','high_price','start','end','ch>10','ch>20','ch>40','ch>80']
-        period_attrs = ['price','high','low','jumpup','jumpdown']
-        for exp in range(1,11):
-            period = 2 ** exp
-            for attr in period_attrs:
-                attrs.append(f'{attr}{period}')
-        inputs = [float(event[x]) for x in attrs]
+        price_class = discretizer.price_class(price_ch)
+        high_ch = high_price2/price1-1
+        high_class = discretizer.high_class(high_ch)
+        low_ch = low_price2/price1-1
+        low_class = discretizer.low_class(low_ch)
+        inputs = event.get_inputs()
         train_x.append(inputs)
-        train_y.append(price_class)
+        train_y.append(price_class + high_class + low_class)
     model.fit(train_x, train_y)
 
 #save model
-model = pickle.dumps(model)
-obj_key = "model/pricech_model.pickle"
-bucket.put_object(Key=obj_key, Body=discretizer)
+model = glue_utils.PriceChModel(model=model)
+model.save(bucket)

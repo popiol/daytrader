@@ -39,6 +39,8 @@ if not comp_codes:
 
 #create list of price changes
 price_ch = []
+high_ch = []
+low_ch = []
 db = boto3.resource('dynamodb')
 event_table = db.Table(event_table_name)
 for comp_code in comp_codes:
@@ -52,14 +54,15 @@ for comp_code in comp_codes:
     price = None
     for item in res['Items']:
         quote_dt = item['quote_dt']
-        event_key = glue_utils.create_event_key(comp_code, quote_dt)
-        f = bucket.Object(event_key).get()
-        event = f['Body'].read().decode('utf-8')
-        event = json.loads(event)
+        event = glue_utils.Event(bucket=bucket, comp_code=comp_code, quote_dt=quote_dt)
         prev_price = price
-        price = float(event['price']) * float(event['scale'])
+        price = event.get_price()
+        low_price = event.get_low_price()
+        high_price = event.get_high_price()
         if prev_price is not None and prev_price >= .01:
             price_ch.append(price/prev_price-1)
+            high_ch.append(high_price/prev_price-1)
+            low_ch.append(low_price/prev_price-1)
 
 if not price_ch:
     print("temporary:", temporary)
@@ -73,8 +76,13 @@ if not price_ch:
 discretizer = KBinsDiscretizer(n_bins=glue_utils.PRICE_CHANGE_N_BINS, encode='ordinal')
 price_ch = np.reshape(price_ch, (-1, 1))
 discretizer.fit(price_ch)
+discretizer_high = KBinsDiscretizer(n_bins=glue_utils.PRICE_CHANGE_N_BINS/2, encode='ordinal')
+high_ch = np.reshape(high_ch, (-1, 1))
+discretizer_high.fit(high_ch)
+discretizer_low = KBinsDiscretizer(n_bins=glue_utils.PRICE_CHANGE_N_BINS/2, encode='ordinal')
+low_ch = np.reshape(low_ch, (-1, 1))
+discretizer_low.fit(low_ch)
 
 #save discretizer
-discretizer = pickle.dumps(discretizer)
-obj_key = "model/discretizer.pickle"
-bucket.put_object(Key=obj_key, Body=discretizer)
+discretizer = glue_utils.Discretizer(discretizer=discretizer, high=discretizer_high, low=discretizer_low)
+discretizer.save(bucket)

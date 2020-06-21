@@ -70,3 +70,10 @@ module "clear_events" {
 	role = var.role
 	inp = var.inp
 }
+
+module "pricech_model" {
+	source = "./pythonjob"
+	script_name = "pricech_model"
+	role = var.role
+	inp = var.inp
+}
