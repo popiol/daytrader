@@ -31,6 +31,6 @@ class TestPriceCh():
         model = glue_utils.PriceChModel(bucket)
         event = glue_utils.Event(bucket=bucket, obj_key=obj_key)
         y = model.predict_proba([event.get_inputs()])
-        assert np.shape(y) == (1, glue_utils.PRICE_CHANGE_N_BINS*2)
+        assert np.shape(y) == (1, glue_utils.ALL_CHANGE_N_BINS)
         for x in y[0]:
             assert 0 <= x <= 1

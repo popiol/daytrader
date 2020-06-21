@@ -9,12 +9,13 @@ import json
 import glue_utils
 
 #get params
-args = getResolvedOptions(sys.argv, ['bucket_name','alert_topic','log_table','event_table','app'])
+args = getResolvedOptions(sys.argv, ['bucket_name','alert_topic','log_table','event_table','app','temporary'])
 bucket_name = args['bucket_name']
 alert_topic = args['alert_topic']
 log_table_name = args['log_table']
 event_table_name = args['event_table']
 app = json.loads(args['app'])
+temporary = args['temporary']
 
 #get job id
 job_id = None
@@ -123,11 +124,12 @@ for row in csv_reader:
     last_quote_dt = None
     if res['Items']:
         last_quote_dt = res['Items'][0]['quote_dt']
-        last_quote_dt_minus_th = datetime.datetime.strptime(last_quote_dt, glue_utils.DB_DATE_FORMAT)
-        last_quote_dt_minus_th -= datetime.timedelta(minutes=50)
-        last_quote_dt_minus_th = last_quote_dt_minus_th.strftime(glue_utils.DB_DATE_FORMAT)
-        if last_quote_dt_minus_th >= quote_dt:
-            continue
+        if not temporary:
+            last_quote_dt_minus_th = datetime.datetime.strptime(last_quote_dt, glue_utils.DB_DATE_FORMAT)
+            last_quote_dt_minus_th -= datetime.timedelta(minutes=50)
+            last_quote_dt_minus_th = last_quote_dt_minus_th.strftime(glue_utils.DB_DATE_FORMAT)
+            if last_quote_dt_minus_th >= quote_dt:
+                continue
     
     #add event to db
     event_table.put_item(

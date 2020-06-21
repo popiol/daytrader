@@ -76,10 +76,10 @@ if not price_ch:
 discretizer = KBinsDiscretizer(n_bins=glue_utils.PRICE_CHANGE_N_BINS, encode='ordinal')
 price_ch = np.reshape(price_ch, (-1, 1))
 discretizer.fit(price_ch)
-discretizer_high = KBinsDiscretizer(n_bins=glue_utils.PRICE_CHANGE_N_BINS/2, encode='ordinal')
+discretizer_high = KBinsDiscretizer(n_bins=glue_utils.HIGH_CHANGE_N_BINS, encode='ordinal')
 high_ch = np.reshape(high_ch, (-1, 1))
 discretizer_high.fit(high_ch)
-discretizer_low = KBinsDiscretizer(n_bins=glue_utils.PRICE_CHANGE_N_BINS/2, encode='ordinal')
+discretizer_low = KBinsDiscretizer(n_bins=glue_utils.LOW_CHANGE_N_BINS/2, encode='ordinal')
 low_ch = np.reshape(low_ch, (-1, 1))
 discretizer_low.fit(low_ch)
 
