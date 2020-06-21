@@ -76,4 +76,5 @@ module "pricech_model" {
 	script_name = "pricech_model"
 	role = var.role
 	inp = var.inp
+	extra-py-files = ["glue_utils.py"]
 }
