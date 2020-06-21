@@ -10,6 +10,6 @@ setup(
         'numpy',
         'boto3',
         'pytest',
-        'sklearn'
+        'sklearn>=0.23'
     ],
 )
