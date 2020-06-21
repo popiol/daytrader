@@ -30,7 +30,9 @@ class TestDiscretize():
         proba = np.histogram(np.random.normal(size=100), bins=discretizer.n_bins)[0]
         price_ch = discretizer.random_price_change(proba)
         assert 2 > price_ch > -1
+        proba = np.histogram(np.random.normal(size=100), bins=discretizer.n_bins_high)[0]
         price_ch = discretizer.random_price_change(proba, type="high")
         assert 2 > price_ch > -1
+        proba = np.histogram(np.random.normal(size=100), bins=discretizer.n_bins_low)[0]
         price_ch = discretizer.random_price_change(proba, type="low")
         assert 2 > price_ch > -1
