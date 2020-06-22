@@ -34,3 +34,5 @@ class TestPriceCh():
         assert np.shape(y) == (1, glue_utils.ALL_CHANGE_N_BINS)
         for x in y[0]:
             assert 0 <= x <= 1
+        assert max(y[0]) > .5
+        assert min(y[0]) < .5
