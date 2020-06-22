@@ -34,5 +34,15 @@ class TestPriceCh():
         assert np.shape(y) == (1, glue_utils.ALL_CHANGE_N_BINS)
         for x in y[0]:
             assert 0 <= x <= 1
-        assert max(y[0]) > 0
-        assert min(y[0]) < 1
+        price_class = y[0][:10]
+        high_class = y[0][10:15]
+        low_class = y[0][15:]
+        assert max(price_class) > 0
+        assert min(price_class) < 1
+        assert min(price_class) < max(price_class)
+        assert max(high_class) > 0
+        assert min(high_class) < 1
+        assert min(high_class) < max(high_class)
+        assert max(low_class) > 0
+        assert min(low_class) < 1
+        assert min(low_class) < max(low_class)
