@@ -1,17 +1,10 @@
 import sys
 import datetime
-import dateutil.parser
 from awsglue.utils import getResolvedOptions
 import boto3
 import csv
-import re
 import io
 import traceback
-
-
-def logg(x):
-    print("---- [{}] ".format(datetime.datetime.now()), x)
-
 
 def transform(row):
     out = {}

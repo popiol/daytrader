@@ -15,7 +15,6 @@ from lxml import html as htmlparser
 import datetime
 from awsglue.utils import getResolvedOptions
 import sys
-import dateutil.tz
 
 #get params
 args = getResolvedOptions(sys.argv, ['bucket_name','alert_topic'])

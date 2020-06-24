@@ -1,27 +1,21 @@
 import sys
 import datetime
-import dateutil.parser
 from awsglue.utils import getResolvedOptions
 import boto3
 import csv
-import re
 import io
-import traceback
 from boto3.dynamodb.conditions import Key, Attr
 import json
-import math
 import glue_utils
 
-def logg(x):
-    print("---- [{}] ".format(datetime.datetime.now()), x)
-
 #get params
-args = getResolvedOptions(sys.argv, ['bucket_name','alert_topic','log_table','event_table','app'])
+args = getResolvedOptions(sys.argv, ['bucket_name','alert_topic','log_table','event_table','app','temporary'])
 bucket_name = args['bucket_name']
 alert_topic = args['alert_topic']
 log_table_name = args['log_table']
 event_table_name = args['event_table']
 app = json.loads(args['app'])
+temporary = args['temporary']
 
 #get job id
 job_id = None
@@ -114,10 +108,12 @@ for row in csv_reader:
     #check high price
     if high_price < .01 or high_price < price or high_price > 2 * price:
         high_price = price
+        row['high_price'] = high_price
     
     #check low price
     if low_price < .01 or low_price > price or low_price < price / 2:
         low_price = price
+        row['low_price'] = low_price
     
     #get last quote_dt
     res = event_table.query(
@@ -128,11 +124,12 @@ for row in csv_reader:
     last_quote_dt = None
     if res['Items']:
         last_quote_dt = res['Items'][0]['quote_dt']
-        last_quote_dt_minus_th = datetime.datetime.strptime(last_quote_dt, glue_utils.DB_DATE_FORMAT)
-        last_quote_dt_minus_th -= datetime.timedelta(minutes=50)
-        last_quote_dt_minus_th = last_quote_dt_minus_th.strftime(glue_utils.DB_DATE_FORMAT)
-        if last_quote_dt_minus_th >= quote_dt:
-            continue
+        if not temporary:
+            last_quote_dt_minus_th = datetime.datetime.strptime(last_quote_dt, glue_utils.DB_DATE_FORMAT)
+            last_quote_dt_minus_th -= datetime.timedelta(minutes=50)
+            last_quote_dt_minus_th = last_quote_dt_minus_th.strftime(glue_utils.DB_DATE_FORMAT)
+            if last_quote_dt_minus_th >= quote_dt:
+                continue
     
     #add event to db
     event_table.put_item(
@@ -146,59 +143,11 @@ for row in csv_reader:
     #get prev event
     prev_event = None
     if last_quote_dt is not None:
-        obj_key = glue_utils.create_event_key(comp_code, last_quote_dt)
-        f = bucket.Object(obj_key).get()
-        prev_event = f['Body'].read().decode('utf-8')
-        prev_event = json.loads(prev_event)
-        for key in prev_event.keys():
-            if key.startswith('price') or key.startswith('high') or key.startswith('low') or key.startswith('jump'):
-                prev_event[key] = float(prev_event[key])
+        prev_event = glue_utils.Event(bucket=bucket, comp_code=comp_code, quote_dt=last_quote_dt)
+        event = prev_event.next(price, high_price, low_price, quote_dt)
+    else:
+        event = glue_utils.Event(row)
 
-    #calc new event
-    event = row
-    scale = prev_event['scale'] if prev_event is not None else 1
-    for exp in range(1,11):
-        period = 2 ** exp
-        key = 'price{}'.format(period)
-        if prev_event is not None:
-            event[key] = price / period + prev_event[key] * (1-1/period)
-        else:
-            event[key] = price
-        key = 'high{}'.format(period)
-        if prev_event is not None:
-            event[key] = max(high_price, high_price / period + prev_event[key] * (1-1/period))
-        else:
-            event[key] = high_price
-        key = 'low{}'.format(period)
-        if prev_event is not None:
-            event[key] = min(low_price, low_price / period + prev_event[key] * (1-1/period))
-        else:
-            event[key] = low_price
-        key = 'jumpup{}'.format(period)
-        if prev_event is not None:
-            key_low = 'low{}'.format(period)
-            jumpup = price - prev_event[key_low]
-            event[key] = max(jumpup, prev_event[key] * (1-1/period))
-        else:
-            event[key] = price - low_price
-        key = 'jumpdown{}'.format(period)
-        if prev_event is not None:
-            key_high = 'high{}'.format(period)
-            jumpdown = price - prev_event[key_high]
-            event[key] = min(jumpdown, prev_event[key] * (1-1/period))
-        else:
-            event[key] = price - high_price
-    hour = int(quote_dt[11:13])
-    event['start'] = 1 if hour <= 9 else 0
-    event['end'] = 1 if hour >= 16 else 0
-    ch = price/prev_event['price']-1 if prev_event is not None else 0
-    for th in [10,20,40,80]:
-        event['ch>{}'.format(th)] = 1 if ch > th/100 or ch < 1/(th/100+1)-1 else 0
-    if event['ch>80']:
-        scale *= prev_event['price'] / price
-    event['scale'] = scale
-    
     #add event to s3
     obj_key = glue_utils.create_event_key(comp_code, quote_dt)
-    event = json.dumps(event)
-    bucket.put_object(Key=obj_key, Body=bytearray(event, 'utf-8'))
+    event.save(bucket, obj_key)
