@@ -36,4 +36,11 @@ class TestSimulator():
             price1 = comp_codes[comp_code]['price']
             price2 = event['price']
             price_ch = price2 / price1 - 1
-            assert abs(price_ch) < 1
+            assert -1 < price_ch < 2
+            high_price2 = event['high_price']
+            high_price_ch = high_price2 / price1 - 1
+            assert -1 < high_price_ch < 2
+            low_price2 = event['low_price']
+            low_price_ch = low_price2 / price1 - 1
+            assert -1 < low_price_ch < 2
+            

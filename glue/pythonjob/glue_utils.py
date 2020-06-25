@@ -21,56 +21,36 @@ def create_event_key(comp_code, quote_dt):
     return "events/date={}/{}_{}.json".format(dt, comp_code, dt2)
 
 class Discretizer():
-    def __init__(self, bucket=None, discretizer=None, low=None, high=None):
+    def __init__(self, bucket=None, discretizer=None):
         if discretizer is None:
             obj_key = 'model/discretizer.pickle'
             f = bucket.Object(obj_key).get()
             discretizer = f['Body'].read()
             self.discretizer = pickle.loads(discretizer)
-            obj_key = 'model/discretizer_high.pickle'
-            f = bucket.Object(obj_key).get()
-            discretizer = f['Body'].read()
-            self.discretizer_high = pickle.loads(discretizer)
-            obj_key = 'model/discretizer_low.pickle'
-            f = bucket.Object(obj_key).get()
-            discretizer = f['Body'].read()
-            self.discretizer_low = pickle.loads(discretizer)
         else:
             self.discretizer = discretizer
-            self.discretizer_high = high
-            self.discretizer_low = low
-        self.n_bins = self.discretizer.n_bins_[0]
-        self.bins = self.discretizer.bin_edges_[0]
-        self.n_bins_high = self.discretizer_high.n_bins_[0]
-        self.bins_high = self.discretizer_high.bin_edges_[0]
-        self.n_bins_low = self.discretizer_low.n_bins_[0]
-        self.bins_low = self.discretizer_low.bin_edges_[0]
+        self.n_bins = self.discretizer.n_bins_
+        self.bins = self.discretizer.bin_edges_
 
     def save(self, bucket):
         discretizer = pickle.dumps(self.discretizer)
         obj_key = "model/discretizer.pickle"
-        bucket.put_object(Key=obj_key, Body=discretizer)
-        discretizer = pickle.dumps(self.discretizer_high)
-        obj_key = "model/discretizer_high.pickle"
-        bucket.put_object(Key=obj_key, Body=discretizer)
-        discretizer = pickle.dumps(self.discretizer_low)
-        obj_key = "model/discretizer_low.pickle"
         bucket.put_object(Key=obj_key, Body=discretizer)
 
     def random_price_change(self, proba_all):
         outputs = []
         for type in ['price','high','low']:
             if type == 'price':
-                n_bins = self.n_bins
-                bins = self.bins
+                n_bins = self.n_bins[0]
+                bins = self.bins[0]
                 proba = proba_all[:PRICE_CHANGE_N_BINS]
             elif type == 'high':
-                n_bins = self.n_bins_high
-                bins = self.bins_high
+                n_bins = self.n_bins[1]
+                bins = self.bins[1]
                 proba = proba_all[PRICE_CHANGE_N_BINS:PRICE_CHANGE_N_BINS+HIGH_CHANGE_N_BINS]
             elif type == 'low':
-                n_bins = self.n_bins_low
-                bins = self.bins_low
+                n_bins = self.n_bins[2]
+                bins = self.bins[2]
                 proba = proba_all[PRICE_CHANGE_N_BINS+HIGH_CHANGE_N_BINS:]
             proba = [x + .01 for x in proba]
             proba[1] += proba[0]
