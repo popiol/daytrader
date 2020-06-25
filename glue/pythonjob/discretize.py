@@ -74,7 +74,7 @@ if not price_ch:
 
 #discretize
 discretizer = KBinsDiscretizer(n_bins=[glue_utils.PRICE_CHANGE_N_BINS, glue_utils.HIGH_CHANGE_N_BINS, glue_utils.LOW_CHANGE_N_BINS], encode='ordinal')
-X = zip(price_ch, high_ch, low_ch)
+X = list(zip(price_ch, high_ch, low_ch))
 discretizer.fit(X)
 
 #save discretizer
