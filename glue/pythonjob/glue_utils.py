@@ -260,7 +260,12 @@ class Simulator():
             for comp_code in self.comp_codes:
                 inputs = self.events[comp_code].get_inputs()
                 proba = self.model.predict_proba(inputs)
-                price, high_price, low_price = self.discretizer.random_price_change(proba)
+                price_ch, high_price_ch, low_price_ch = self.discretizer.random_price_change(proba)
+                price = self.events[comp_code]['price'] * (price_ch + 1)
+                high_price = self.events[comp_code]['high_price'] * (high_price_ch + 1)
+                low_price = self.events[comp_code]['low_price'] * (low_price_ch + 1)
+                high_price = max(high_price, price)
+                low_price = min(low_price, price)
                 events[comp_code] = self.events[comp_code].next(price, high_price, low_price, quote_dt)
         batch = list(self.events.values())
         self.events = events

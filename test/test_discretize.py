@@ -24,14 +24,10 @@ class TestDiscretize():
         bucket = s3.Bucket(bucket_name)
         discretizer = glue_utils.Discretizer(bucket)
         assert discretizer.n_bins == glue_utils.PRICE_CHANGE_N_BINS
-        assert discretizer.n_bins_high == glue_utils.PRICE_CHANGE_N_BINS/2
-        assert discretizer.n_bins_low == glue_utils.PRICE_CHANGE_N_BINS/2
-        proba = np.histogram(np.random.normal(size=100), bins=discretizer.n_bins)[0]
-        price_ch = discretizer.random_price_change(proba)
+        assert discretizer.n_bins_high == glue_utils.HIGH_CHANGE_N_BINS
+        assert discretizer.n_bins_low == glue_utils.LOW_CHANGE_N_BINS
+        proba = np.histogram(np.random.normal(size=100), bins=glue_utils.ALL_CHANGE_N_BINS)[0]
+        price_ch, high_price_ch, low_price_ch = discretizer.random_price_change(proba)
         assert 2 > price_ch > -1
-        proba = np.histogram(np.random.normal(size=100), bins=discretizer.n_bins_high)[0]
-        price_ch = discretizer.random_price_change(proba, type="high")
-        assert 2 > price_ch > -1
-        proba = np.histogram(np.random.normal(size=100), bins=discretizer.n_bins_low)[0]
-        price_ch = discretizer.random_price_change(proba, type="low")
-        assert 2 > price_ch > -1
+        assert 2 > high_price_ch > -1
+        assert 2 > low_price_ch > -1
