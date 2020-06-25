@@ -1,0 +1,39 @@
+import pytest
+import myutils
+import glue.pythonjob.glue_utils as glue_utils
+import boto3
+import numpy as np
+
+class TestSimulator():
+
+    @pytest.fixture(scope='class')
+    def vars(self):
+        vars = myutils.get_vars()
+        bucket_name = vars['bucket_name']
+        s3 = boto3.resource('s3')
+        bucket = s3.Bucket(bucket_name)
+        vars['simulator'] = glue_utils.Simulator(bucket)
+        return vars
+
+    def test_events(self, vars):
+        simulator = vars['simulator']
+        events = simulator.next()
+        assert len(events) == glue_utils.SIM_N_COMPS
+        comp_codes = {}
+        for event in events:
+            comp_code = event['comp_code']
+            assert len(comp_code) == 3
+            assert 'AAA' <= comp_code <= 'ZZZ'
+            comp_codes[comp_code] = event
+        assert len(comp_codes) == glue_utils.SIM_N_COMPS
+        events = simulator.next()
+        n_same = sum(1 if x['comp_code'] in comp_codes else 0 for x in events)
+        assert n_same > .9 * glue_utils.SIM_N_COMPS
+        for event in events:
+            comp_code = event['comp_code']
+            if comp_code not in comp_codes:
+                continue
+            price1 = comp_codes[comp_code]['price']
+            price2 = event['price']
+            price_ch = price2 / price1 - 1
+            assert abs(price_ch) < 1

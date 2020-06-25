@@ -10,9 +10,10 @@ HIGH_CHANGE_N_BINS = 5
 LOW_CHANGE_N_BINS = HIGH_CHANGE_N_BINS
 ALL_CHANGE_N_BINS = PRICE_CHANGE_N_BINS + HIGH_CHANGE_N_BINS + LOW_CHANGE_N_BINS
 DB_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
+SIM_N_COMPS = 500
 
 def logg(x):
-    print("---- [{}] ".format(datetime.datetime.now()), x)
+    print("---- [{}] ".format(datetime.now()), x)
 
 def create_event_key(comp_code, quote_dt):
     dt = quote_dt[:13].replace('-','').replace(' ','')
@@ -56,25 +57,31 @@ class Discretizer():
         obj_key = "model/discretizer_low.pickle"
         bucket.put_object(Key=obj_key, Body=discretizer)
 
-    def random_price_change(self, proba, type='price'):
-        if type == 'price':
-            n_bins = self.n_bins
-            bins = self.bins
-        elif type == 'high':
-            n_bins = self.n_bins_high
-            bins = self.bins_high
-        elif type == 'low':
-            n_bins = self.n_bins_low
-            bins = self.bins_low
-        proba = [x + .01 for x in proba]
-        proba[1] += proba[0]
-        proba[-2] += proba[-1]
-        n = random.choices(range(1,n_bins-1), proba[1:-1])[0]
-        start = bins[n]
-        end = bins[n+1]
-        start = max(start-(end-start)/2, -.9)
-        end = min(end+(end-start)/2, 1.9)
-        return random.uniform(start, end)
+    def random_price_change(self, proba_all):
+        outputs = []
+        for type in ['price','high','low']:
+            if type == 'price':
+                n_bins = self.n_bins
+                bins = self.bins
+                proba = proba_all[:PRICE_CHANGE_N_BINS]
+            elif type == 'high':
+                n_bins = self.n_bins_high
+                bins = self.bins_high
+                proba = proba_all[PRICE_CHANGE_N_BINS:PRICE_CHANGE_N_BINS+HIGH_CHANGE_N_BINS]
+            elif type == 'low':
+                n_bins = self.n_bins_low
+                bins = self.bins_low
+                proba = proba_all[PRICE_CHANGE_N_BINS+HIGH_CHANGE_N_BINS:]
+            proba = [x + .01 for x in proba]
+            proba[1] += proba[0]
+            proba[-2] += proba[-1]
+            n = random.choices(range(1,n_bins-1), proba[1:-1])[0]
+            start = bins[n]
+            end = bins[n+1]
+            start = max(start-(end-start)/2, -.9)
+            end = min(end+(end-start)/2, 1.9)
+            outputs.append(random.uniform(start, end))
+        return tuple(outputs)
 
     def price_class(self, price_ch):
         return [1 if x <= price_ch <= self.bins[i+1] else 0 for i,x in enumerate(self.bins[:-1])]
@@ -124,7 +131,7 @@ class Event():
             key = f'ch>{th}'
             if key not in event:
                 event[key] = 0
-            
+        hour = int(event['quote_dt'][11:13])
         self.event = event
 
     def get_price(self):
@@ -145,6 +152,8 @@ class Event():
                 attrs.append(f'{attr}{period}')
         price = float(self.event['price'])
         inputs = [float(self.event[x]) / price for x in attrs]
+        hour = float(self.event['quote_dt'][11:13])
+        inputs.append(hour)
         return inputs
 
     def next(self, price, high_price, low_price, quote_dt):
@@ -202,3 +211,58 @@ class PriceChModel():
 
     def predict_proba(self, test_x):
         return self.model.predict_proba(test_x)
+
+class Simulator():
+    def __init__(self, bucket):
+        comp_codes = []
+        n_comps = SIM_N_COMPS
+        self.last_comp_code_i = -1
+        for i in range(n_comps):
+            comp_code = self.generate_comp_code()
+            comp_codes.append(comp_code)
+        self.comp_codes = comp_codes
+        quote_dt = '2020-01-01 08:30:00'
+        self.quote_dt = quote_dt
+        events = {x: Event({'comp_code':x,'quote_dt':quote_dt}) for x in comp_codes}
+        self.events = events
+        self.model = PriceChModel(bucket)
+        self.discretizer = Discretizer(bucket)
+
+    def generate_comp_code(self):
+        self.last_comp_code_i += 1
+        comp_code_i = self.last_comp_code_i
+        nchar = 26
+        start = 65
+        c1 = chr(int(comp_code_i / (nchar*nchar)) + start)
+        comp_code_i = comp_code_i % (nchar*nchar)
+        c2 = chr(int(comp_code_i / nchar) + start)
+        c3 = chr(comp_code_i % nchar + start)
+        return c1+c2+c3
+
+    def next(self):
+        events = {}
+        quote_dt = datetime.datetime.strptime(self.quote_dt, DB_DATE_FORMAT)
+        quote_dt += datetime.timedelta(hours=1)
+        if quote_dt.hour > 17:
+            quote_dt += datetime.timedelta(hours=14)
+        if quote_dt.weekday() > 4:
+            quote_dt += datetime.timedelta(days=2)
+        if quote_dt.hour == 8:
+            for i, comp_code in enumerate(self.comp_codes):
+                rename = random.choices([0,1], [250*len(self.comp_codes),5])
+                if rename:
+                    comp_code = self.generate_comp_code()
+                    self.comp_codes[i] = comp_code
+                    self.events[comp_code] = Event({'comp_code':comp_code,'quote_dt':self.quote_dt})
+        hour = quote_dt.hour
+        quote_dt = quote_dt.strftime(DB_DATE_FORMAT)
+        if 9 <= hour <= 17:
+            for comp_code in self.comp_codes:
+                inputs = self.events[comp_code].get_inputs()
+                proba = self.model.predict_proba(inputs)
+                price, high_price, low_price = self.discretizer.random_price_change(proba)
+                events[comp_code] = self.events[comp_code].next(price, high_price, low_price, quote_dt)
+        batch = list(self.events.values())
+        self.events = events
+        self.quote_dt = quote_dt
+        return batch

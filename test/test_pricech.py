@@ -10,7 +10,6 @@ class TestPriceCh():
     def vars(self):
         vars = myutils.get_vars()
         job_name = vars['id'] + '_pricech_model'
-        myutils.run_glue_job(job_name)
         res = myutils.run_glue_job(job_name)
         vars.update(res)
         return vars
