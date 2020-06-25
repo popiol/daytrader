@@ -139,6 +139,10 @@ class Event():
     def next(self, price, high_price, low_price, quote_dt):
         event = self.event.copy()
         prev_event = self.event
+        event['price'] = price
+        event['high_price'] = high_price
+        event['low_price'] = low_price
+        event['quote_dt'] = quote_dt
         scale = prev_event['scale']
         for exp in range(1,11):
             period = 2 ** exp

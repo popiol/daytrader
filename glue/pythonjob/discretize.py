@@ -57,8 +57,8 @@ for comp_code in comp_codes:
         event = glue_utils.Event(bucket=bucket, comp_code=comp_code, quote_dt=quote_dt)
         prev_price = price
         price = event.get_price()
-        low_price = event.get_low_price()
         high_price = event.get_high_price()
+        low_price = event.get_low_price()
         if prev_price is not None and prev_price >= .01:
             price_ch.append(price/prev_price-1)
             high_ch.append(high_price/prev_price-1)
