@@ -30,17 +30,17 @@ class TestSimulator():
         n_same = sum(1 if x['comp_code'] in comp_codes else 0 for x in events)
         assert n_same > .9 * glue_utils.SIM_N_COMPS
         for event in events:
-            comp_code = event['comp_code']
+            comp_code = event.event['comp_code']
             if comp_code not in comp_codes:
                 continue
             price1 = comp_codes[comp_code]['price']
             price2 = event['price']
             price_ch = price2 / price1 - 1
             assert -1 < price_ch < 2
-            high_price2 = event['high_price']
+            high_price2 = event.event['high_price']
             high_price_ch = high_price2 / price1 - 1
             assert -1 < high_price_ch < 2
-            low_price2 = event['low_price']
+            low_price2 = event.event['low_price']
             low_price_ch = low_price2 / price1 - 1
             assert -1 < low_price_ch < 2
             
