@@ -23,10 +23,10 @@ class TestDiscretize():
         s3 = boto3.resource('s3')
         bucket = s3.Bucket(bucket_name)
         discretizer = glue_utils.Discretizer(bucket)
-        assert discretizer.n_bins[0] == glue_utils.PRICE_CHANGE_N_BINS
-        assert discretizer.n_bins[1] == glue_utils.HIGH_CHANGE_N_BINS
-        assert discretizer.n_bins[2] == glue_utils.LOW_CHANGE_N_BINS
-        proba = np.histogram(np.random.normal(size=100), bins=glue_utils.ALL_CHANGE_N_BINS)[0]
+        assert 1 < discretizer.n_bins[0] <= glue_utils.PRICE_CHANGE_N_BINS
+        assert 1 < discretizer.n_bins[1] <= glue_utils.HIGH_CHANGE_N_BINS
+        assert 1 < discretizer.n_bins[2] <= glue_utils.LOW_CHANGE_N_BINS
+        proba = np.histogram(np.random.normal(size=100), bins=sum(discretizer.n_bins))[0]
         price_ch, high_price_ch, low_price_ch = discretizer.random_price_change(proba)
         assert 2 > price_ch > -1
         assert 2 > high_price_ch > -1

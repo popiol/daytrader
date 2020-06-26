@@ -43,15 +43,15 @@ class Discretizer():
             if type == 'price':
                 n_bins = self.n_bins[0]
                 bins = self.bins[0]
-                proba = proba_all[:PRICE_CHANGE_N_BINS]
+                proba = proba_all[:n_bins]
             elif type == 'high':
                 n_bins = self.n_bins[1]
                 bins = self.bins[1]
-                proba = proba_all[PRICE_CHANGE_N_BINS:PRICE_CHANGE_N_BINS+HIGH_CHANGE_N_BINS]
+                proba = proba_all[self.n_bins[0]:self.n_bins[0]+self.n_bins[1]]
             elif type == 'low':
                 n_bins = self.n_bins[2]
                 bins = self.bins[2]
-                proba = proba_all[PRICE_CHANGE_N_BINS+HIGH_CHANGE_N_BINS:]
+                proba = proba_all[self.n_bins[0]+self.n_bins[1]:]
             proba = [x + .01 for x in proba]
             proba[1] += proba[0]
             proba[-2] += proba[-1]
@@ -64,13 +64,13 @@ class Discretizer():
         return tuple(outputs)
 
     def price_class(self, price_ch):
-        return [1 if x <= price_ch <= self.bins[i+1] else 0 for i,x in enumerate(self.bins[:-1])]
+        return [1 if x <= price_ch <= self.bins[0][i+1] else 0 for i,x in enumerate(self.bins[0][:-1])]
     
     def high_class(self, price_ch):
-        return [1 if x <= price_ch <= self.bins_high[i+1] else 0 for i,x in enumerate(self.bins_high[:-1])]
+        return [1 if x <= price_ch <= self.bins[1][i+1] else 0 for i,x in enumerate(self.bins[1][:-1])]
 
     def low_class(self, price_ch):
-        return [1 if x <= price_ch <= self.bins_low[i+1] else 0 for i,x in enumerate(self.bins_low[:-1])]
+        return [1 if x <= price_ch <= self.bins[2][i+1] else 0 for i,x in enumerate(self.bins[2][:-1])]
 
 class Event():
     def __init__(self, event=None, bucket=None, comp_code=None, quote_dt=None, obj_key=None):
