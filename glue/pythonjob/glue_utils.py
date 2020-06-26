@@ -207,7 +207,13 @@ class Simulator():
         self.comp_codes = comp_codes
         quote_dt = '2020-01-01 08:30:00'
         self.quote_dt = quote_dt
-        events = {x: Event({'comp_code':x,'quote_dt':quote_dt}) for x in comp_codes}
+        events = {}
+        for comp_code in comp_codes:
+            price = 0
+            while price <= 0 or price > 2500:
+                price = np.random.poisson(215)
+            event = {'comp_code':comp_code,'quote_dt':quote_dt,'price':price,'high_price':price,'low_price':price}
+            events[comp_code] = Event(event)
         self.events = events
         self.model = PriceChModel(bucket)
         self.discretizer = Discretizer(bucket)
