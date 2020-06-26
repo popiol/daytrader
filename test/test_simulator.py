@@ -21,7 +21,7 @@ class TestSimulator():
         assert len(events) == glue_utils.SIM_N_COMPS
         comp_codes = {}
         for event in events:
-            comp_code = event['comp_code']
+            comp_code = event.event['comp_code']
             assert len(comp_code) == 3
             assert 'AAA' <= comp_code <= 'ZZZ'
             comp_codes[comp_code] = event
@@ -33,8 +33,8 @@ class TestSimulator():
             comp_code = event.event['comp_code']
             if comp_code not in comp_codes:
                 continue
-            price1 = comp_codes[comp_code]['price']
-            price2 = event['price']
+            price1 = comp_codes[comp_code].event['price']
+            price2 = event.event['price']
             price_ch = price2 / price1 - 1
             assert -1 < price_ch < 2
             high_price2 = event.event['high_price']
