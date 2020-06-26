@@ -13,7 +13,7 @@ DB_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
 SIM_N_COMPS = 500
 
 def logg(x):
-    print("---- [{}] ".format(datetime.now()), x)
+    print("---- [{}] ".format(datetime.datetime.now()), x)
 
 def create_event_key(comp_code, quote_dt):
     dt = quote_dt[:13].replace('-','').replace(' ','')
@@ -190,18 +190,15 @@ class PriceChModel():
         obj_key = "model/pricech_model.pickle"
         bucket.put_object(Key=obj_key, Body=model)
 
-    def predict(self, test_x):
-        return self.model.predict(test_x)
-
     def predict_proba(self, test_x):
-        return self.model.predict_proba(test_x)
+        return self.model.predict_proba([test_x])[0]
 
 class Simulator():
     def __init__(self, bucket):
         comp_codes = []
         n_comps = SIM_N_COMPS
         self.last_comp_code_i = -1
-        for i in range(n_comps):
+        for _ in range(n_comps):
             comp_code = self.generate_comp_code()
             comp_codes.append(comp_code)
         self.comp_codes = comp_codes

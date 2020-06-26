@@ -30,13 +30,13 @@ class TestPriceCh():
         model = glue_utils.PriceChModel(bucket)
         event = glue_utils.Event(bucket=bucket, obj_key=obj_key)
         discretizer = glue_utils.Discretizer(bucket)
-        y = model.predict_proba([event.get_inputs()])
+        y = model.predict_proba(event.get_inputs())
         assert np.shape(y) == (1, sum(discretizer.n_bins))
-        for x in y[0]:
+        for x in y:
             assert 0 <= x <= 1
-        price_class = y[0][:discretizer.n_bins[0]]
-        high_class = y[0][discretizer.n_bins[0]:discretizer.n_bins[0]+discretizer.n_bins[1]]
-        low_class = y[0][discretizer.n_bins[0]+discretizer.n_bins[1]:]
+        price_class = y[:discretizer.n_bins[0]]
+        high_class = y[discretizer.n_bins[0]:discretizer.n_bins[0]+discretizer.n_bins[1]]
+        low_class = y[discretizer.n_bins[0]+discretizer.n_bins[1]:]
         assert max(price_class) > 0
         assert min(price_class) < 1
         assert min(price_class) < max(price_class)
