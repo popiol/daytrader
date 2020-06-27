@@ -27,7 +27,7 @@ class TestSimulator():
             comp_codes[comp_code] = event
         assert len(comp_codes) == glue_utils.SIM_N_COMPS
         events = simulator.next()
-        n_same = sum(1 if x['comp_code'] in comp_codes else 0 for x in events)
+        n_same = sum(1 if x.event['comp_code'] in comp_codes else 0 for x in events)
         assert n_same > .9 * glue_utils.SIM_N_COMPS
         for event in events:
             comp_code = event.event['comp_code']
