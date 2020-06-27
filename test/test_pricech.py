@@ -10,7 +10,7 @@ class TestPriceCh():
     def vars(self):
         vars = myutils.get_vars()
         job_name = vars['id'] + '_events'
-        myutils.run_glue_job(job_name, {'--repeat':glue_utils.SIM_N_COMPS*2})
+        myutils.run_glue_job(job_name, {'--repeat': str(glue_utils.SIM_N_COMPS*2)})
         job_name = vars['id'] + '_pricech_model'
         res = myutils.run_glue_job(job_name)
         vars.update(res)
