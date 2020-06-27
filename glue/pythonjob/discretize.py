@@ -57,8 +57,8 @@ for comp_code in comp_codes:
         event = glue_utils.Event(bucket=bucket, comp_code=comp_code, quote_dt=quote_dt)
         prev_price = price
         price = event.get_price()
-        low_price = event.get_low_price()
         high_price = event.get_high_price()
+        low_price = event.get_low_price()
         if prev_price is not None and prev_price >= .01:
             price_ch.append(price/prev_price-1)
             high_ch.append(high_price/prev_price-1)
@@ -73,16 +73,10 @@ if not price_ch:
         exit()
 
 #discretize
-discretizer = KBinsDiscretizer(n_bins=glue_utils.PRICE_CHANGE_N_BINS, encode='ordinal')
-price_ch = np.reshape(price_ch, (-1, 1))
-discretizer.fit(price_ch)
-discretizer_high = KBinsDiscretizer(n_bins=glue_utils.HIGH_CHANGE_N_BINS, encode='ordinal')
-high_ch = np.reshape(high_ch, (-1, 1))
-discretizer_high.fit(high_ch)
-discretizer_low = KBinsDiscretizer(n_bins=glue_utils.LOW_CHANGE_N_BINS, encode='ordinal')
-low_ch = np.reshape(low_ch, (-1, 1))
-discretizer_low.fit(low_ch)
+discretizer = KBinsDiscretizer(n_bins=[glue_utils.PRICE_CHANGE_N_BINS, glue_utils.HIGH_CHANGE_N_BINS, glue_utils.LOW_CHANGE_N_BINS], encode='ordinal')
+X = list(zip(price_ch, high_ch, low_ch))
+discretizer.fit(X)
 
 #save discretizer
-discretizer = glue_utils.Discretizer(discretizer=discretizer, high=discretizer_high, low=discretizer_low)
+discretizer = glue_utils.Discretizer(discretizer=discretizer)
 discretizer.save(bucket)

@@ -81,6 +81,23 @@ resource "aws_glue_trigger" "discretize" {
   }
 }
 
+resource "aws_glue_trigger" "pricech_model" {
+  name = "${var.inp.app.id}_pricech_model"
+  type = "CONDITIONAL"
+  workflow_name = aws_glue_workflow.quotes.name
+
+  predicate {
+    conditions {
+      job_name = module.discretize.job_name
+      state = "SUCCEEDED"
+    }
+  }
+
+  actions {
+    job_name = module.pricech_model.job_name
+  }
+}
+
 resource "aws_glue_trigger" "start_events" {
   name = "${var.inp.app.id}_start_events"
   type = "SCHEDULED"

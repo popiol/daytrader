@@ -25,6 +25,7 @@ test:
     - python3 -m pytest test/test_events.py
     - python3 -m pytest test/test_discretize.py
     - python3 -m pytest test/test_pricech.py
+    - python3 -m pytest test/test_simulator.py
 
 clean:
   stage: clean

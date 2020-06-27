@@ -10,7 +10,6 @@ class TestPriceCh():
     def vars(self):
         vars = myutils.get_vars()
         job_name = vars['id'] + '_pricech_model'
-        myutils.run_glue_job(job_name)
         res = myutils.run_glue_job(job_name)
         vars.update(res)
         return vars
@@ -30,13 +29,14 @@ class TestPriceCh():
                 break
         model = glue_utils.PriceChModel(bucket)
         event = glue_utils.Event(bucket=bucket, obj_key=obj_key)
-        y = model.predict_proba([event.get_inputs()])
-        assert np.shape(y) == (1, glue_utils.ALL_CHANGE_N_BINS)
-        for x in y[0]:
+        discretizer = glue_utils.Discretizer(bucket)
+        y = model.predict_proba(event.get_inputs())
+        assert len(y) == sum(discretizer.n_bins)
+        for x in y:
             assert 0 <= x <= 1
-        price_class = y[0][:10]
-        high_class = y[0][10:15]
-        low_class = y[0][15:]
+        price_class = y[:discretizer.n_bins[0]]
+        high_class = y[discretizer.n_bins[0]:discretizer.n_bins[0]+discretizer.n_bins[1]]
+        low_class = y[discretizer.n_bins[0]+discretizer.n_bins[1]:]
         assert max(price_class) > 0
         assert min(price_class) < 1
         assert min(price_class) < max(price_class)
