@@ -258,3 +258,63 @@ class Simulator():
         self.events = events
         self.quote_dt = quote_dt
         return batch
+
+class HistSimulator():
+    def __init__(self, bucket):
+        self.bucket = bucket
+        objs = bucket.objects.all()
+        min_dt = None
+        for obj in objs:
+            if obj.key.startswith('events/date='):
+                dt = obj.key.split('/')[1].split('=')[1]
+                if min_dt is None or dt < min_dt:
+                    min_dt = dt
+        self.quote_dt = min_dt
+        files = []
+        for obj in objs:
+            if obj.key.startswith('events/date='):
+                dt = obj.key.split('/')[1].split('=')[1]
+                if dt == self.quote_dt:
+                    min_dt = dt
+                    files.append(obj.key)
+        events = {}
+        for obj_key in files:
+            comp_code = obj_key.split('/')[-1].split('_')[0]
+            events[comp_code] = Event(bucket=self.bucket, obj_key=obj_key)
+        self.events = events
+
+    def next(self):
+        objs = self.bucket.objects.all()
+        min_dt = None
+        for obj in objs:
+            if obj.key.startswith('events/date='):
+                dt = obj.key.split('/')[1].split('=')[1]
+                if dt > self.quote_dt and (min_dt is None or dt < min_dt):
+                    min_dt = dt
+        self.quote_dt = min_dt
+        if self.quote_dt is None:
+            return None
+        files = []
+        for obj in objs:
+            if obj.key.startswith('events/date='):
+                dt = obj.key.split('/')[1].split('=')[1]
+                if dt == self.quote_dt:
+                    min_dt = dt
+                    files.append(obj.key)
+        events = {}
+        for obj_key in files:
+            comp_code = obj_key.split('/')[-1].split('_')[0]
+            events[comp_code] = Event(bucket=self.bucket, obj_key=obj_key)
+        batch = []
+        for comp_code in events:
+            if comp_code in self.events:
+                price = events[comp_code].get_price()
+                high_price = events[comp_code].get_high_price()
+                low_price = events[comp_code].get_low_price()
+                quote_dt = events[comp_code].event['quote_dt']
+                event = self.events[comp_code].next(price, high_price, low_price, quote_dt)
+                self.events[comp_code] = event
+            else:
+                self.events[comp_code] = events[comp_code]
+            batch.append(self.events[comp_code])
+        return batch
