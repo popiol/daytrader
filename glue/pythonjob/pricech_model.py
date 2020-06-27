@@ -86,7 +86,8 @@ for comp_code in comp_codes:
         inputs = event.get_inputs()
         train_x.append(inputs)
         train_y.append(price_class + high_class + low_class)
-    model.fit(train_x, train_y)
+    if train_x and train_y:
+        model.fit(train_x, train_y)
 
 #save model
 model = glue_utils.PriceChModel(model=model)
