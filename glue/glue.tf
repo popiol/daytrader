@@ -52,7 +52,8 @@ module "events" {
 	source = "./pythonjob"
 	script_name = "events"
 	role = var.role
-	inp = merge(var.inp,{"repeat"=1})
+	inp = var.inp
+	inp2 = {"repeat"=1}
 	extra-py-files = ["glue_utils.py"]
 }
 
