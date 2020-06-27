@@ -80,7 +80,7 @@ for _ in range(repeat):
                 process_key = key
                 shift_dt = False
         elif temporary:
-            if process_key is None:
+            if process_key is None or key.split('_')[-2] > process_key.split('_')[-2]:
                 process_key = key
                 shift_dt = True
 
