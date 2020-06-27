@@ -1,13 +1,6 @@
 stages:
   - deploy
-  - test_get_quotes
-  - test_html2csv
-  - test_clean_quotes
-  - test_events
-  - test_discretize
-  - test_pricech
-  - test_simulator
-  - test_hist_simulator
+  - test
   - clean
   
 deploy:
@@ -21,46 +14,18 @@ deploy:
     - terraform apply -var-file=config.tfvars -auto-approve -target=module.s3_quotes -target=module.alerts -target=module.dynamodb
     - terraform apply -var-file=config.tfvars -auto-approve
 
-test_get_quotes:
-  stage: test_get_quotes
+test:
+  stage: test
   script:
     - ./get_vars.sh
     - pip3 install -e .
-    - python3 -m pytest test/test_get_quotes.py
-    
-test_html2csv:
-  stage: test_html2csv
-  script:
-    - python3 -m pytest test/test_html2csv.py
-
-test_clean_quotes:
-  stage: test_clean_quotes
-  script:
-    - python3 -m pytest test/test_clean_quotes.py
-
-test_events:
-  stage: test_events
-  script:
-    - python3 -m pytest test/test_events.py
-
-test_discretize:
-  stage: test_discretize
-  script:
-    - python3 -m pytest test/test_discretize.py
-
-test_pricech:
-  stage: test_pricech
-  script:
+    #- python3 -m pytest test/test_get_quotes.py
+    #- python3 -m pytest test/test_html2csv.py
+    #- python3 -m pytest test/test_clean_quotes.py
+    #- python3 -m pytest test/test_events.py
+    #- python3 -m pytest test/test_discretize.py
     - python3 -m pytest test/test_pricech.py
-
-test_simulator:
-  stage: test_simulator
-  script:
     - python3 -m pytest test/test_simulator.py
-
-test_hist_simulator:
-  stage: test_hist_simulator
-  script:
     - python3 -m pytest test/test_hist_simulator.py
 
 clean:
