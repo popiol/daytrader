@@ -65,10 +65,12 @@ if not files:
         Message = "Missing files in csv_clean/ from the last week"
     )
 
+db = boto3.resource('dynamodb')
+log_table = db.Table(log_table_name)
+event_table = db.Table(event_table_name)
+
 for _ in range(repeat):
     #pick the oldest file
-    db = boto3.resource('dynamodb')
-    log_table = db.Table(log_table_name)
     process_key = None
     shift_dt = False
     for key in files:
@@ -80,9 +82,16 @@ for _ in range(repeat):
                 process_key = key
                 shift_dt = False
         elif temporary:
-            if process_key is None or key.split('_')[-2] > process_key.split('_')[-2]:
+            res = event_table.query(
+                KeyConditionExpression = Key('comp_code').eq(comp_code),
+                ScanIndexForward = False,
+                Limit = 1
+            )
+            last_quote_dt = res['Items'][0]['quote_dt'] if res['Items'] else None
+            if process_key is None or last_quote_dt is None or last_quote_dt < min_quote_dt:
                 process_key = key
                 shift_dt = True
+                min_quote_dt = last_quote_dt
 
     if process_key is None:
         exit()
@@ -101,18 +110,12 @@ for _ in range(repeat):
     f = bucket.Object(process_key).get()
     inp = f['Body'].read().decode('utf-8')
     csv_reader = csv.DictReader(io.StringIO(inp))
-    event_table = db.Table(event_table_name)
     for row in csv_reader:
         comp_code = row['comp_code']
         quote_dt = row['quote_dt']
         price = float(row['price'])
         low_price = float(row['low_price'])
         high_price = float(row['high_price'])
-
-        if shift_dt:
-            quote_dt = datetime.datetime.strptime(quote_dt, glue_utils.DB_DATE_FORMAT)
-            quote_dt += datetime.timedelta(hours=1)
-            quote_dt = quote_dt.strftime(glue_utils.DB_DATE_FORMAT)
 
         #check price
         if price < .01:
@@ -144,6 +147,11 @@ for _ in range(repeat):
                 if last_quote_dt_minus_th >= quote_dt:
                     continue
         
+        if shift_dt:
+            quote_dt = datetime.datetime.strptime(last_quote_dt, glue_utils.DB_DATE_FORMAT)
+            quote_dt += datetime.timedelta(hours=1)
+            quote_dt = quote_dt.strftime(glue_utils.DB_DATE_FORMAT)
+        
         #add event to db
         event_table.put_item(
             Item = {
@@ -156,9 +164,11 @@ for _ in range(repeat):
         #get prev event
         prev_event = None
         if last_quote_dt is not None:
+            #print(comp_code, last_quote_dt)
             prev_event = glue_utils.Event(bucket=bucket, comp_code=comp_code, quote_dt=last_quote_dt)
             event = prev_event.next(price, high_price, low_price, quote_dt)
         else:
+            #print(row)
             event = glue_utils.Event(row)
 
         #add event to s3
