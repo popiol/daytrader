@@ -70,6 +70,7 @@ for _ in range(repeat):
     db = boto3.resource('dynamodb')
     log_table = db.Table(log_table_name)
     process_key = None
+    shift_dt = False
     for key in files:
         res = log_table.get_item(
             Key = {"obj_key": key}
@@ -77,6 +78,11 @@ for _ in range(repeat):
         if 'Item' not in res:
             if process_key is None or key.split('_')[-2] < process_key.split('_')[-2]:
                 process_key = key
+                shift_dt = False
+        elif temporary:
+            if process_key is None:
+                process_key = key
+                shift_dt = True
 
     if process_key is None:
         exit()
@@ -102,6 +108,11 @@ for _ in range(repeat):
         price = float(row['price'])
         low_price = float(row['low_price'])
         high_price = float(row['high_price'])
+
+        if shift_dt:
+            quote_dt = datetime.datetime.strptime(quote_dt, glue_utils.DB_DATE_FORMAT)
+            quote_dt += datetime.timedelta(hours=1)
+            quote_dt = quote_dt.strftime(glue_utils.DB_DATE_FORMAT)
 
         #check price
         if price < .01:
