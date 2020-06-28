@@ -53,6 +53,7 @@ module "events" {
 	script_name = "events"
 	role = var.role
 	inp = var.inp
+	inp2 = {"repeat"=1}
 	extra-py-files = ["glue_utils.py"]
 }
 

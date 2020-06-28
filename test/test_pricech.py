@@ -9,6 +9,8 @@ class TestPriceCh():
     @pytest.fixture(scope='class')
     def vars(self):
         vars = myutils.get_vars()
+        job_name = vars['id'] + '_events'
+        myutils.run_glue_job(job_name, {'--repeat': '20'})
         job_name = vars['id'] + '_pricech_model'
         res = myutils.run_glue_job(job_name)
         vars.update(res)

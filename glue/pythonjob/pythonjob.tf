@@ -16,7 +16,7 @@ resource "aws_glue_job" "main" {
 }
 
 locals {
-	job_args = merge(var.inp, length(var.extra-py-files)>0 ? {
+	job_args = merge(merge(var.inp, var.inp2), length(var.extra-py-files)>0 ? {
 		extra-py-files = join(",", [for x in var.extra-py-files : "s3://${var.inp.bucket_name}/scripts/${x}"])
 	} : {})
 }

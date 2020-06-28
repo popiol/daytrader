@@ -7,6 +7,7 @@ import glue_utils
 from sklearn.preprocessing import KBinsDiscretizer
 import pickle
 import numpy as np
+import random
 
 #get params
 args = getResolvedOptions(sys.argv, ['bucket_name','alert_topic','log_table','event_table','app','temporary'])
@@ -65,12 +66,17 @@ for comp_code in comp_codes:
             low_ch.append(low_price/prev_price-1)
 
 if not price_ch:
-    print("temporary:", temporary)
     if temporary:
         price_ch = [0,.01,-.01]
     else:
         print("No price changes")
         exit()
+
+if temporary:
+    for _ in range(10):
+        price_ch.append(random.gauss(0, .005))
+        high_ch.append(random.gauss(0, .005))
+        low_ch.append(random.gauss(0, .005))
 
 #discretize
 discretizer = KBinsDiscretizer(n_bins=[glue_utils.PRICE_CHANGE_N_BINS, glue_utils.HIGH_CHANGE_N_BINS, glue_utils.LOW_CHANGE_N_BINS], encode='ordinal')

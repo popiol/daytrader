@@ -11,6 +11,11 @@ variable "inp" {
     })
 }
 
+variable "inp2" {
+	type = map(string)
+	default = {}
+}
+
 variable "extra-py-files" {
 	type = list(string)
 	default = []
