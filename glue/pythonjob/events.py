@@ -7,6 +7,7 @@ import io
 from boto3.dynamodb.conditions import Key, Attr
 import json
 import glue_utils
+import random
 
 #get params
 args = getResolvedOptions(sys.argv, ['bucket_name','alert_topic','log_table','event_table','app','temporary','repeat'])
@@ -73,21 +74,23 @@ for _ in range(repeat):
     #pick the oldest file
     process_key = None
     shift_dt = False
+    stop_shift_dt = False
     for key in files:
         res = log_table.get_item(
             Key = {"obj_key": key}
         )
         if 'Item' not in res:
-            if process_key is None or key.split('_')[-2] < process_key.split('_')[-2]:
+            if process_key is None or key.split('_')[-2] < process_key.split('_')[-2] or shift_dt:
                 process_key = key
                 shift_dt = False
-        elif temporary:
+                stop_shift_dt = True
+        elif temporary and not stop_shift_dt:
             res = event_table.query(
                 QueryFilter = Attr('source_file').eq(key),
                 ScanIndexForward = False,
                 Limit = 1
             )
-            last_quote_dt = res['Items'][0]['quote_dt'] if res['Items'] else None
+            last_quote_dt = res['Items'][0]['quote_dt']
             if process_key is None or last_quote_dt is None or last_quote_dt < min_quote_dt:
                 process_key = key
                 shift_dt = True
@@ -151,6 +154,7 @@ for _ in range(repeat):
             quote_dt = datetime.datetime.strptime(last_quote_dt, glue_utils.DB_DATE_FORMAT)
             quote_dt += datetime.timedelta(hours=1)
             quote_dt = quote_dt.strftime(glue_utils.DB_DATE_FORMAT)
+            price *= 1 + random.gauss(0, .005)
         
         #add event to db
         event_table.put_item(
