@@ -18,17 +18,17 @@ class TestHistSimulator():
     def test_events(self, vars):
         simulator = vars['simulator']
         events = simulator.next()
-        assert len(events) > .9 * glue_utils.SIM_N_COMPS
+        assert len(events) > .35 * glue_utils.SIM_N_COMPS
         comp_codes = {}
         for event in events:
             comp_code = event.event['comp_code']
             assert 1 <= len(comp_code) <= 4
             assert 'A' <= comp_code <= 'ZZZZ'
             comp_codes[comp_code] = event
-        assert len(comp_codes) > .9 * glue_utils.SIM_N_COMPS
+        assert len(comp_codes) > .35 * glue_utils.SIM_N_COMPS
         events = simulator.next()
         n_same = sum(1 if x.event['comp_code'] in comp_codes else 0 for x in events)
-        assert n_same > .8 * glue_utils.SIM_N_COMPS
+        assert n_same > .35 * glue_utils.SIM_N_COMPS
         for event in events:
             comp_code = event.event['comp_code']
             if comp_code not in comp_codes:
