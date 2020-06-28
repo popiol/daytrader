@@ -83,7 +83,7 @@ for _ in range(repeat):
                 shift_dt = False
         elif temporary:
             res = event_table.query(
-                KeyConditionExpression = Key('comp_code').eq(comp_code),
+                QueryFilter = Attr('source_file').eq(key),
                 ScanIndexForward = False,
                 Limit = 1
             )
