@@ -380,7 +380,7 @@ class Agent():
         comp_code = event.event['comp_code']
         price = event.event['price']
         orders = {}
-        if comp_code in self.portfolio and abs(sell_price_ch) , .1:
+        if comp_code in self.portfolio and abs(sell_price_ch) > .1:
             self.portfolio[comp_code]['price'] = price
             sell_price = price * (1+sell_price_ch)
             orders[comp_code] = {'buy':False, 'price':sell_price}
