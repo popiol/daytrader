@@ -86,7 +86,7 @@ for _ in range(repeat):
                 stop_shift_dt = True
         elif temporary and not stop_shift_dt:
             res = event_table.query(
-                QueryFilter = Attr('source_file').eq(key),
+                FilterExpression = Attr('source_file').eq(key),
                 ScanIndexForward = False,
                 Limit = 1
             )
