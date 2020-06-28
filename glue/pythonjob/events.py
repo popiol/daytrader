@@ -85,12 +85,13 @@ for _ in range(repeat):
                 shift_dt = False
                 stop_shift_dt = True
         elif temporary and not stop_shift_dt:
-            res = event_table.query(
-                FilterExpression = Attr('source_file').eq(key),
-                ScanIndexForward = False,
-                Limit = 1
+            res = event_table.scan(
+                FilterExpression = Attr('source_file').eq(key)
             )
-            last_quote_dt = res['Items'][0]['quote_dt']
+            last_quote_dt = None
+            for item in res['Items']:
+                if last_quote_dt is None or item['quote_dt'] > last_quote_dt:
+                    last_quote_dt = item['quote_dt']
             if process_key is None or last_quote_dt is None or last_quote_dt < min_quote_dt:
                 process_key = key
                 shift_dt = True
