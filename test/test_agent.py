@@ -35,3 +35,9 @@ class TestAgent():
         assert max(portfolio_size) > 0
         assert 1 > max(max(cash_ch), abs(min(cash_ch))) > 0
         assert min(cash_ch) > -.1    
+        agent.save()
+        bucket_name = vars['bucket_name']
+        s3 = boto3.resource('s3')
+        bucket = s3.Bucket(bucket_name)
+        agent2 = glue_utils.Agent(bucket)
+        assert agent.model.summary == agent2.model.summary

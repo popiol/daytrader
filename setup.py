@@ -11,6 +11,7 @@ setup(
         'boto3',
         'pytest',
         'scikit-learn',
+        'tensorflow',
         'Keras'
     ],
 )
