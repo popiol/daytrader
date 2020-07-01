@@ -84,7 +84,10 @@ module "glue_error_alert" {
 	source = "./alarm"
 	error_logs = ["/aws-glue/python-jobs/error"]
 	targets = [module.alerts.arn]
-	inp = var.inp
+	inp = merge(var.inp, {
+		bucket_name = module.s3_quotes.bucket_name
+		alert_topic = module.alerts.arn
+	})
 }
 
 module "vpc" {
