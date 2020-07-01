@@ -84,15 +84,15 @@ module "glue_error_alert" {
 	source = "./alarm"
 	error_logs = ["/aws-glue/python-jobs/error"]
 	targets = [module.alerts.arn]
-	inp = merge(var.inp, {
-		bucket_name = module.s3_quotes.bucket_name
-		alert_topic = module.alerts.arn
-	})
+	inp = var.inp
 }
 
 module "vpc" {
 	source = "./vpc"
-	inp = var.inp
+	inp = merge(var.inp, {
+		bucket_name = module.s3_quotes.bucket_name
+		alert_topic = module.alerts.arn
+	})
 }
 
 module "batch_role" {
@@ -117,5 +117,8 @@ module "batch_jobs" {
 	ec2_role = module.ec2_role.role_arn
 	sec_groups = module.vpc.security_groups
 	subnets = module.vpc.subnets
-	inp = var.inp
+	inp = merge(var.inp, {
+		bucket_name = module.s3_quotes.bucket_name
+		alert_topic = module.alerts.arn
+	})
 }
