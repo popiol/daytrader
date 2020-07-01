@@ -86,3 +86,33 @@ module "glue_error_alert" {
 	targets = [module.alerts.arn]
 	inp = var.inp
 }
+
+module "vpc" {
+	source = "./vpc"
+	inp = var.inp
+}
+
+module "batch_role" {
+	source = "./role"
+	role_name = "batch"
+	service = "batch"
+	attached_policies = ["AWSBatchServiceRole"]
+	inp = var.inp
+}
+
+module "ec2_role" {
+	source = "./role"
+	role_name = "ec2"
+	service = "ec2"
+	attached_policies = ["AmazonEC2FullAccess"]
+	inp = var.inp
+}
+
+module "batch_jobs" {
+	source = "./batch_jobs"
+	batch_role = module.batch_role.role_arn
+	ec2_role = module.ec2_role.role_arn
+	sec_groups = module.vpc.security_groups
+	subnets = module.vpc.subnets
+	inp = var.inp
+}

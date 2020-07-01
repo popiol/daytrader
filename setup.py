@@ -10,8 +10,6 @@ setup(
         'numpy',
         'boto3',
         'pytest',
-        'scikit-learn',
-        'tensorflow',
-        'Keras'
+        'scikit-learn'
     ],
 )
