@@ -36,7 +36,7 @@ test:
     - python3 -m pytest test/test_pricech.py
     - python3 -m pytest test/test_simulator.py
     - python3 -m pytest test/test_hist_simulator.py
-    - aws-cli batch submit-job --job-name ${APP_NAME}_${CI_COMMIT_BRANCH}_test_train_init --job-queue ${APP_NAME}_${CI_COMMIT_BRANCH} --job-definition ${APP_NAME}_${CI_COMMIT_BRANCH}_test_train_init
+    - aws batch submit-job --job-name ${APP_NAME}_${CI_COMMIT_BRANCH}_test_train_init --job-queue ${APP_NAME}_${CI_COMMIT_BRANCH} --job-definition ${APP_NAME}_${CI_COMMIT_BRANCH}_test_train_init
 
 clean:
   stage: clean
