@@ -103,9 +103,19 @@ module "batch_role" {
 	inp = var.inp
 }
 
+module "ec2_role" {
+	source = "./role"
+	role_name = "ec2"
+	service = "ec2"
+	attached_policies = ["AmazonEC2FullAccess","service-role/AmazonEC2ContainerServiceforEC2Role"]
+	inp = var.inp
+}
+
 module "batch_jobs" {
 	source = "./batch_jobs"
 	batch_role = module.batch_role.role_arn
+	ec2_role = module.ec2_role.role_arn
+	ec2_role_name = module.ec2_role.role_name
 	sec_groups = module.vpc.security_groups
 	subnets = module.vpc.subnets
 	inp = merge(var.inp, {

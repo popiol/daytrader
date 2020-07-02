@@ -1,4 +1,6 @@
-resource "aws_iam_instance_profile" "main" {}
+resource "aws_iam_instance_profile" "main" {
+	role = var.ec2_role_name
+}
 
 resource "aws_batch_compute_environment" "main" {
 	compute_environment_name = var.inp.app.id
