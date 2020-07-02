@@ -25,8 +25,8 @@ resource "aws_security_group" "main" {
 
     dynamic "egress" {
         for_each = toset(var.egress)
-        
-        contant {
+
+        content {
             from_port = egress.key[0]
             to_port = egress.key[1]
             protocol = egress.key[2]
