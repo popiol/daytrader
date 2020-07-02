@@ -18,7 +18,7 @@ deploy_to_aws:
 build_ml_docker:
   stage: build
   script:
-    - aws ecr get-login-password --region ${AWS_REGION} | docker login --username ${AWS_USER} --password-stdin ${AWS_USER}.dkr.ecr.${AWS_REGION}.amazonaws.com
+    - aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_USER}.dkr.ecr.${AWS_REGION}.amazonaws.com
     - docker build docker/ml -t ml
     - docker tag ml ${AWS_USER}.dkr.ecr.${AWS_REGION}.amazonaws.com/${APP_NAME}_$CI_COMMIT_BRANCH/ml
     - docker push ${AWS_USER}.dkr.ecr.${AWS_REGION}.amazonaws.com/${APP_NAME}_$CI_COMMIT_BRANCH/ml
