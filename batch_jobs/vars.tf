@@ -13,10 +13,6 @@ variable "batch_role" {
 	type = string
 }
 
-variable "ec2_role" {
-	type = string
-}
-
 variable "sec_groups" {
 	type = list(string)
 }

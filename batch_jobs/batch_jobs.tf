@@ -1,10 +1,12 @@
+resource "aws_iam_instance_profile" "main" {}
+
 resource "aws_batch_compute_environment" "main" {
 	compute_environment_name = var.inp.app.id
 	service_role = var.batch_role
 	type = "MANAGED"
 	
 	compute_resources {
-		instance_role = var.batch_role
+		instance_role = aws_iam_instance_profile.main.arn
 		max_vcpus = 4
 		min_vcpus = 1
 		type = "EC2"
