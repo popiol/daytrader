@@ -195,7 +195,7 @@ class PriceChModel():
         return self.model.predict_proba([test_x])[0]
 
     def get_input_shape(self):
-        return np.shape(self.model.coefs_[0][0])
+        return tuple(list(np.shape(self.model.coefs_[0])[0]))
 
 class Simulator():
     def __init__(self, bucket):
