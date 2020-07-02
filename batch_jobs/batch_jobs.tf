@@ -14,12 +14,6 @@ resource "aws_batch_compute_environment" "main" {
 		
 		instance_type = [
 			"a1.medium",
-			"t2.micro",
-			"t2.small",
-			"t2.medium",
-			"t3.micro",
-			"t3.small",
-			"t3.medium",
 			"a1.large",
 			"c5.large"
 		]
