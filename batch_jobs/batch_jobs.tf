@@ -31,7 +31,7 @@ resource "aws_batch_job_queue" "main" {
 }
 
 resource "aws_ecr_repository" "ml" {
-	name = var.inp.app.id
+	name = "${var.inp.app.id}/ml"
 }
 
 module "test_train_init" {
