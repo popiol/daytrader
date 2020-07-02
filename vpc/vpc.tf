@@ -14,18 +14,24 @@ resource "aws_security_group" "main" {
 
     dynamic "ingress" {
         for_each = toset(var.ingress)
-        from_port = ingress.key[0]
-        to_port = ingress.key[1]
-        protocol = ingress.key[2]
-        cidr_blocks = [ingress.key[3]]
+
+        content {
+            from_port = ingress.key[0]
+            to_port = ingress.key[1]
+            protocol = ingress.key[2]
+            cidr_blocks = [ingress.key[3]]
+        }
     }
 
     dynamic "egress" {
         for_each = toset(var.egress)
-        from_port = egress.key[0]
-        to_port = egress.key[1]
-        protocol = egress.key[2]
-        cidr_blocks = [egress.key[3]]
+        
+        contant {
+            from_port = egress.key[0]
+            to_port = egress.key[1]
+            protocol = egress.key[2]
+            cidr_blocks = [egress.key[3]]
+        }
     }
 }
 
