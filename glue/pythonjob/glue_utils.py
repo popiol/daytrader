@@ -4,7 +4,6 @@ import math
 import numpy as np
 import datetime
 import json
-import tensorflow.keras as keras
 
 PRICE_CHANGE_N_BINS = 10
 HIGH_CHANGE_N_BINS = 5
