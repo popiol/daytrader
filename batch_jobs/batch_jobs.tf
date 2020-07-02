@@ -2,16 +2,16 @@ resource "aws_batch_compute_environment" "main" {
 	compute_environment_name = var.inp.app.id
 	service_role = var.batch_role
 	type = "MANAGED"
-	security_group_ids = var.sec_groups
-	subnets = var.subnets
-	tags = var.inp.app
 	
 	compute_resources {
 		instance_role = var.batch_role
 		max_vcpus = 4
 		min_vcpus = 1
 		type = "EC2"
-
+		security_group_ids = var.sec_groups
+		subnets = var.subnets
+		tags = var.inp.app
+		
 		instance_type = [
 			"a1.medium",
 			"t2.micro",

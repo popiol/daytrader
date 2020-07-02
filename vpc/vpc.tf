@@ -5,7 +5,7 @@ resource "aws_vpc" "main" {
 resource "aws_subnet" "main" {
     vpc_id = aws_vpc.main.id
     cidr_block = aws_vpc.main.cidr_block
-    tags = var.inp
+    tags = var.inp.app
 }
 
 resource "aws_security_group" "main" {
@@ -20,7 +20,7 @@ resource "aws_security_group" "main" {
         cidr_blocks = [ingress.key[3]]
     }
 
-    egress {
+    dynamic "egress" {
         for_each = toset(var.egress)
         from_port = egress.key[0]
         to_port = egress.key[1]
