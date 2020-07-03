@@ -7,7 +7,7 @@ resource "aws_batch_job_definition" "main" {
 locals {
     container = {
         command = ["python", "${var.job_name}.py"]
-        image = "${var.inp.aws_user_id}.dkr.ecr.${var.inp.aws_region}.amazonaws.com/${var.inp.app.id}/${var.job_name}"
+        image = "${var.inp.aws_user_id}.dkr.ecr.${var.inp.aws_region}.amazonaws.com/${var.image_name}"
         memory = 1500
         vcpus = 1500
         environment = [

@@ -13,3 +13,7 @@ variable "inp" {
 variable "job_name" {
 	type = string
 }
+
+variable "image_name" {
+	type = string
+}

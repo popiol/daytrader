@@ -15,6 +15,10 @@ resource "aws_batch_job_queue" "main" {
 	compute_environments = [aws_batch_compute_environment.main.arn]
 }
 
+locals {
+    ecs_cluster_name = split("/", aws_batch_compute_environment.main.ecs_cluster_arn)[1]
+}
+
 resource "aws_ecr_repository" "ml" {
 	name = "${var.inp.app.id}/ml"
 }
@@ -22,9 +26,6 @@ resource "aws_ecr_repository" "ml" {
 module "test_train_init" {
 	source = "./batchjob"
 	job_name = "test_train_init"
+	image_name = aws_ecr_repository.ml.name
 	inp = var.inp
-}
-
-locals {
-    ecs_cluster_name = split("/", aws_batch_compute_environment.main.ecs_cluster_arn)[1]
 }
