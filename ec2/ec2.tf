@@ -15,7 +15,7 @@ resource "aws_launch_template" "main" {
     }
     
     network_interfaces {
-        associate_public_ip_address = false
+        associate_public_ip_address = true
         subnet_id = var.subnets[0]
         security_groups = var.sec_groups
     }
