@@ -13,7 +13,7 @@ variable "instance_name" {
 	type = string
 }
 
-variable "role" {
+variable "role_name" {
 	type = string
 }
 
