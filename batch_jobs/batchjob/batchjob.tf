@@ -8,8 +8,8 @@ locals {
     container = {
         command = ["python", "${var.job_name}.py"]
         image = "${var.inp.aws_user_id}.dkr.ecr.${var.inp.aws_region}.amazonaws.com/${var.inp.app.id}/${var.job_name}"
-        memory = 2048
-        vcpus = 2
+        memory = 1500
+        vcpus = 1500
         environment = [
             {
                 name = "BUCKET_NAME"
