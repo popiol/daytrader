@@ -3,13 +3,20 @@ variable "inp" {
         app = map(string)
         aws_region = string
 		aws_user = string
-		aws_user_id = string
 		bucket_name = string
 		alert_topic = string
 		temporary = bool
 	})
 }
 
-variable "job_name" {
+variable "role" {
 	type = string
+}
+
+variable "sec_groups" {
+	type = list(string)
+}
+
+variable "subnets" {
+	type = list(string)
 }

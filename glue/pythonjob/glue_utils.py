@@ -4,6 +4,7 @@ import math
 import numpy as np
 import datetime
 import json
+import boto3
 
 PRICE_CHANGE_N_BINS = 10
 HIGH_CHANGE_N_BINS = 5
@@ -19,6 +20,15 @@ def create_event_key(comp_code, quote_dt):
     dt = quote_dt[:13].replace('-','').replace(' ','')
     dt2 = quote_dt.replace('-','').replace(' ','').replace(':','')
     return "events/date={}/{}_{}.json".format(dt, comp_code, dt2)
+
+def run_batch_job(job_name, queue_name, templ_id):
+    ec2 = boto3.client('ec2')
+    res = ec2.run_instances(LaunchTemplate={'LaunchTemplateId':templ_id})
+    batch = boto3.client('batch')
+    res = batch.submit_job(jobName=job_name, jobQueue=queue_name, jobDefinition=job_name)
+    job_id = res['jobId']
+    res = batch.describe_jobs(jobs=[job_id])
+    return {'job_status': res['jobs'][0]['status']}
 
 class Discretizer():
     def __init__(self, bucket=None, discretizer=None):
@@ -322,3 +332,4 @@ class HistSimulator():
                 self.events[comp_code] = events[comp_code]
             batch.append(self.events[comp_code])
         return batch
+

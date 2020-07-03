@@ -10,6 +10,8 @@ provider "aws" {
 	region = var.inp.aws_region
 }
 
+data "aws_caller_identity" "current" {}
+
 module "s3_quotes" {
 	source = "./bucket"
 	bucket_name = "quotes"
@@ -26,6 +28,14 @@ module "alerts" {
 	}]
 	inp = var.inp
 }
+
+locals {
+	common_inputs = merge(var.inp, {
+		bucket_name = module.s3_quotes.bucket_name
+		alert_topic = module.alerts.arn
+		aws_user_id = data.aws_caller_identity.current.account_id
+	})
+} 
 
 module "lambda_role" {
 	source = "./role"
@@ -72,9 +82,7 @@ module "glue_role" {
 module "etl" {
 	source = "./glue"
 	role = module.glue_role.role_arn
-	inp = merge(var.inp, {
-		bucket_name = module.s3_quotes.bucket_name
-		alert_topic = module.alerts.arn
+	inp = merge(local.common_inputs, {
 		log_table = module.dynamodb.table_name.event_process_log
 		event_table = module.dynamodb.table_name.event_table
 	})
@@ -89,10 +97,7 @@ module "glue_error_alert" {
 
 module "vpc" {
 	source = "./vpc"
-	inp = merge(var.inp, {
-		bucket_name = module.s3_quotes.bucket_name
-		alert_topic = module.alerts.arn
-	})
+	inp = local.common_inputs
 }
 
 module "batch_role" {
@@ -114,12 +119,13 @@ module "ec2_role" {
 module "batch_jobs" {
 	source = "./batch_jobs"
 	batch_role = module.batch_role.role_arn
-	ec2_role = module.ec2_role.role_arn
 	ec2_role_name = module.ec2_role.role_name
+	inp = local.common_inputs
+}
+
+module "ec2_template_ml" {
+	source = "./ec2"
+	role = module.ec2_role.role_arn
 	sec_groups = module.vpc.security_groups
 	subnets = module.vpc.subnets
-	inp = merge(var.inp, {
-		bucket_name = module.s3_quotes.bucket_name
-		alert_topic = module.alerts.arn
-	})
 }
