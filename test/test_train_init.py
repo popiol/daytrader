@@ -14,7 +14,7 @@ class TestTrainInit():
         print("debug 1", file=sys.stderr)
         job_name = vars['id'] + '_train_init'
         try:
-            res = glue_utils.run_batch_job(job_name, vars['ec2_template_ml_id'], vars['id'])
+            res = glue_utils.run_batch_job(job_name, vars['id'], vars['ec2_template_ml_id'])
             print(res, file=sys.stderr)
         except:
             print(traceback.format_exc().splitlines()[-2:], file=sys.stderr)
