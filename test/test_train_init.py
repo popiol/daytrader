@@ -12,7 +12,7 @@ class TestTrainInit():
     def vars(self):
         vars = myutils.get_vars()
         print("debug 1", file=sys.stderr)
-        job_name = vars['id'] + '_train_init'
+        job_name = vars['id'] + '_test_train_init'
         try:
             res = glue_utils.run_batch_job(job_name, vars['id'], vars['ec2_template_ml_id'])
             print(res, file=sys.stderr)
