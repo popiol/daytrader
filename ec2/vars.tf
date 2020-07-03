@@ -24,3 +24,8 @@ variable "sec_groups" {
 variable "subnets" {
 	type = list(string)
 }
+
+variable "user_data" {
+	type = string
+	default = ""
+}

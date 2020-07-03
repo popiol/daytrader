@@ -24,3 +24,7 @@ module "test_train_init" {
 	job_name = "test_train_init"
 	inp = var.inp
 }
+
+locals {
+    ecs_cluster_name = split('/', aws_batch_compute_environment.main.ecs_cluster_arn)[1]
+}

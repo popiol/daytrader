@@ -5,11 +5,11 @@ resource "aws_iam_instance_profile" "main" {
 
 resource "aws_launch_template" "main" {
     name = "${var.inp.app.id}_${var.instance_name}"
-    image_id = "ami-0466acdbae3d9cc42"
+    image_id = "ami-0fdb9f8a87f3ff6c4"
     instance_type = "t3a.small"
-    #vpc_security_group_ids = var.sec_groups
     instance_initiated_shutdown_behavior = "terminate"
-
+    user_data = var.user_data
+    
     iam_instance_profile {
         arn = aws_iam_instance_profile.main.arn
     }
