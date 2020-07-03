@@ -4,6 +4,7 @@ import glue.pythonjob.glue_utils as glue_utils
 import boto3
 import numpy as np
 import sys
+import traceback
 
 class TestTrainInit():
 
@@ -12,9 +13,12 @@ class TestTrainInit():
         vars = myutils.get_vars()
         print("debug 1", file=sys.stderr)
         job_name = vars['id'] + '_train_init'
-        res = glue_utils.run_batch_job(job_name, vars['ec2_template_ml_id'], vars['id'])
+        try:
+            res = glue_utils.run_batch_job(job_name, vars['ec2_template_ml_id'], vars['id'])
+            print(res, file=sys.stderr)
+        except:
+            print(traceback.format_exc().splitlines()[-2:])
         print("debug 2", file=sys.stderr)
-        print(res, file=sys.stderr)
         vars.update(res)
         return vars
 
