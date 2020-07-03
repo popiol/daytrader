@@ -3,7 +3,7 @@ import os
 import tensorflow.keras as keras
 import pickle
 
-bucket_name = os.environ('BUCKET_NAME')
+bucket_name = os.environ['BUCKET_NAME']
 s3 = boto3.resource("s3")
 bucket = s3.Bucket(bucket_name)
 
