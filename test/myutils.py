@@ -37,6 +37,7 @@ def get_vars():
     vars['alert_topic'] = sns_arn
 
     #get terraform outputs
+    os.system('terraform init')
     os.system('terraform output > out.txt')
     with open('out.txt','r') as f:
         for line in f:
