@@ -26,5 +26,5 @@ module "test_train_init" {
 }
 
 locals {
-    ecs_cluster_name = split('/', aws_batch_compute_environment.main.ecs_cluster_arn)[1]
+    ecs_cluster_name = split("/", aws_batch_compute_environment.main.ecs_cluster_arn)[1]
 }
