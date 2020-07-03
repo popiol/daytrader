@@ -128,4 +128,5 @@ module "ec2_template_ml" {
 	role = module.ec2_role.role_arn
 	sec_groups = module.vpc.security_groups
 	subnets = module.vpc.subnets
+	inp = local.common_inputs
 }
