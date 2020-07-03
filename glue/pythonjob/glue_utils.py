@@ -23,7 +23,7 @@ def create_event_key(comp_code, quote_dt):
 
 def run_batch_job(job_name, queue_name, templ_id):
     ec2 = boto3.client('ec2')
-    res = ec2.run_instances(LaunchTemplate={'LaunchTemplateId':templ_id})
+    res = ec2.run_instances(LaunchTemplate={'LaunchTemplateId':templ_id}, MinCount=1, MaxCount=1)
     batch = boto3.client('batch')
     res = batch.submit_job(jobName=job_name, jobQueue=queue_name, jobDefinition=job_name)
     job_id = res['jobId']
