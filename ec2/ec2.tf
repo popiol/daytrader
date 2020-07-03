@@ -14,10 +14,11 @@ resource "aws_launch_template" "main" {
         arn = aws_iam_instance_profile.main.arn
     }
     
-    network_interfaces {
-        associate_public_ip_address = false
-        subnet_id = var.subnets[0]
-    }
+    #network_interfaces {
+    #    associate_public_ip_address = false
+    #    subnet_id = var.subnets[0]
+    #    security_groups = var.sec_groups
+    #}
     
     tag_specifications {
         resource_type = "instance"
