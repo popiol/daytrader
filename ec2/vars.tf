@@ -9,6 +9,10 @@ variable "inp" {
 	})
 }
 
+variable "instance_name" {
+	type = string
+}
+
 variable "role" {
 	type = string
 }

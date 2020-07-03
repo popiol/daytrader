@@ -125,7 +125,8 @@ module "batch_jobs" {
 
 module "ec2_template_ml" {
 	source = "./ec2"
-	role = module.ec2_role.role_arn
+	instance_name = "ml"
+	role_name = module.ec2_role.role_name
 	sec_groups = module.vpc.security_groups
 	subnets = module.vpc.subnets
 	inp = local.common_inputs
