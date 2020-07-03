@@ -17,7 +17,7 @@ class TestTrainInit():
             res = glue_utils.run_batch_job(job_name, vars['ec2_template_ml_id'], vars['id'])
             print(res, file=sys.stderr)
         except:
-            print(traceback.format_exc().splitlines()[-2:])
+            print(traceback.format_exc().splitlines()[-2:], file=sys.stderr)
         print("debug 2", file=sys.stderr)
         vars.update(res)
         return vars
