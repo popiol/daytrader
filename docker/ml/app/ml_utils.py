@@ -3,6 +3,7 @@ import os
 import tensorflow.keras as keras
 import pickle
 import math
+import numpy as np
 
 bucket_name = os.environ['BUCKET_NAME']
 s3 = boto3.resource("s3")
@@ -130,6 +131,7 @@ class Agent():
     def train_init(self, events):
         inputs, outputs = self.next(events, self.get_train_init_outputs)
         outputs = list(zip(*outputs))
+        outputs = [np.array(x) for x in outputs]
         self.model.fit(inputs, outputs)
 
     def train(self, events):
