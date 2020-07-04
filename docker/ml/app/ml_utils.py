@@ -132,7 +132,7 @@ class Agent():
         inputs, outputs = self.next(events, self.get_train_init_outputs)
         outputs = list(zip(*outputs))
         outputs = [np.array(x) for x in outputs]
-        self.model.fit(inputs, outputs)
+        self.model.fit(np.array(inputs), outputs)
 
     def train(self, events):
         pass
