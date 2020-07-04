@@ -15,8 +15,12 @@ resource "aws_batch_job_queue" "main" {
 	compute_environments = [aws_batch_compute_environment.main.arn]
 }
 
-locals {
-    ecs_cluster_name = split("/", aws_batch_compute_environment.main.ecs_cluster_arn)[1]
+resource "aws_cloudwatch_event_rule" "main" {
+	name = "${var.inp.app.id}_batch_done"
+
+	event_pattern = jsonencode({
+		source = "aws.batch"
+	})
 }
 
 resource "aws_ecr_repository" "ml" {

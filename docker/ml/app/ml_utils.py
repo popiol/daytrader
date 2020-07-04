@@ -129,6 +129,7 @@ class Agent():
 
     def train_init(self, events):
         inputs, outputs = self.next(events, self.get_train_init_outputs)
+        outputs = list(zip(*outputs))
         self.model.fit(inputs, outputs)
 
     def train(self, events):
