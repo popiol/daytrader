@@ -26,8 +26,8 @@ class Agent():
             self.model = pickle.loads(model)
         except:
             pricech_model = glue_utils.PriceChModel(bucket)
-            in_shape = pricech_model.get_input_shape()
-            in_shape[0] += 1
+            in_shape = pricech_model.get_input_shape()[0]
+            in_shape = tuple([in_shape+1])
             inputs = keras.layers.Input(shape=in_shape)
             hidden1 = keras.layers.Dense(100, activation="relu")(inputs)
             buy_action = keras.layers.Dense(1, activation="sigmoid")(hidden1)
