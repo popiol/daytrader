@@ -113,6 +113,7 @@ module "ec2_role" {
 	role_name = "ec2"
 	service = "ec2"
 	attached_policies = ["AmazonEC2FullAccess","service-role/AmazonEC2ContainerServiceforEC2Role","EC2InstanceConnect"]
+	custom_policies = [module.s3_quotes.access_policy]
 	inp = var.inp
 }
 
