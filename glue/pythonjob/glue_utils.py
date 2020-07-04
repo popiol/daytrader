@@ -245,8 +245,6 @@ class Simulator():
         return price
 
     def next(self):
-        print(self.events.keys())
-        events = {}
         quote_dt = datetime.datetime.strptime(self.quote_dt, DB_DATE_FORMAT)
         quote_dt += datetime.timedelta(hours=1)
         if quote_dt.hour > 17:
@@ -264,6 +262,7 @@ class Simulator():
         hour = quote_dt.hour
         quote_dt = quote_dt.strftime(DB_DATE_FORMAT)
         if 9 <= hour <= 17:
+            events = {}
             for comp_code in self.comp_codes:
                 inputs = self.events[comp_code].get_inputs()
                 proba = self.model.predict_proba(inputs)
@@ -274,8 +273,8 @@ class Simulator():
                 high_price = max(high_price, price)
                 low_price = min(low_price, price)
                 events[comp_code] = self.events[comp_code].next(price, high_price, low_price, quote_dt)
+            self.events = events
         batch = list(self.events.values())
-        self.events = events
         self.quote_dt = quote_dt
         return batch
 
