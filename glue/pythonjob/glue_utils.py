@@ -245,6 +245,7 @@ class Simulator():
         return price
 
     def next(self):
+        print(self.events.keys())
         events = {}
         quote_dt = datetime.datetime.strptime(self.quote_dt, DB_DATE_FORMAT)
         quote_dt += datetime.timedelta(hours=1)
