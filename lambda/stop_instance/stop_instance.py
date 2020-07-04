@@ -13,7 +13,10 @@ def lambda_handler(event, context):
     instance_ids = []
     for instance in res:
         instance_ids.append(instance.id)
-        instance.terminate(DryRun=False)
+        try:
+            instance.terminate(DryRun=False)
+        except:
+            pass
     
     return {
         'statusCode': 200,
