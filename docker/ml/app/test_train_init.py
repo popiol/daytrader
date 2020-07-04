@@ -16,6 +16,7 @@ for _ in range(100):
     cash_ch.append(agent.cash / cash - 1)
     cash = agent.cash
     assert cash > 0
+print(cash_ch)
 assert max(n_orders) > 0
 assert max(portfolio_size) > 0
 assert 1 > max(max(cash_ch), abs(min(cash_ch))) > 0
