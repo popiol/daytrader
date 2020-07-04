@@ -81,8 +81,8 @@ class Agent():
                 print("Cash:", self.cash)
             elif not self.orders[comp_code]['buy'] and self.orders[comp_code]['price'] < float(event.event['high_price']):
                 del self.portfolio[comp_code]
-                self.cash += self.portfolio[comp_code]['n_shares'] * self.orders[comp_code]['price']
-                print("Sell", self.portfolio[comp_code]['n_shares'], "shares of", comp_code, "for", self.orders[comp_code]['price'])
+                self.cash += self.orders[comp_code]['n_shares'] * self.orders[comp_code]['price']
+                print("Sell", self.orders[comp_code]['n_shares'], "shares of", comp_code, "for", self.orders[comp_code]['price'])
                 print("Cash:", self.cash)
         
     def add_sell_order(self, event, sell_price_ch):
