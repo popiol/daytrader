@@ -22,8 +22,8 @@ def create_event_key(comp_code, quote_dt):
     return "events/date={}/{}_{}.json".format(dt, comp_code, dt2)
 
 def run_batch_job(job_name, queue_name, templ_id):
-    ec2 = boto3.client('ec2')
-    res = ec2.run_instances(LaunchTemplate={'LaunchTemplateId':templ_id,'Version':'$Latest'}, MinCount=1, MaxCount=1)
+    #ec2 = boto3.client('ec2')
+    #res = ec2.run_instances(LaunchTemplate={'LaunchTemplateId':templ_id,'Version':'$Latest'}, MinCount=1, MaxCount=1)
     batch = boto3.client('batch')
     res = batch.submit_job(jobName=job_name, jobQueue=queue_name, jobDefinition=job_name)
     job_id = res['jobId']
@@ -220,9 +220,7 @@ class Simulator():
         self.quote_dt = quote_dt
         events = {}
         for comp_code in comp_codes:
-            price = 0
-            while price <= 0 or price > 2500:
-                price = np.random.poisson(215)
+            price = self.generate_price()
             event = {'comp_code':comp_code,'quote_dt':quote_dt,'price':price,'high_price':price,'low_price':price}
             events[comp_code] = Event(event)
         self.events = events
@@ -240,6 +238,12 @@ class Simulator():
         c3 = chr(comp_code_i % nchar + start)
         return c1+c2+c3
 
+    def generate_price(self):
+        price = 0
+        while price <= 0 or price > 2500:
+            price = np.random.poisson(215)
+        return price
+
     def next(self):
         events = {}
         quote_dt = datetime.datetime.strptime(self.quote_dt, DB_DATE_FORMAT)
@@ -254,7 +258,8 @@ class Simulator():
                 if rename:
                     comp_code = self.generate_comp_code()
                     self.comp_codes[i] = comp_code
-                    self.events[comp_code] = Event({'comp_code':comp_code,'quote_dt':self.quote_dt})
+                    price = self.generate_price()
+                    self.events[comp_code] = Event({'comp_code':comp_code,'quote_dt':self.quote_dt,'price':price})
         hour = quote_dt.hour
         quote_dt = quote_dt.strftime(DB_DATE_FORMAT)
         if 9 <= hour <= 17:
