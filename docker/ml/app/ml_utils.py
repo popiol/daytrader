@@ -2,6 +2,7 @@ import boto3
 import os
 import tensorflow.keras as keras
 import pickle
+import math
 
 bucket_name = os.environ['BUCKET_NAME']
 s3 = boto3.resource("s3")
