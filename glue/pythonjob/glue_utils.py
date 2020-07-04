@@ -23,8 +23,8 @@ def create_event_key(comp_code, quote_dt):
     return "events/date={}/{}_{}.json".format(dt, comp_code, dt2)
 
 def run_batch_job(job_name, queue_name, templ_id):
-    #ec2 = boto3.client('ec2')
-    #res = ec2.run_instances(LaunchTemplate={'LaunchTemplateId':templ_id,'Version':'$Latest'}, MinCount=1, MaxCount=1)
+    ec2 = boto3.client('ec2')
+    res = ec2.run_instances(LaunchTemplate={'LaunchTemplateId':templ_id,'Version':'$Latest'}, MinCount=1, MaxCount=1)
     batch = boto3.client('batch')
     res = batch.submit_job(jobName=job_name, jobQueue=queue_name, jobDefinition=job_name)
     job_id = res['jobId']
@@ -32,7 +32,7 @@ def run_batch_job(job_name, queue_name, templ_id):
         res = batch.describe_jobs(jobs=[job_id])
         job_status = res['jobs'][0]['status']
         if job_status in ['SUCCEEDED','FAILED']: break
-        time.sleep(300)
+        time.sleep(60)
     return {'job_status': job_status}
 
 class Discretizer():
