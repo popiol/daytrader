@@ -4,6 +4,7 @@ import tensorflow.keras as keras
 import pickle
 import math
 import numpy as np
+import shutil
 
 bucket_name = os.environ['BUCKET_NAME']
 s3 = boto3.resource("s3")
@@ -22,10 +23,12 @@ import glue_utils
 class Agent():
     def __init__(self, agent_name, bucket):
         try:
-            filename = 'model.dump'
-            obj_key = f'model/{agent_name}_model.pickle'
+            dirname = 'model.dump'
+            filename = 'model.zip'
+            obj_key = f'model/{agent_name}_model.zip'
             bucket.download_file(obj_key, filename)
-            self.model = keras.models.load_model(filename)
+            shutil.unpack_archive(filename, dirname)
+            self.model = keras.models.load_model(dirname)
         except:
             pricech_model = glue_utils.PriceChModel(bucket)
             in_shape = pricech_model.get_input_shape()[0]
@@ -44,9 +47,11 @@ class Agent():
         self.agent_name = agent_name
 
     def save(self):
-        filename = 'model.dump'
-        self.model.save(filename)
-        obj_key = f'model/{self.agent_name}_model.pickle'
+        dirname = 'model.dump'
+        filename = 'model.zip'
+        self.model.save(dirname)
+        shutil.make_archive(filename, 'zip', dirname)
+        obj_key = f'model/{self.agent_name}_model.zip'
         self.bucket.upload_file(filename, obj_key)
 
     def rename(self, agent_name):
