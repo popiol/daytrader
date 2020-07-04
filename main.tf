@@ -41,6 +41,7 @@ module "lambda_role" {
 	source = "./role"
 	role_name = "lambda"
 	service = "lambda"
+	attached_policies = ["AmazonEC2FullAccess"]
 	custom_policies = [
 		module.s3_quotes.access_policy,
 		module.alerts.publish_policy
@@ -117,10 +118,22 @@ module "ec2_role" {
 	inp = var.inp
 }
 
+module "stop_instance" {
+	source = "./lambda"
+	function_name = "stop_instance"
+	on_failure = [module.alerts.arn]
+	role = module.lambda_role.role_arn
+	inp = merge(var.inp, {
+		bucket_name = module.s3_quotes.bucket_name
+		alert_topic = module.alerts.arn
+	})
+}
+
 module "batch_jobs" {
 	source = "./batch_jobs"
 	batch_role = module.batch_role.role_arn
 	ec2_role_name = module.ec2_role.role_name
+	stop_instance_function = module.stop_instance.arn
 	inp = local.common_inputs
 }
 
@@ -131,6 +144,7 @@ module "ec2_template_ml" {
 	sec_groups = module.vpc.security_groups
 	subnets = module.vpc.subnets
 	inp = local.common_inputs
+	tags = {batch_job = "ml"}
 	user_data = base64encode(templatefile("${path.module}/ec2/files/ml_init.sh", {
 		ECS_CLUSTER_NAME = module.batch_jobs.ecs_cluster_name
 	}))

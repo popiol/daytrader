@@ -29,3 +29,8 @@ variable "user_data" {
 	type = string
 	default = ""
 }
+
+variable "tags" {
+	type = map(string)
+	default = {}
+}

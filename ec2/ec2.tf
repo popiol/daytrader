@@ -22,6 +22,6 @@ resource "aws_launch_template" "main" {
     
     tag_specifications {
         resource_type = "instance"
-        tags = var.inp.app
+        tags = merge(var.inp.app, var.tags)
     }
 }

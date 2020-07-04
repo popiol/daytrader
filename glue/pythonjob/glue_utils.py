@@ -5,6 +5,7 @@ import numpy as np
 import datetime
 import json
 import boto3
+import time
 
 PRICE_CHANGE_N_BINS = 10
 HIGH_CHANGE_N_BINS = 5
@@ -27,8 +28,12 @@ def run_batch_job(job_name, queue_name, templ_id):
     batch = boto3.client('batch')
     res = batch.submit_job(jobName=job_name, jobQueue=queue_name, jobDefinition=job_name)
     job_id = res['jobId']
-    res = batch.describe_jobs(jobs=[job_id])
-    return {'job_status': res['jobs'][0]['status']}
+    for _ in range(12):
+        res = batch.describe_jobs(jobs=[job_id])
+        job_status = res['jobs'][0]['status']
+        if job_status in ['SUCCEEDED','FAILED']: break
+        time.sleep(300)
+    return {'job_status': job_status}
 
 class Discretizer():
     def __init__(self, bucket=None, discretizer=None):

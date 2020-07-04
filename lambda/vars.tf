@@ -4,6 +4,7 @@ variable "function_name" {
 
 variable "crontab_entry" {
 	type = string
+	default = ""
 }
 
 variable "on_failure" {

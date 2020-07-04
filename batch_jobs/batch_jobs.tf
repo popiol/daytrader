@@ -15,13 +15,23 @@ resource "aws_batch_job_queue" "main" {
 	compute_environments = [aws_batch_compute_environment.main.arn]
 }
 
-#resource "aws_cloudwatch_event_rule" "main" {
-#	name = "${var.inp.app.id}_batch_done"
-#
-#	event_pattern = jsonencode({
-#		source = "aws.batch"
-#	})
-#}
+resource "aws_cloudwatch_event_rule" "main" {
+	name = "${var.inp.app.id}_batch_done"
+
+	event_pattern = jsonencode({
+		source = ["aws.batch"]
+		detail = {
+			status = ["FAILED", "SUCCEEDED"]
+		}
+	})
+}
+
+resource "aws_cloudwatch_event_target" "main" {
+	rule = aws_cloudwatch_event_rule.main.name
+	target_id = aws_cloudwatch_event_rule.main.name
+	arn = var.stop_instance_function
+	input = jsonencode(var.inp)
+}
 
 resource "aws_ecr_repository" "ml" {
 	name = "${var.inp.app.id}/ml"
