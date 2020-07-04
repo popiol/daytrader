@@ -20,7 +20,7 @@ print(cash_ch)
 assert max(n_orders) > 0
 assert max(portfolio_size) > 0
 assert 1 > max(max(cash_ch), abs(min(cash_ch))) > 0
-assert min(cash_ch) > -.1 
+assert min(cash_ch) > -1
 agent.save()
 agent2 = glue_utils.Agent(ml_utils.bucket)
 assert np.array_equal(agent.model.get_weights(), agent2.model.get_weights())
