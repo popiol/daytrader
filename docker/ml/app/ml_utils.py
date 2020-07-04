@@ -10,7 +10,7 @@ bucket = s3.Bucket(bucket_name)
 def s3_download(bucket, obj_key):
     filename = obj_key.split('/')[-1]    
     f_in = bucket.Object(obj_key).get()
-    with open(filename,'w') as f_out:
+    with open(filename,'wb') as f_out:
         f_out.write(f_in['Body'].read())
 
 s3_download(bucket, 'scripts/glue_utils.py')
