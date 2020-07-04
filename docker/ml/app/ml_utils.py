@@ -92,7 +92,7 @@ class Agent():
         if comp_code in self.portfolio and abs(sell_price_ch) > .1:
             self.portfolio[comp_code]['price'] = price
             sell_price = price * (1+sell_price_ch)
-            orders[comp_code] = {'buy':False, 'price':sell_price}
+            orders[comp_code] = {'buy':False, 'price':sell_price, 'n_shares':self.portfolio[comp_code]['n_shares']}
         return orders
 
     def next(self, events, get_outputs):
