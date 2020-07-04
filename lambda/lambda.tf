@@ -10,14 +10,14 @@ resource "aws_lambda_function" "main" {
 }
 
 resource "aws_cloudwatch_event_rule" "main" {
-	for_each = toset(var.crontab_entry ? [var.crontab_entry] : [])
+	for_each = toset(var.crontab_entry != "" ? [var.crontab_entry] : [])
 	name = aws_lambda_function.main.function_name
 	schedule_expression = each.key
 	tags = var.inp.app
 }
 
 resource "aws_cloudwatch_event_target" "get_quotes" {
-	for_each = toset(var.crontab_entry ? [var.crontab_entry] : [])
+	for_each = toset(var.crontab_entry != "" ? [var.crontab_entry] : [])
 	target_id = aws_cloudwatch_event_rule.main[each.key].name
 	rule = aws_cloudwatch_event_rule.main[each.key].name
 	arn = aws_lambda_function.main.arn
