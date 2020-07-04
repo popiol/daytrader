@@ -21,5 +21,5 @@ assert max(portfolio_size) > 0
 assert 1 > max(max(cash_ch), abs(min(cash_ch))) > 0
 assert min(cash_ch) > -1
 agent.save()
-agent2 = glue_utils.Agent(ml_utils.bucket)
+agent2 = ml_utils.Agent('dev2', ml_utils.bucket)
 assert np.array_equal(agent.model.get_weights(), agent2.model.get_weights())
