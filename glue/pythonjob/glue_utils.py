@@ -254,12 +254,12 @@ class Simulator():
             quote_dt += datetime.timedelta(days=2)
         if quote_dt.hour == 8:
             for i, comp_code in enumerate(self.comp_codes):
-                rename = random.choices([0,1], [250*len(self.comp_codes),5])
+                rename = random.choices([0,1], [250*len(self.comp_codes),5])[0]
                 if rename:
                     comp_code = self.generate_comp_code()
                     self.comp_codes[i] = comp_code
                     price = self.generate_price()
-                    self.events[comp_code] = Event({'comp_code':comp_code,'quote_dt':self.quote_dt,'price':price})
+                    self.events[comp_code] = Event({'comp_code':comp_code,'quote_dt':self.quote_dt,'price':price,'high_price':price,'low_price':price})
         hour = quote_dt.hour
         quote_dt = quote_dt.strftime(DB_DATE_FORMAT)
         if 9 <= hour <= 17:
