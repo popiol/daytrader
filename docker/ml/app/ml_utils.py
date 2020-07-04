@@ -48,9 +48,10 @@ class Agent():
 
     def save(self):
         dirname = 'model.dump'
-        filename = 'model.zip'
+        filename = 'model'
         self.model.save(dirname)
         shutil.make_archive(filename, 'zip', dirname)
+        filename += '.zip'
         obj_key = f'model/{self.agent_name}_model.zip'
         self.bucket.upload_file(filename, obj_key)
 
