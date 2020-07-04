@@ -22,10 +22,10 @@ import glue_utils
 class Agent():
     def __init__(self, agent_name, bucket):
         try:
+            filename = 'model.dump'
             obj_key = f'model/{agent_name}_model.pickle'
-            f = bucket.Object(obj_key).get()
-            model = f['Body'].read()
-            self.model = pickle.loads(model)
+            bucket.download_file(obj_key, filename)
+            self.model = keras.models.load_model(filename)
         except:
             pricech_model = glue_utils.PriceChModel(bucket)
             in_shape = pricech_model.get_input_shape()[0]
@@ -44,9 +44,10 @@ class Agent():
         self.agent_name = agent_name
 
     def save(self):
-        model = pickle.dumps(self.model)
+        filename = 'model.dump'
+        self.model.save(filename)
         obj_key = f'model/{self.agent_name}_model.pickle'
-        self.bucket.put_object(Key=obj_key, Body=model)
+        self.bucket.upload_file(filename, obj_key)
 
     def rename(self, agent_name):
         self.agent_name = agent_name
