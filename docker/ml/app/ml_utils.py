@@ -35,6 +35,7 @@ class Agent():
             buy_price = keras.layers.Dense(1, activation="sigmoid")(hidden1)
             sell_price = keras.layers.Dense(1, activation="sigmoid")(hidden1)
             self.model = keras.Model(inputs=inputs, outputs=[buy_action, buy_price, sell_price])
+            self.model.compile(optimizer='nadam', loss='huber_loss')
         self.portfolio = {}
         self.orders = {}
         self.bucket = bucket
