@@ -129,7 +129,7 @@ module "batch_jobs" {
 	stop_instance_function = module.stop_instance.arn
 	sec_groups = module.vpc.security_groups
 	subnets = module.vpc.subnets
-	image_id = "ami-0fdb9f8a87f3ff6c4"
+	image_id = "ami-0b4270475112ba22b"
 	inp = local.common_inputs
 }
 
