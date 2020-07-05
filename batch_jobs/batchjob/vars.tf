@@ -17,7 +17,3 @@ variable "job_name" {
 variable "image_name" {
 	type = string
 }
-
-variable "launch_template" {
-	type = string
-}

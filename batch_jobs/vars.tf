@@ -25,3 +25,7 @@ variable "ec2_role" {
 variable "stop_instance_function" {
 	type = string
 }
+
+variable "launch_template" {
+	type = string
+}
