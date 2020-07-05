@@ -6,6 +6,7 @@ resource "aws_vpc" "main" {
 resource "aws_subnet" "main" {
     vpc_id = aws_vpc.main.id
     cidr_block = aws_vpc.main.cidr_block
+    map_public_ip_on_launch = true
     tags = var.inp.app
 }
 
