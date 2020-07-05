@@ -29,3 +29,11 @@ variable "stop_instance_function" {
 variable "launch_template" {
 	type = string
 }
+
+variable "sec_groups" {
+	type = string
+}
+
+variable "subnets" {
+	type = string
+}
