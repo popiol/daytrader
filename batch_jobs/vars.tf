@@ -31,9 +31,9 @@ variable "launch_template" {
 }
 
 variable "sec_groups" {
-	type = string
+	type = list(string)
 }
 
 variable "subnets" {
-	type = string
+	type = list(string)
 }
