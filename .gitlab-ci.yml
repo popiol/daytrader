@@ -13,7 +13,7 @@ deploy_to_aws:
     - ./get_vars.sh
     - terraform init
     - terraform apply -var-file=config.tfvars -auto-approve -target=module.s3_quotes -target=module.alerts -target=module.dynamodb
-    #- terraform destroy -var-file=config.tfvars -auto-approve -target=module.batch_jobs.aws_batch_job_queue.main
+    - terraform destroy -var-file=config.tfvars -auto-approve -target=module.batch_jobs.aws_batch_job_queue.main
     - terraform apply -var-file=config.tfvars -auto-approve
 
 build_ml_docker:
