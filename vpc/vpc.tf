@@ -10,7 +10,7 @@ resource "aws_subnet" "main" {
     tags = var.inp.app
 }
 
-resource "aws_security_group" "main" {
+resource "aws_default_security_group" "main" {
     vpc_id = aws_vpc.main.id
     tags = var.inp.app
 
