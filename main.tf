@@ -134,15 +134,15 @@ module "batch_jobs" {
 	inp = local.common_inputs
 }
 
-module "ec2_template_ml" {
-	source = "./ec2"
-	instance_name = "ml"
-	role_name = module.ec2_role.role_name
-	sec_groups = module.vpc.security_groups
-	subnets = module.vpc.subnets
-	inp = local.common_inputs
-	tags = {batch_job = "ml"}
-	user_data = base64encode(templatefile("${path.module}/ec2/files/ml_init.sh", {
-		ECS_CLUSTER_NAME = module.batch_jobs.ecs_cluster_name
-	}))
-}
+#module "ec2_template_ml" {
+#	source = "./ec2"
+#	instance_name = "ml"
+#	role_name = module.ec2_role.role_name
+#	sec_groups = module.vpc.security_groups
+#	subnets = module.vpc.subnets
+#	inp = local.common_inputs
+#	tags = {batch_job = "ml"}
+#	user_data = base64encode(templatefile("${path.module}/ec2/files/ml_init.sh", {
+#		ECS_CLUSTER_NAME = module.batch_jobs.ecs_cluster_name
+#	}))
+#}
