@@ -20,15 +20,15 @@ resource "aws_cloudwatch_event_rule" "main" {
 
 	event_pattern = <<PATTERN
 {
-	"source": [
-		"aws.batch"
-	],
 	"detail": {
     	"status": [
       		"FAILED",
       		"SUCCEEDED"
     	]
-	}
+	},
+	"source": [
+		"aws.batch"
+	]
 }
 PATTERN
 }
