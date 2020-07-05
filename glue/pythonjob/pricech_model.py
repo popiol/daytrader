@@ -15,7 +15,7 @@ alert_topic = args['alert_topic']
 log_table_name = args['log_table']
 event_table_name = args['event_table']
 app = json.loads(args['app'])
-temporary = args['temporary']
+temporary = True if args['temporary'] == "true" or args['temporary'] == "1" else False
 
 #get list of all company codes
 s3 = boto3.resource('s3')
