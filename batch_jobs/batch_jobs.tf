@@ -6,7 +6,6 @@ resource "aws_batch_compute_environment" "main" {
 	compute_environment_name = var.inp.app.id
 	service_role = var.batch_role
 	type = "UNMANAGED"
-
 }
 
 resource "aws_batch_job_queue" "main" {
