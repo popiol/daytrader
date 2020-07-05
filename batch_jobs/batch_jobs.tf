@@ -18,19 +18,12 @@ resource "aws_batch_job_queue" "main" {
 resource "aws_cloudwatch_event_rule" "main" {
 	name = "${var.inp.app.id}_batch_done"
 
-	event_pattern = <<PATTERN
-{
-	"detail": {
-    	"status": [
-      		"FAILED",
-      		"SUCCEEDED"
-    	]
-	},
-	"source": [
-		"aws.batch"
-	]
-}
-PATTERN
+	event_pattern = jsonencode({
+		detail = {
+			status = ["FAILED", "SUCCEEDED"]
+		}
+		source = ["aws.batch"]
+	})
 }
 
 resource "aws_cloudwatch_event_target" "main" {
