@@ -19,11 +19,10 @@ resource "aws_cloudwatch_event_rule" "main" {
 	name = "${var.inp.app.id}_batch_done"
 
 	event_pattern = jsonencode({
-		source = ["aws.batch"]
-		"detail-type" = ["Batch Job State Change"]
 		detail = {
 			status = ["FAILED", "SUCCEEDED"]
 		}
+		source = ["aws.batch"]
 	})
 }
 
