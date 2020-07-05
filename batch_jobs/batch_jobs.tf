@@ -22,7 +22,7 @@ resource "aws_cloudwatch_event_rule" "main" {
 {
 	"source": [
 		"aws.batch"
-	].
+	],
 	"detail": {
     	"status": [
       		"FAILED",
