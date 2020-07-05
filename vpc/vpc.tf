@@ -40,12 +40,13 @@ resource "aws_internet_gateway" "main" {
     tags = var.inp.app
 }
 
-resource "aws_route_table" "main" {
-	vpc_id = aws_vpc.main.id
-	tags = var.inp.app
+resource "aws_default_route_table" "main" {
+    default_route_table_id = aws_vpc.main.default_route_table_id
+    tags = var.inp.app
 
     route {
 		cidr_block = "0.0.0.0/0"
 		gateway_id = aws_internet_gateway.main.id
 	}
 }
+

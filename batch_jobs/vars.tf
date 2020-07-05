@@ -25,15 +25,3 @@ variable "ec2_role" {
 variable "stop_instance_function" {
 	type = string
 }
-
-variable "sec_groups" {
-	type = list(string)
-}
-
-variable "subnets" {
-	type = list(string)
-}
-
-variable "image_id" {
-	type = string
-}
