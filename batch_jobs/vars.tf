@@ -18,10 +18,6 @@ variable "ec2_role_name" {
 	type = string
 }
 
-variable "ec2_role" {
-	type = string
-}
-
 variable "stop_instance_function" {
 	type = string
 }

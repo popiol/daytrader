@@ -8,7 +8,7 @@ resource "aws_batch_compute_environment" "main" {
 	type = "MANAGED"
 
 	compute_resources {
-		instance_role = var.ec2_role
+		instance_role = aws_iam_instance_profile.main.arn
 		max_vcpus = 2
 		min_vcpus = 0
 		desired_vcpus = 0
@@ -19,6 +19,8 @@ resource "aws_batch_compute_environment" "main" {
 			"a1.large",
 		]
 		image_id = var.image_id
+		ec2_key_pair = "popiolkey4"
+		tags = var.inp.app
 	}
 }
 
