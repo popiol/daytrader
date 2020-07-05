@@ -10,6 +10,8 @@ provider "aws" {
 	region = var.inp.aws_region
 }
 
+data "aws_caller_identity" "current" {}
+
 module "s3_quotes" {
 	source = "./bucket"
 	bucket_name = "quotes"
@@ -27,10 +29,19 @@ module "alerts" {
 	inp = var.inp
 }
 
+locals {
+	common_inputs = merge(var.inp, {
+		bucket_name = module.s3_quotes.bucket_name
+		alert_topic = module.alerts.arn
+		aws_user_id = data.aws_caller_identity.current.account_id
+	})
+} 
+
 module "lambda_role" {
 	source = "./role"
 	role_name = "lambda"
 	service = "lambda"
+	attached_policies = ["AmazonEC2FullAccess"]
 	custom_policies = [
 		module.s3_quotes.access_policy,
 		module.alerts.publish_policy
@@ -65,24 +76,73 @@ module "glue_role" {
 		module.dynamodb.access_policy.event_process_log,
 		module.dynamodb.access_policy.event_table
 	]
-	attached_policies = ["AWSGlueServiceRole"]
+	attached_policies = ["service-role/AWSGlueServiceRole"]
 	inp = var.inp
 }
 
 module "etl" {
 	source = "./glue"
 	role = module.glue_role.role_arn
-	inp = merge(var.inp, {
-		bucket_name = module.s3_quotes.bucket_name
-		alert_topic = module.alerts.arn
+	inp = merge(local.common_inputs, {
 		log_table = module.dynamodb.table_name.event_process_log
 		event_table = module.dynamodb.table_name.event_table
 	})
 }
 
-module "glue_error_alert" {
-	source = "./alarm"
-	error_logs = ["/aws-glue/python-jobs/error"]
-	targets = [module.alerts.arn]
+module "vpc" {
+	source = "./vpc"
+	inp = local.common_inputs
+}
+
+module "batch_role" {
+	source = "./role"
+	role_name = "batch"
+	service = "batch"
+	attached_policies = ["service-role/AWSBatchServiceRole"]
 	inp = var.inp
+}
+
+module "ec2_role" {
+	source = "./role"
+	role_name = "ec2"
+	service = "ec2"
+	attached_policies = ["AmazonEC2FullAccess","service-role/AmazonEC2ContainerServiceforEC2Role","EC2InstanceConnect"]
+	custom_policies = [module.s3_quotes.access_policy]
+	inp = var.inp
+}
+
+module "stop_instance" {
+	source = "./lambda"
+	function_name = "stop_instance"
+	on_failure = [module.alerts.arn]
+	role = module.lambda_role.role_arn
+	inp = merge(var.inp, {
+		bucket_name = module.s3_quotes.bucket_name
+		alert_topic = module.alerts.arn
+	})
+}
+
+module "batch_jobs" {
+	source = "./batch_jobs"
+	batch_role = module.batch_role.role_arn
+	ec2_role_name = module.ec2_role.role_name
+	ec2_role = module.ec2_role.role_arn
+	stop_instance_function = module.stop_instance.arn
+	sec_groups = module.vpc.security_groups
+	subnets = module.vpc.subnets
+	image_id = "ami-0fdb9f8a87f3ff6c4"
+	inp = local.common_inputs
+}
+
+module "ec2_template_ml" {
+	source = "./ec2"
+	instance_name = "ml"
+	role_name = module.ec2_role.role_name
+	sec_groups = module.vpc.security_groups
+	subnets = module.vpc.subnets
+	inp = local.common_inputs
+	tags = {batch_job = "ml"}
+	user_data = base64encode(templatefile("${path.module}/ec2/files/ml_init.sh", {
+		ECS_CLUSTER_NAME = module.batch_jobs.ecs_cluster_name
+	}))
 }

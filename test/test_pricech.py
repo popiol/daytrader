@@ -31,6 +31,7 @@ class TestPriceCh():
                 break
         model = glue_utils.PriceChModel(bucket)
         event = glue_utils.Event(bucket=bucket, obj_key=obj_key)
+        assert model.get_input_shape() == np.shape(event.get_inputs())
         discretizer = glue_utils.Discretizer(bucket)
         y = model.predict_proba(event.get_inputs())
         assert len(y) == sum(discretizer.n_bins)

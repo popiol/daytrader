@@ -2,6 +2,7 @@ import boto3
 import datetime
 import time
 import json
+import os
 
 def get_vars():
     vars = {}
@@ -34,6 +35,18 @@ def get_vars():
         if sns_arn:
             break
     vars['alert_topic'] = sns_arn
+
+    #get terraform outputs
+    os.system('terraform init')
+    os.system('terraform output > out.txt')
+    with open('out.txt','r') as f:
+        for line in f:
+            if '=' not in line:
+                continue
+            key, val = line.split('=')
+            key = key.strip()
+            val = val.strip()
+            vars[key] = val
 
     return vars
 

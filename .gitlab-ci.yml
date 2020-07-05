@@ -1,9 +1,10 @@
 stages:
   - deploy
+  - build
   - test
   - clean
-  
-deploy:
+
+deploy_to_aws:
   stage: deploy
   environment:
     name: $CI_COMMIT_BRANCH
@@ -14,6 +15,15 @@ deploy:
     - terraform apply -var-file=config.tfvars -auto-approve -target=module.s3_quotes -target=module.alerts -target=module.dynamodb
     - terraform apply -var-file=config.tfvars -auto-approve
 
+build_ml_docker:
+  stage: build
+  script:
+    - export AWS_USER_ID=$(aws iam get-user --output text | cut -d":" -f5)
+    - aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_USER_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+    - docker build docker/ml -t ml
+    - docker tag ml ${AWS_USER_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${APP_NAME}_$CI_COMMIT_BRANCH/ml
+    - docker push ${AWS_USER_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${APP_NAME}_$CI_COMMIT_BRANCH/ml
+
 test:
   stage: test
   script:
@@ -23,10 +33,11 @@ test:
     #- python3 -m pytest test/test_html2csv.py
     #- python3 -m pytest test/test_clean_quotes.py
     #- python3 -m pytest test/test_events.py
-    #- python3 -m pytest test/test_discretize.py
-    #- python3 -m pytest test/test_pricech.py
-    #- python3 -m pytest test/test_simulator.py
+    - python3 -m pytest test/test_discretize.py
+    - python3 -m pytest test/test_pricech.py
+    - python3 -m pytest test/test_simulator.py
     - python3 -m pytest test/test_hist_simulator.py
+    - python3 -m pytest test/test_train_init.py
 
 clean:
   stage: clean
