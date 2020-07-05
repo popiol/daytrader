@@ -16,7 +16,7 @@ resource "aws_batch_compute_environment" "main" {
 		subnets = var.subnets
 		type = "EC2"
 		instance_type = [
-			"t3a.small",
+			"c4.large",
 		]
 		image_id = var.image_id
 		ec2_key_pair = "popiolkey4"
