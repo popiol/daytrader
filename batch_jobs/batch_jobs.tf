@@ -15,7 +15,7 @@ resource "aws_batch_compute_environment" "main" {
 		security_group_ids = var.sec_groups
 		subnets = var.subnets
 		type = "EC2"
-		launch_template = {
+		launch_template {
 			launch_template_id = var.launch_template
 		}
 		instance_type = [
