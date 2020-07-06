@@ -98,7 +98,7 @@ module "batch_role" {
 	source = "./role"
 	role_name = "batch"
 	service = "batch"
-	attached_policies = ["service-role/AWSBatchServiceRole"]
+	attached_policies = ["service-role/AWSBatchServiceRole", "AWSBatchFullAccess"]
 	inp = var.inp
 }
 
@@ -106,7 +106,7 @@ module "ec2_role" {
 	source = "./role"
 	role_name = "ec2"
 	service = "ec2"
-	attached_policies = ["AmazonEC2FullAccess","service-role/AmazonEC2ContainerServiceforEC2Role","EC2InstanceConnect"]
+	attached_policies = ["AmazonEC2FullAccess", "service-role/AmazonEC2ContainerServiceforEC2Role", "EC2InstanceConnect"]
 	custom_policies = [module.s3_quotes.access_policy]
 	inp = var.inp
 }

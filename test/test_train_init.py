@@ -13,6 +13,8 @@ class TestTrainInit():
         vars = myutils.get_vars()
         myutils.copy_from_prod(vars['bucket_name'], 'model/discretizer.pickle')
         myutils.copy_from_prod(vars['bucket_name'], 'model/pricech_model.pickle')
+        job_name = vars['id'] + '_test_train_init'
+        glue_utils.run_batch_job(job_name, vars['id'])
         job_name = vars['id'] + '_train_init'
         res = myutils.run_glue_job(job_name)
         vars.update(res)
