@@ -79,3 +79,11 @@ module "pricech_model" {
 	inp = var.inp
 	extra-py-files = ["glue_utils.py"]
 }
+
+module "train_init" {
+	source = "./pythonjob"
+	script_name = "train_init"
+	role = var.role
+	inp = var.inp
+	extra-py-files = ["glue_utils.py"]
+}
