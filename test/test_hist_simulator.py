@@ -22,7 +22,7 @@ class TestHistSimulator():
         comp_codes = {}
         for event in events:
             comp_code = event.event['comp_code']
-            assert 1 <= len(comp_code) <= 4
+            assert 1 <= len(comp_code) <= 5
             assert 'A' <= comp_code <= 'ZZZZ'
             comp_codes[comp_code] = event
         assert len(comp_codes) > .2 * glue_utils.SIM_N_COMPS
