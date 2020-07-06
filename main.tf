@@ -126,8 +126,10 @@ module "batch_jobs" {
 	source = "./batch_jobs"
 	batch_role = module.batch_role.role_arn
 	ec2_role_name = module.ec2_role.role_name
-	ec2_role = module.ec2_role.role_arn
 	stop_instance_function = module.stop_instance.arn
+	sec_groups = module.vpc.security_groups
+	subnets = module.vpc.subnets
+	image_id = "ami-036497ea4d2927003"
 	inp = local.common_inputs
 }
 

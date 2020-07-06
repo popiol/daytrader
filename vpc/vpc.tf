@@ -1,14 +1,16 @@
 resource "aws_vpc" "main" {
     cidr_block = "10.0.0.0/16"
+    tags = var.inp.app
 }
 
 resource "aws_subnet" "main" {
     vpc_id = aws_vpc.main.id
     cidr_block = aws_vpc.main.cidr_block
+    map_public_ip_on_launch = true
     tags = var.inp.app
 }
 
-resource "aws_security_group" "main" {
+resource "aws_default_security_group" "main" {
     vpc_id = aws_vpc.main.id
     tags = var.inp.app
 
