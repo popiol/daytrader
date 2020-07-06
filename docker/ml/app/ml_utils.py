@@ -45,6 +45,7 @@ class Agent():
         self.bucket = bucket
         self.cash = 1000
         self.agent_name = agent_name
+        print("Cash:", self.cash)
 
     def save(self):
         dirname = 'model.dump'
@@ -94,6 +95,11 @@ class Agent():
             sell_price = price * (1+sell_price_ch)
             orders[comp_code] = {'buy':False, 'price':sell_price, 'n_shares':self.portfolio[comp_code]['n_shares']}
         return orders
+
+    def get_capital(self):
+        capital = sum(x['n_shares'] * x['price'] for x in self.portfolio)
+        capital += self.cash
+        return capital
 
     def next(self, events, get_outputs):
         inputs = []

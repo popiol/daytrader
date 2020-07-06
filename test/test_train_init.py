@@ -11,15 +11,20 @@ class TestTrainInit():
     @pytest.fixture(scope='class')
     def vars(self):
         vars = myutils.get_vars()
-        job_name = vars['id'] + '_test_train_init'
-        try:
-            res = glue_utils.run_batch_job(job_name, vars['id'], vars['ec2_template_ml_id'])
-            print(res, file=sys.stderr)
-        except:
-            print(traceback.format_exc().splitlines()[-2:], file=sys.stderr)
+        myutils.copy_from_prod(vars['bucket_name'], 'model/discretizer.pickle')
+        myutils.copy_from_prod(vars['bucket_name'], 'model/pricech_model.pickle')
+        job_name = vars['id'] + '_train_init'
+        res = myutils.run_glue_job(job_name)
         vars.update(res)
         return vars
 
     def test_status(self, vars):
         job_status = vars['job_status']
         assert job_status == 'SUCCEEDED'
+
+    def test_agent_exists(self, vars):
+        bucket_name = vars['bucket_name']
+        s3 = boto3.resource('s3')
+        bucket = s3.Bucket(bucket_name)
+        obj_key = f'model/initial_model.zip'
+        bucket.Object(obj_key)
