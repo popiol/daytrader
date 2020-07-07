@@ -97,7 +97,7 @@ class Agent():
         return orders
 
     def get_capital(self):
-        capital = sum(x['n_shares'] * x['price'] for x in self.portfolio)
+        capital = sum(self.portfolio[x]['n_shares'] * self.portfolio[x]['price'] for x in self.portfolio)
         capital += self.cash
         return capital
 
