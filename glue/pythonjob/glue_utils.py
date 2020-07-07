@@ -271,10 +271,15 @@ class Simulator():
         quote_dt = quote_dt.strftime(DB_DATE_FORMAT)
         if 9 <= hour <= 17:
             events = {}
+            base_ch = None
             for comp_code in self.comp_codes:
                 inputs = self.events[comp_code].get_inputs()
                 proba = self.model.predict_proba(inputs)
                 price_ch, high_price_ch, low_price_ch = self.discretizer.random_price_change(proba)
+                if base_ch is None:
+                    base_ch = price_ch / 5
+                else:
+                    price_ch += base_ch
                 price = self.events[comp_code].event['price'] * (price_ch + 1)
                 high_price = self.events[comp_code].event['high_price'] * (high_price_ch + 1)
                 low_price = self.events[comp_code].event['low_price'] * (low_price_ch + 1)
@@ -362,4 +367,3 @@ class HistSimulator():
                 if comp_code in self.events:
                     self.samples[comp_code].append(self.events[comp_code].get_price())
         return batch
-

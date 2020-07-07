@@ -5,6 +5,7 @@ import pickle
 import math
 import numpy as np
 import shutil
+import sys
 
 bucket_name = os.environ['BUCKET_NAME']
 s3 = boto3.resource("s3")
@@ -141,11 +142,17 @@ class Agent():
         sell_price = max((8 - n_ticks) * .04, 0)
         return buy_action, buy_price, sell_price
 
+    def fit(self, x, y):
+        with open('/dev/null', 'w') as f:
+            sys.stdout = f
+            self.model.fit(x, y)
+            sys.stdout = sys.__stdout__
+
     def train_init(self, events):
         inputs, outputs = self.next(events, self.get_train_init_outputs)
         outputs = list(zip(*outputs))
         outputs = [np.array(x) for x in outputs]
-        self.model.fit(np.array(inputs), outputs)
+        self.fit(np.array(inputs), outputs)
 
     def train(self, events):
         pass
