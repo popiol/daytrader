@@ -29,4 +29,4 @@ class TestTrainInit():
         s3 = boto3.resource('s3')
         bucket = s3.Bucket(bucket_name)
         obj_key = f'model/initial_model.zip'
-        bucket.Object(obj_key)
+        bucket.Object(obj_key).get()

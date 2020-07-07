@@ -76,7 +76,7 @@ module "glue_role" {
 		module.dynamodb.access_policy.event_process_log,
 		module.dynamodb.access_policy.event_table
 	]
-	attached_policies = ["service-role/AWSGlueServiceRole"]
+	attached_policies = ["service-role/AWSGlueServiceRole", "AWSBatchFullAccess"]
 	inp = var.inp
 }
 
@@ -98,7 +98,7 @@ module "batch_role" {
 	source = "./role"
 	role_name = "batch"
 	service = "batch"
-	attached_policies = ["service-role/AWSBatchServiceRole", "AWSBatchFullAccess"]
+	attached_policies = ["service-role/AWSBatchServiceRole"]
 	inp = var.inp
 }
 
