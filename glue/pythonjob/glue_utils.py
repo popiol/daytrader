@@ -229,6 +229,9 @@ class Simulator():
         self.events = events
         self.model = PriceChModel(bucket)
         self.discretizer = Discretizer(bucket)
+        self.samples = {}
+        for comp_code in comp_codes[:10]:
+            self.samples[comp_code] = [self.events[comp_code]['price']]
 
     def generate_comp_code(self):
         self.last_comp_code_i += 1
@@ -281,7 +284,16 @@ class Simulator():
             self.events = events
         batch = list(self.events.values())
         self.quote_dt = quote_dt
+        if hour == 17:
+            for comp_code in self.samples:
+                if comp_code in self.events:
+                    self.samples[comp_code].append(self.events[comp_code]['price'])
         return batch
+
+    def print_sample_quotes(self):
+        for comp_code in self.samples:
+            print(comp_code)
+            print(self.samples[comp_code])
 
 class HistSimulator():
     def __init__(self, bucket):
@@ -306,6 +318,9 @@ class HistSimulator():
             comp_code = obj_key.split('/')[-1].split('_')[0]
             events[comp_code] = Event(bucket=self.bucket, obj_key=obj_key)
         self.events = events
+        self.samples = {}
+        for comp_code in self.events.keys()[:10]:
+            self.samples[comp_code] = [self.events[comp_code]['price']]
 
     def next(self):
         objs = self.bucket.objects.all()
@@ -341,5 +356,10 @@ class HistSimulator():
             else:
                 self.events[comp_code] = events[comp_code]
             batch.append(self.events[comp_code])
+        hour = int(self.quote_dt[8:10])
+        if hour == 17:
+            for comp_code in self.samples:
+                if comp_code in self.events:
+                    self.samples[comp_code].append(self.events[comp_code]['price'])
         return batch
 
