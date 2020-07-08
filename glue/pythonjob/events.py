@@ -169,18 +169,24 @@ for _ in range(repeat):
             event = glue_utils.Event(row)
 
         #add event to db
-        event_table.put_item(
-            Item = {
-                'comp_code': comp_code,
-                'quote_dt': quote_dt,
-                'source_file': process_key,
-                'vals': {
-                    'price': Decimal(event.get_price()),
-                    'high_price': Decimal(event.get_high_price()),
-                    'low_price': Decimal(event.get_low_price())
+        try:
+            event_table.put_item(
+                Item = {
+                    'comp_code': comp_code,
+                    'quote_dt': quote_dt,
+                    'source_file': process_key,
+                    'vals': {
+                        'price': Decimal(event.get_price()),
+                        'high_price': Decimal(event.get_high_price()),
+                        'low_price': Decimal(event.get_low_price())
+                    }
                 }
-            }
-        )
+            )
+        except:
+            print(event.get_price())
+            print(event.get_high_price())
+            print(event.get_low_price())
+            exit(1)
 
         #add event to s3
         obj_key = glue_utils.create_event_key(comp_code, quote_dt)
