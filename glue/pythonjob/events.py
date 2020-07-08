@@ -8,7 +8,7 @@ from boto3.dynamodb.conditions import Key, Attr
 import json
 import glue_utils
 import random
-import decimal
+from decimal import Decimal
 
 #get params
 args = getResolvedOptions(sys.argv, ['bucket_name','alert_topic','log_table','event_table','app','temporary','repeat'])
@@ -169,16 +169,15 @@ for _ in range(repeat):
             event = glue_utils.Event(row)
 
         #add event to db
-        decimal.setcontext(decimal.ExtendedContext)
         event_table.put_item(
             Item = {
                 'comp_code': comp_code,
                 'quote_dt': quote_dt,
                 'source_file': process_key,
                 'vals': {
-                    'price': decimal.Decimal(event.get_price()),
-                    'high_price': decimal.Decimal(event.get_high_price()),
-                    'low_price': decimal.Decimal(event.get_low_price())
+                    'price': Decimal(str(event.get_price())),
+                    'high_price': Decimal(str(event.get_high_price())),
+                    'low_price': Decimal(str(event.get_low_price()))
                 }
             }
         )
