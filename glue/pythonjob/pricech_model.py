@@ -59,7 +59,7 @@ start_dt = start_dt.strftime(glue_utils.DB_DATE_FORMAT)
 for comp_code in comp_codes:
     res = event_table.query(
         KeyConditionExpression = Key('comp_code').eq(comp_code),
-        FilterExpression = Attr('quote_dt').gt(start_dt) if not full_refresh else None
+        FilterExpression = Attr('quote_dt').gt(start_dt) if not full_refresh else Attr('quote_dt').exists()
     )
     
     if not res['Items']:
