@@ -8,6 +8,7 @@ from sklearn.preprocessing import KBinsDiscretizer
 import pickle
 import numpy as np
 import random
+from decimal import Decimal
 
 #get params
 args = getResolvedOptions(sys.argv, ['bucket_name','alert_topic','log_table','event_table','app','temporary'])
@@ -57,18 +58,18 @@ for comp_code in comp_codes:
         quote_dt = item['quote_dt']
         prev_price = price
         if 'vals' in item:
-            price = item['vals']['price']
-            high_price = item['vals']['high_price']
-            low_price = item['vals']['low_price']
+            price = float(item['vals']['price'])
+            high_price = float(item['vals']['high_price'])
+            low_price = float(item['vals']['low_price'])
         else:
             event = glue_utils.Event(bucket=bucket, comp_code=comp_code, quote_dt=quote_dt)
             price = event.get_price()
             high_price = event.get_high_price()
             low_price = event.get_low_price()
             item['vals'] = {
-                'price': event.get_price(),
-                'high_price': event.get_high_price(),
-                'low_price': event.get_low_price()
+                'price': Decimal(event.get_price()),
+                'high_price': Decimal(event.get_high_price()),
+                'low_price': Decimal(event.get_low_price())
             }
             event_table.put_item(
                 Item = item

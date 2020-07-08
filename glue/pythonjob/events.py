@@ -8,6 +8,7 @@ from boto3.dynamodb.conditions import Key, Attr
 import json
 import glue_utils
 import random
+from decimal import Decimal
 
 #get params
 args = getResolvedOptions(sys.argv, ['bucket_name','alert_topic','log_table','event_table','app','temporary','repeat'])
@@ -174,9 +175,9 @@ for _ in range(repeat):
                 'quote_dt': quote_dt,
                 'source_file': process_key,
                 'vals': {
-                    'price': event.get_price(),
-                    'high_price': event.get_high_price(),
-                    'low_price': event.get_low_price()
+                    'price': Decimal(event.get_price()),
+                    'high_price': Decimal(event.get_high_price()),
+                    'low_price': Decimal(event.get_low_price())
                 }
             }
         )
