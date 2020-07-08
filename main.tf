@@ -111,17 +111,6 @@ module "ec2_role" {
 	inp = var.inp
 }
 
-module "stop_instance" {
-	source = "./lambda"
-	function_name = "stop_instance"
-	on_failure = [module.alerts.arn]
-	role = module.lambda_role.role_arn
-	inp = merge(var.inp, {
-		bucket_name = module.s3_quotes.bucket_name
-		alert_topic = module.alerts.arn
-	})
-}
-
 module "batch_jobs" {
 	source = "./batch_jobs"
 	batch_role = module.batch_role.role_arn
@@ -131,4 +120,15 @@ module "batch_jobs" {
 	subnets = module.vpc.subnets
 	image_id = "ami-0dd9f78450fe3a3fa"
 	inp = local.common_inputs
+}
+
+module "get_sample_quotes" {
+	source = "./lambda"
+	function_name = "get_sample_quotes"
+	on_failure = [module.alerts.arn]
+	role = module.lambda_role.role_arn
+	inp = merge(var.inp, {
+		bucket_name = module.s3_quotes.bucket_name
+		alert_topic = module.alerts.arn
+	})
 }

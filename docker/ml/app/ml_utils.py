@@ -79,13 +79,15 @@ class Agent():
                 self.portfolio[comp_code] = self.orders[comp_code]
                 self.portfolio[comp_code]['n_ticks'] = 1
                 self.cash -= self.portfolio[comp_code]['n_shares'] * self.orders[comp_code]['price']
+                print(event.event['quote_dt'])
                 print("Buy", self.portfolio[comp_code]['n_shares'], "shares of", comp_code, "for", self.orders[comp_code]['price'])
-                print("Cash:", self.cash)
+                print("Cash:", self.cash, ", Capital:", self.get_capital())
             elif not self.orders[comp_code]['buy'] and self.orders[comp_code]['price'] < float(event.event['high_price']):
                 del self.portfolio[comp_code]
                 self.cash += self.orders[comp_code]['n_shares'] * self.orders[comp_code]['price']
+                print(event.event['quote_dt'])
                 print("Sell", self.orders[comp_code]['n_shares'], "shares of", comp_code, "for", self.orders[comp_code]['price'])
-                print("Cash:", self.cash)
+                print("Cash:", self.cash, ", Capital:", self.get_capital())
         
     def add_sell_order(self, event, sell_price_ch):
         comp_code = event.event['comp_code']
@@ -120,7 +122,7 @@ class Agent():
             orders.update(self.add_sell_order(event, sell_price))
         self.orders = orders
         if self.cash > 200:
-            n = math.floor(self.cash / best_price)
+            n = math.floor(self.cash / best_price * best_buy)
             if n > 0:
                 self.orders[comp_code] = {'buy':True, 'price':best_price, 'n_shares':n}
         for comp_code in self.portfolio:
@@ -136,7 +138,7 @@ class Agent():
         triangle = (price8 - price4 - 2*abs(price8 - price4)) / price
         triangle = triangle / (abs(triangle) + 1)
         buy = 1 if triangle > 0 and price32 / price > -.01 else 0
-        buy_action = (triangle + 3) / 4 if buy else (triangle + 1) / 4
+        buy_action = triangle if buy else triangle / 2 - .5
         buy_price = 0
         n_ticks = self.get_n_ticks(comp_code)
         sell_price = max((8 - n_ticks) * .04, 0)

@@ -157,15 +157,6 @@ for _ in range(repeat):
             quote_dt = quote_dt.strftime(glue_utils.DB_DATE_FORMAT)
             price *= 1 + random.gauss(0, .005)
         
-        #add event to db
-        event_table.put_item(
-            Item = {
-                'comp_code': comp_code,
-                'quote_dt': quote_dt,
-                'source_file': process_key
-            }
-        )
-
         #get prev event
         prev_event = None
         if last_quote_dt is not None:
@@ -175,6 +166,20 @@ for _ in range(repeat):
         else:
             #print(row)
             event = glue_utils.Event(row)
+
+        #add event to db
+        event_table.put_item(
+            Item = {
+                'comp_code': comp_code,
+                'quote_dt': quote_dt,
+                'source_file': process_key,
+                'vals': {
+                    'price': event.get_price(),
+                    'high_price': event.get_high_price(),
+                    'low_price': event.get_low_price()
+                }
+            }
+        )
 
         #add event to s3
         obj_key = glue_utils.create_event_key(comp_code, quote_dt)

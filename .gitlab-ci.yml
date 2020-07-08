@@ -30,14 +30,14 @@ test:
   script:
     - ./get_vars.sh
     - pip3 install -e .
-    #- python3 -m pytest test/test_get_quotes.py
-    #- python3 -m pytest test/test_html2csv.py
-    #- python3 -m pytest test/test_clean_quotes.py
-    #- python3 -m pytest test/test_events.py
-    #- python3 -m pytest test/test_discretize.py
-    #- python3 -m pytest test/test_pricech.py
-    #- python3 -m pytest test/test_simulator.py
-    #- python3 -m pytest test/test_hist_simulator.py
+    - python3 -m pytest test/test_get_quotes.py
+    - python3 -m pytest test/test_html2csv.py
+    - python3 -m pytest test/test_clean_quotes.py
+    - python3 -m pytest test/test_events.py
+    - python3 -m pytest test/test_discretize.py
+    - python3 -m pytest test/test_pricech.py
+    - python3 -m pytest test/test_simulator.py
+    - python3 -m pytest test/test_hist_simulator.py
     - python3 -m pytest test/test_train_init.py
 
 clean:

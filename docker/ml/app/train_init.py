@@ -1,9 +1,9 @@
 import ml_utils
 import glue_utils
 import numpy as np
-import os
+import warnings
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+warnings.filterwarnings("ignore")
 
 for _ in range(10):
     simulator = glue_utils.Simulator(ml_utils.bucket)

@@ -229,6 +229,7 @@ class Simulator():
         self.events = events
         self.model = PriceChModel(bucket)
         self.discretizer = Discretizer(bucket)
+        self.avg = self.discretizer.discretizer.avg
         self.samples = {}
         for comp_code in comp_codes[:10]:
             self.samples[comp_code] = [self.events[comp_code].get_price()]
@@ -246,8 +247,8 @@ class Simulator():
 
     def generate_price(self):
         price = 0
-        while price <= 0 or price > 2500:
-            price = np.random.poisson(215)
+        while price <= .1 or price > 2500:
+            price = math.pow(max(0,random.gauss(.5,.2)),6)*1000
         return price
 
     def next(self):
@@ -276,6 +277,9 @@ class Simulator():
                 inputs = self.events[comp_code].get_inputs()
                 proba = self.model.predict_proba(inputs)
                 price_ch, high_price_ch, low_price_ch = self.discretizer.random_price_change(proba)
+                price_ch -= self.avg
+                high_price_ch -= self.avg
+                low_price_ch -= self.avg
                 if base_ch is None:
                     base_ch = price_ch / 5
                 else:

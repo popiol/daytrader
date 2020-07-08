@@ -55,12 +55,30 @@ for comp_code in comp_codes:
     price = None
     for item in res['Items']:
         quote_dt = item['quote_dt']
-        event = glue_utils.Event(bucket=bucket, comp_code=comp_code, quote_dt=quote_dt)
         prev_price = price
-        price = event.get_price()
-        high_price = event.get_high_price()
-        low_price = event.get_low_price()
-        if prev_price is not None and prev_price >= .01:
+        if 'vals' in item:
+            price = item['vals']['price']
+            high_price = item['vals']['high_price']
+            low_price = item['vals']['low_price']
+        else:
+            event = glue_utils.Event(bucket=bucket, comp_code=comp_code, quote_dt=quote_dt)
+            price = event.get_price()
+            high_price = event.get_high_price()
+            low_price = event.get_low_price()
+            item['vals'] = {
+                'price': event.get_price(),
+                'high_price': event.get_high_price(),
+                'low_price': event.get_low_price()
+            }
+            event_table.put_item(
+                Item = item
+            )
+
+        if high_price < .01:
+            high_price = price
+        if low_price < .01:
+            low_price = price
+        if prev_price is not None and prev_price >= .01 and price >= .01:
             price_ch.append(price/prev_price-1)
             high_ch.append(high_price/prev_price-1)
             low_ch.append(low_price/prev_price-1)
@@ -82,6 +100,10 @@ if temporary:
 discretizer = KBinsDiscretizer(n_bins=[glue_utils.PRICE_CHANGE_N_BINS, glue_utils.HIGH_CHANGE_N_BINS, glue_utils.LOW_CHANGE_N_BINS], encode='ordinal')
 X = list(zip(price_ch, high_ch, low_ch))
 discretizer.fit(X)
+print(discretizer.bin_edges_)
+
+#avg
+discretizer.avg = np.average(price_ch)
 
 #save discretizer
 discretizer = glue_utils.Discretizer(discretizer=discretizer)
