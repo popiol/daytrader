@@ -169,7 +169,7 @@ for _ in range(repeat):
             event = glue_utils.Event(row)
 
         #add event to db
-        decimal.setcontext(decimal.BasicContext)
+        decimal.setcontext(decimal.ExtendedContext)
         event_table.put_item(
             Item = {
                 'comp_code': comp_code,

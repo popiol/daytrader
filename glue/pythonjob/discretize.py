@@ -66,7 +66,7 @@ for comp_code in comp_codes:
             price = event.get_price()
             high_price = event.get_high_price()
             low_price = event.get_low_price()
-            decimal.setcontext(decimal.BasicContext)
+            decimal.setcontext(decimal.ExtendedContext)
             item['vals'] = {
                 'price': decimal.Decimal(event.get_price()),
                 'high_price': decimal.Decimal(event.get_high_price()),
