@@ -229,7 +229,7 @@ class Simulator():
         self.events = events
         self.model = PriceChModel(bucket)
         self.discretizer = Discretizer(bucket)
-        self.avg = self.discretizer.discretizer.avg
+        self.avg = .007
         self.samples = {}
         for comp_code in comp_codes[:10]:
             self.samples[comp_code] = [self.events[comp_code].get_price()]
@@ -249,7 +249,7 @@ class Simulator():
         price = 0
         while price <= .1 or price > 2500:
             price = math.pow(max(0,random.gauss(.5,.2)),6)*1000
-        return price
+        return round(price, 2)
 
     def next(self):
         quote_dt = datetime.datetime.strptime(self.quote_dt, DB_DATE_FORMAT)

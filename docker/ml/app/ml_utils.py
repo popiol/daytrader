@@ -12,7 +12,7 @@ s3 = boto3.resource("s3")
 bucket = s3.Bucket(bucket_name)
 
 def s3_download(bucket, obj_key):
-    filename = obj_key.split('/')[-1]    
+    filename = obj_key.split('/')[-1]
     f_in = bucket.Object(obj_key).get()
     with open(filename,'wb') as f_out:
         f_out.write(f_in['Body'].read())
@@ -88,6 +88,8 @@ class Agent():
                 print(event.event['quote_dt'])
                 print("Sell", self.orders[comp_code]['n_shares'], "shares of", comp_code, "for", self.orders[comp_code]['price'])
                 print("Cash:", self.cash, ", Capital:", self.get_capital())
+            else:
+                print("Order:", self.orders[comp_code])
         
     def add_sell_order(self, event, sell_price_ch):
         comp_code = event.event['comp_code']
