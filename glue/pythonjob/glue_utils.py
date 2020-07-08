@@ -328,7 +328,7 @@ class HistSimulator():
             events[comp_code] = Event(bucket=self.bucket, obj_key=obj_key)
         self.events = events
         self.samples = {}
-        for comp_code in self.events.keys()[:10]:
+        for comp_code in list(self.events)[:10]:
             self.samples[comp_code] = [self.events[comp_code].get_price()]
 
     def next(self):
