@@ -8,7 +8,7 @@ from sklearn.preprocessing import KBinsDiscretizer
 import pickle
 import numpy as np
 import random
-from decimal import Decimal
+import decimal
 
 #get params
 args = getResolvedOptions(sys.argv, ['bucket_name','alert_topic','log_table','event_table','app','temporary'])
@@ -66,10 +66,11 @@ for comp_code in comp_codes:
             price = event.get_price()
             high_price = event.get_high_price()
             low_price = event.get_low_price()
+            decimal.setcontext(decimal.BasicContext)
             item['vals'] = {
-                'price': Decimal(event.get_price()),
-                'high_price': Decimal(event.get_high_price()),
-                'low_price': Decimal(event.get_low_price())
+                'price': decimal.Decimal(event.get_price()),
+                'high_price': decimal.Decimal(event.get_high_price()),
+                'low_price': decimal.Decimal(event.get_low_price())
             }
             event_table.put_item(
                 Item = item

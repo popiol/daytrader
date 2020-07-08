@@ -8,7 +8,7 @@ from boto3.dynamodb.conditions import Key, Attr
 import json
 import glue_utils
 import random
-from decimal import Decimal
+import decimal
 
 #get params
 args = getResolvedOptions(sys.argv, ['bucket_name','alert_topic','log_table','event_table','app','temporary','repeat'])
@@ -169,25 +169,20 @@ for _ in range(repeat):
             event = glue_utils.Event(row)
 
         #add event to db
-        try:
-            event_table.put_item(
-                Item = {
-                    'comp_code': comp_code,
-                    'quote_dt': quote_dt,
-                    'source_file': process_key,
-                    'vals': {
-                        'price': Decimal(event.get_price()),
-                        'high_price': Decimal(event.get_high_price()),
-                        'low_price': Decimal(event.get_low_price())
-                    }
+        decimal.setcontext(decimal.BasicContext)
+        event_table.put_item(
+            Item = {
+                'comp_code': comp_code,
+                'quote_dt': quote_dt,
+                'source_file': process_key,
+                'vals': {
+                    'price': decimal.Decimal(event.get_price()),
+                    'high_price': decimal.Decimal(event.get_high_price()),
+                    'low_price': decimal.Decimal(event.get_low_price())
                 }
-            )
-        except:
-            print(event.get_price())
-            print(event.get_high_price())
-            print(event.get_low_price())
-            exit(1)
-
+            }
+        )
+        
         #add event to s3
         obj_key = glue_utils.create_event_key(comp_code, quote_dt)
         event.save(bucket, obj_key)
