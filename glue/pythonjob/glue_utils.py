@@ -268,6 +268,7 @@ class Simulator():
                     price = self.generate_price()
                     self.events[comp_code] = Event({'comp_code':comp_code,'quote_dt':self.quote_dt,'price':price,'high_price':price,'low_price':price})
                     print(f"Rename {old_comp_code} to {comp_code}")
+        hour = quote_dt.hour
         quote_dt = quote_dt.strftime(DB_DATE_FORMAT)
         events = {}
         base_ch = None
@@ -291,7 +292,7 @@ class Simulator():
         self.events = events
         batch = list(self.events.values())
         self.quote_dt = quote_dt
-        if quote_dt.hour == 16:
+        if hour == 16:
             for comp_code in self.samples:
                 if comp_code in self.events:
                     self.samples[comp_code].append(self.events[comp_code].get_price())
