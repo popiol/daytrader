@@ -30,6 +30,7 @@ class Agent():
             bucket.download_file(obj_key, filename)
             shutil.unpack_archive(filename, dirname)
             self.model = keras.models.load_model(dirname)
+            self.loaded = True
         except:
             pricech_model = glue_utils.PriceChModel(bucket)
             in_shape = pricech_model.get_input_shape()[0]
@@ -41,13 +42,15 @@ class Agent():
             sell_price = keras.layers.Dense(1, activation="sigmoid")(hidden1)
             self.model = keras.Model(inputs=inputs, outputs=[buy_action, buy_price, sell_price])
             self.model.compile(optimizer='nadam', loss='huber_loss')
+            self.loaded = False
         self.portfolio = {}
         self.orders = {}
         self.bucket = bucket
         self.cash = 1000
         self.agent_name = agent_name
         print("Cash:", self.cash)
-
+        self.provision = .001
+        
     def save(self):
         dirname = 'model.dump'
         filename = 'model'
@@ -78,24 +81,24 @@ class Agent():
             if self.orders[comp_code]['buy'] and self.orders[comp_code]['price'] > float(event.event['low_price']):
                 self.portfolio[comp_code] = self.orders[comp_code]
                 self.portfolio[comp_code]['n_ticks'] = 1
-                self.cash -= self.portfolio[comp_code]['n_shares'] * self.orders[comp_code]['price']
+                self.cash -= self.portfolio[comp_code]['n_shares'] * self.orders[comp_code]['price'] * (1 + self.provision)
                 print(event.event['quote_dt'])
                 print("Buy", self.portfolio[comp_code]['n_shares'], "shares of", comp_code, "for", self.orders[comp_code]['price'])
                 print("Cash:", self.cash, ", Capital:", self.get_capital())
             elif not self.orders[comp_code]['buy'] and self.orders[comp_code]['price'] < float(event.event['high_price']):
                 del self.portfolio[comp_code]
-                self.cash += self.orders[comp_code]['n_shares'] * self.orders[comp_code]['price']
+                self.cash += self.orders[comp_code]['n_shares'] * self.orders[comp_code]['price'] * (1 - self.provision)
                 print(event.event['quote_dt'])
                 print("Sell", self.orders[comp_code]['n_shares'], "shares of", comp_code, "for", self.orders[comp_code]['price'])
                 print("Cash:", self.cash, ", Capital:", self.get_capital())
-            else:
-                print("Order:", self.orders[comp_code])
+            #else:
+            #    print("Order:", self.orders[comp_code])
         
     def add_sell_order(self, event, sell_price_ch):
         comp_code = event.event['comp_code']
         price = event.event['price']
         orders = {}
-        if comp_code in self.portfolio and abs(sell_price_ch) > .1:
+        if comp_code in self.portfolio and abs(sell_price_ch) < .1:
             self.portfolio[comp_code]['price'] = price
             sell_price = price * (1+sell_price_ch)
             orders[comp_code] = {'buy':False, 'price':sell_price, 'n_shares':self.portfolio[comp_code]['n_shares']}
@@ -109,14 +112,14 @@ class Agent():
     def next(self, events, get_outputs):
         inputs = []
         outputs = []
-        best_comp_code = None
+        best_event = None
         orders = {}
         for event in events:
             comp_code = event.event['comp_code']
             self.handle_orders(event)
             buy_action, buy_price, sell_price = get_outputs(event)
-            if (best_comp_code is None or buy_action > best_buy) and comp_code not in self.portfolio and abs(buy_price) < .1:
-                best_comp_code = comp_code
+            if (best_event is None or buy_action > best_buy) and comp_code not in self.portfolio and abs(buy_price) < .1:
+                best_event = event
                 best_buy = buy_action
                 best_price = event.event['price'] * (1+buy_price)
             inputs.append(self.get_inputs(event))
@@ -124,8 +127,11 @@ class Agent():
             orders.update(self.add_sell_order(event, sell_price))
         self.orders = orders
         if self.cash > 200:
-            n = math.floor(self.cash / best_price * best_buy)
+            capital = self.get_capital()
+            n = math.floor(capital / best_price * best_buy * (1 - self.provision))
+            n = min(n, math.floor(self.cash / best_price * (1 - self.provision)))
             if n > 0:
+                comp_code = best_event.event['comp_code']
                 self.orders[comp_code] = {'buy':True, 'price':best_price, 'n_shares':n}
         for comp_code in self.portfolio:
             self.portfolio[comp_code]['n_ticks'] += 1
@@ -137,10 +143,10 @@ class Agent():
         price8 = event.event['price8']
         price4 = event.event['price4']
         price32 = event.event['price32']
-        triangle = (price8 - price4 - 2*abs(price8 - price4)) / price
+        triangle = (price4 - price - abs(price8 - price4)) / price
         triangle = triangle / (abs(triangle) + 1)
         buy = 1 if triangle > 0 and price32 / price > -.01 else 0
-        buy_action = triangle if buy else triangle / 2 - .5
+        buy_action = math.pow(triangle*8, .44) if buy else triangle / 2 - .5
         buy_price = 0
         n_ticks = self.get_n_ticks(comp_code)
         sell_price = max((8 - n_ticks) * .04, 0)

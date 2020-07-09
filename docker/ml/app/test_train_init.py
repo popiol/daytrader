@@ -26,4 +26,6 @@ assert max(portfolio_size) > 0
 assert 1 > max(max(capital_ch), abs(min(capital_ch))) > 0
 assert min(capital_ch) > -1
 agent.save()
-agent2 = ml_utils.Agent('dev2', ml_utils.bucket)
+agent2 = ml_utils.Agent('dev', ml_utils.bucket)
+assert agent2.loaded
+simulator.print_sample_quotes()
