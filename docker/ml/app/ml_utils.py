@@ -77,7 +77,9 @@ class Agent():
 
     def handle_orders(self, event):
         comp_code = event.event['comp_code']
-        if comp_code in self.orders:
+        quote_dt = event.event['quote_dt']
+        hour = int(quote_dt[11:13])
+        if 9 <= hour <= 15 and comp_code in self.orders:
             if self.orders[comp_code]['buy'] and self.orders[comp_code]['price'] > float(event.event['low_price']):
                 self.portfolio[comp_code] = self.orders[comp_code]
                 self.portfolio[comp_code]['n_ticks'] = 1

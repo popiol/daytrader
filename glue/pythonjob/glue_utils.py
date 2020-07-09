@@ -229,7 +229,7 @@ class Simulator():
         self.events = events
         self.model = PriceChModel(bucket)
         self.discretizer = Discretizer(bucket)
-        self.avg = .0001
+        self.avg = .0007
         self.samples = {}
         for comp_code in comp_codes[:10]:
             self.samples[comp_code] = [self.events[comp_code].get_price()]
@@ -254,11 +254,11 @@ class Simulator():
     def next(self):
         quote_dt = datetime.datetime.strptime(self.quote_dt, DB_DATE_FORMAT)
         quote_dt += datetime.timedelta(hours=1)
-        if quote_dt.hour > 17:
-            quote_dt += datetime.timedelta(hours=14)
+        if quote_dt.hour > 16:
+            quote_dt += datetime.timedelta(hours=16)
         if quote_dt.weekday() > 4:
             quote_dt += datetime.timedelta(days=2)
-        if quote_dt.hour == 8:
+        if quote_dt.hour == 9:
             for i, comp_code in enumerate(self.comp_codes):
                 rename = random.choices([0,1], [250*len(self.comp_codes),5])[0]
                 if rename:
@@ -268,32 +268,30 @@ class Simulator():
                     price = self.generate_price()
                     self.events[comp_code] = Event({'comp_code':comp_code,'quote_dt':self.quote_dt,'price':price,'high_price':price,'low_price':price})
                     print(f"Rename {old_comp_code} to {comp_code}")
-        hour = quote_dt.hour
         quote_dt = quote_dt.strftime(DB_DATE_FORMAT)
-        if 9 <= hour <= 17:
-            events = {}
-            base_ch = None
-            for comp_code in self.comp_codes:
-                inputs = self.events[comp_code].get_inputs()
-                proba = self.model.predict_proba(inputs)
-                price_ch, high_price_ch, low_price_ch = self.discretizer.random_price_change(proba)
-                price_ch -= self.avg
-                high_price_ch -= self.avg
-                low_price_ch -= self.avg
-                if base_ch is None:
-                    base_ch = price_ch / 5
-                else:
-                    price_ch += base_ch
-                price = self.events[comp_code].event['price'] * (price_ch + 1)
-                high_price = self.events[comp_code].event['high_price'] * (high_price_ch + 1)
-                low_price = self.events[comp_code].event['low_price'] * (low_price_ch + 1)
-                high_price = max(high_price, price)
-                low_price = min(low_price, price)
-                events[comp_code] = self.events[comp_code].next(price, high_price, low_price, quote_dt)
-            self.events = events
+        events = {}
+        base_ch = None
+        for comp_code in self.comp_codes:
+            inputs = self.events[comp_code].get_inputs()
+            proba = self.model.predict_proba(inputs)
+            price_ch, high_price_ch, low_price_ch = self.discretizer.random_price_change(proba)
+            price_ch -= self.avg
+            high_price_ch -= self.avg
+            low_price_ch -= self.avg
+            if base_ch is None:
+                base_ch = price_ch / 5
+            else:
+                price_ch += base_ch
+            price = self.events[comp_code].event['price'] * (price_ch + 1)
+            high_price = self.events[comp_code].event['high_price'] * (high_price_ch + 1)
+            low_price = self.events[comp_code].event['low_price'] * (low_price_ch + 1)
+            high_price = max(high_price, price)
+            low_price = min(low_price, price)
+            events[comp_code] = self.events[comp_code].next(price, high_price, low_price, quote_dt)
+        self.events = events
         batch = list(self.events.values())
         self.quote_dt = quote_dt
-        if hour == 17:
+        if quote_dt.hour == 16:
             for comp_code in self.samples:
                 if comp_code in self.events:
                     self.samples[comp_code].append(self.events[comp_code].get_price())
@@ -320,7 +318,6 @@ class HistSimulator():
             if obj.key.startswith('events/date='):
                 dt = obj.key.split('/')[1].split('=')[1]
                 if dt == self.quote_dt:
-                    min_dt = dt
                     files.append(obj.key)
         events = {}
         for obj_key in files:
@@ -347,7 +344,6 @@ class HistSimulator():
             if obj.key.startswith('events/date='):
                 dt = obj.key.split('/')[1].split('=')[1]
                 if dt == self.quote_dt:
-                    min_dt = dt
                     files.append(obj.key)
         events = {}
         for obj_key in files:
@@ -366,7 +362,7 @@ class HistSimulator():
                 self.events[comp_code] = events[comp_code]
             batch.append(self.events[comp_code])
         hour = int(self.quote_dt[8:10])
-        if hour == 17:
+        if hour == 16:
             for comp_code in self.samples:
                 if comp_code in self.events:
                     self.samples[comp_code].append(self.events[comp_code].get_price())
