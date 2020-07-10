@@ -47,12 +47,12 @@ module "test_train_init" {
 	source = "./batchjob"
 	job_name = "test_train_init"
 	image_name = aws_ecr_repository.ml.name
-	inp = var.inp
+	inp = local.common_inputs
 }
 
 module "batch_train_init" {
 	source = "./batchjob"
 	job_name = "train_init"
 	image_name = aws_ecr_repository.ml.name
-	inp = var.inp
+	inp = local.common_inputs
 }
