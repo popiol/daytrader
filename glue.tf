@@ -47,7 +47,7 @@ module "crawler_in_quotes" {
 	catalog_name = aws_glue_catalog_database.quotes.name
 	crawler_name = "in_quotes"
 	classifiers = [aws_glue_classifier.csv.name]
-	s3_path = "s3://${var.bucket_name}/csv"
+	s3_path = "s3://${local.common_inputs.bucket_name}/csv"
 	role = module.glue_role.role_arn
 	inp = local.glue_inputs
 }
@@ -64,7 +64,7 @@ module "crawler_quotes" {
 	catalog_name = aws_glue_catalog_database.quotes.name
 	crawler_name = "quotes"
 	classifiers = [aws_glue_classifier.csv.name]
-	s3_path = "s3://${var.bucket_name}/csv_clean"
+	s3_path = "s3://${local.common_inputs.bucket_name}/csv_clean"
 	role = module.glue_role.role_arn
 	inp = local.glue_inputs
 }
