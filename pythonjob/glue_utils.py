@@ -231,10 +231,6 @@ class Simulator():
         self.events = events
         self.model = PriceChModel(bucket)
         self.discretizer = Discretizer(bucket)
-<<<<<<< HEAD:pythonjob/glue_utils.py
-=======
-        self.avg = .0007
->>>>>>> parent of fadddcb... avg:glue/pythonjob/glue_utils.py
         self.samples = {}
         for comp_code in comp_codes[:10]:
             self.samples[comp_code] = [self.events[comp_code].get_price()]
