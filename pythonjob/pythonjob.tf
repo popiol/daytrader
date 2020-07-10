@@ -26,7 +26,6 @@ resource "aws_s3_bucket_object" "script" {
 	key = "/scripts/${var.script_name}.py"
 	source = "${path.module}/${var.script_name}.py"
 	etag = filemd5("${path.module}/${var.script_name}.py")
-	tags = var.inp.app
 }
 
 resource "aws_s3_bucket_object" "extra-py-files" {
@@ -35,5 +34,4 @@ resource "aws_s3_bucket_object" "extra-py-files" {
 	key = "scripts/${each.key}"
 	source = "${path.module}/${each.key}"
 	etag = filemd5("${path.module}/${each.key}")
-	tags = var.inp.app
 }

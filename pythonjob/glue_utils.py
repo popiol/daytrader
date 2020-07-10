@@ -73,7 +73,9 @@ class Discretizer():
             end = bins[n+1]
             start = max(start-(end-start)/2, -.9)
             end = min(end+(end-start)/2, 1.9)
-            outputs.append(random.uniform(start, end))
+            val = random.uniform(start, end)
+            val = (val - self.discretizer.avg * 10) * .5
+            outputs.append(val)
         return tuple(outputs)
 
     def price_class(self, price_ch):
@@ -229,7 +231,6 @@ class Simulator():
         self.events = events
         self.model = PriceChModel(bucket)
         self.discretizer = Discretizer(bucket)
-        self.avg = .0005
         self.samples = {}
         for comp_code in comp_codes[:10]:
             self.samples[comp_code] = [self.events[comp_code].get_price()]
@@ -276,9 +277,6 @@ class Simulator():
             inputs = self.events[comp_code].get_inputs()
             proba = self.model.predict_proba(inputs)
             price_ch, high_price_ch, low_price_ch = self.discretizer.random_price_change(proba)
-            price_ch -= self.avg
-            high_price_ch -= self.avg
-            low_price_ch -= self.avg
             if base_ch is None:
                 base_ch = price_ch / 5
             else:

@@ -1,24 +1,42 @@
-resource "aws_iam_instance_profile" "main" {
-	role = var.ec2_role_name
+module "batch_role" {
+	source = "./role"
+	role_name = "batch"
+	service = "batch"
+	attached_policies = ["service-role/AWSBatchServiceRole"]
+	inp = var.inp
+}
+
+module "batch_jobs" {
+	source = "./batch_jobs"
+	batch_role = module.batch_role.role_arn
+	ec2_role_name = module.ec2_role.role_name
+	sec_groups = module.vpc.security_groups
+	subnets = module.vpc.subnets
+	image_id = "ami-0dd9f78450fe3a3fa"
+	inp = local.common_inputs
+}
+
+resource "aws_iam_instance_profile" "batch" {
+	role = module.ec2_role.role_name
 }
 
 resource "aws_batch_compute_environment" "main" {
 	compute_environment_name = var.inp.app.id
-	service_role = var.batch_role
+	service_role = module.batch_role.role_arn
 	type = "MANAGED"
 
 	compute_resources {
-		instance_role = aws_iam_instance_profile.main.arn
+		instance_role = aws_iam_instance_profile.batch.arn
 		max_vcpus = 2
 		min_vcpus = 0
 		desired_vcpus = 0
-		security_group_ids = var.sec_groups
-		subnets = var.subnets
+		security_group_ids = module.vpc.security_groups
+		subnets = module.vpc.subnets
 		type = "EC2"
 		instance_type = [
 			"c4.large",
 		]
-		image_id = var.image_id
+		image_id = "ami-0dd9f78450fe3a3fa"
 		ec2_key_pair = "popiolkey4"
 		tags = var.inp.app
 	}
