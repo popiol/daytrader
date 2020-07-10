@@ -8,8 +8,12 @@ resource "aws_lambda_function" "main" {
 	timeout = 900
 	tags = var.inp.app
 
-	environment {
-		variables = var.env_vars
+	dynamic "environment" {
+		for_each = toset(length(var.env_vars) > 0 ? "0" : [])
+
+		content {
+			variables = var.env_vars
+		}
 	}
 }
 
@@ -68,7 +72,8 @@ resource "aws_api_gateway_integration" "main" {
 	rest_api_id = aws_api_gateway_rest_api.main["0"].id
 	resource_id = aws_api_gateway_resource.main["0"].id
 	http_method = aws_api_gateway_method.main["0"].http_method
-	type = "AWS_PROXY"	
+	integration_http_method = "GET"
+	type = "AWS_PROXY"
 	uri = aws_lambda_function.main.invoke_arn
 }
 
