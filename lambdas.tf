@@ -2,11 +2,7 @@ module "lambda_role" {
 	source = "./role"
 	role_name = "lambda"
 	service = "lambda"
-	attached_policies = ["AmazonEC2FullAccess","CloudWatchLogsReadOnlyAccess"]
-	custom_policies = [
-		module.s3_quotes.access_policy,
-		module.alerts.publish_policy
-	]
+	attached_policies = ["AmazonEC2FullAccess", "CloudWatchLogsReadOnlyAccess", "AmazonS3FullAccess", "AmazonSNSFullAccess"]
 	inp = var.inp
 }
 

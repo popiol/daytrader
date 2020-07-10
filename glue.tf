@@ -2,13 +2,7 @@ module "glue_role" {
 	source = "./role"
 	role_name = "glue"
 	service = "glue"
-	custom_policies = [
-		module.s3_quotes.access_policy,
-		module.alerts.publish_policy,
-		module.event_process_log.access_policy,
-		module.event_table.access_policy
-	]
-	attached_policies = ["service-role/AWSGlueServiceRole", "AWSBatchFullAccess"]
+	attached_policies = ["service-role/AWSGlueServiceRole", "AWSBatchFullAccess", "AmazonDynamoDBFullAccess", "AmazonS3FullAccess", "AmazonSNSFullAccess"]
 	inp = var.inp
 }
 
