@@ -40,20 +40,20 @@ resource "aws_lambda_function_event_invoke_config" "main" {
 }
 
 resource "aws_api_gateway_rest_api" "main" {
-	for_each = toset(var.rest_api ? [0] : [])
+	for_each = toset(var.rest_api ? ["0"] : [])
 	name = aws_lambda_function.main.function_name
 	tags = var.inp.app
 }
 
 resource "aws_api_gateway_resource" "main" {
-	for_each = toset(var.rest_api ? [0] : [])
-	rest_api_id = aws_api_gateway_rest_api.main[0].id
-	parent_id = aws_api_gateway_rest_api.main[0].root_resource_id
+	for_each = toset(var.rest_api ? ["0"] : [])
+	rest_api_id = aws_api_gateway_rest_api.main["0"].id
+	parent_id = aws_api_gateway_rest_api.main["0"].root_resource_id
 	path_part = aws_lambda_function.main.function_name
 }
 
 resource "aws_api_gateway_method" "main" {
-	for_each = toset(var.rest_api ? [0] : [])
+	for_each = toset(var.rest_api ? ["0"] : [])
 	rest_api_id = aws_api_gateway_rest_api.main[0].id
 	resource_id = aws_api_gateway_resource.main[0].id
 	http_method = "GET"
@@ -64,18 +64,18 @@ resource "aws_api_gateway_method" "main" {
 }
 
 resource "aws_api_gateway_integration" "main" {
-	for_each = toset(var.rest_api ? [0] : [])
-	rest_api_id = aws_api_gateway_rest_api.main[0].id
-	resource_id = aws_api_gateway_resource.main[0].id
-	http_method = aws_api_gateway_method.main[0].http_method
+	for_each = toset(var.rest_api ? ["0"] : [])
+	rest_api_id = aws_api_gateway_rest_api.main["0"].id
+	resource_id = aws_api_gateway_resource.main["0"].id
+	http_method = aws_api_gateway_method.main["0"].http_method
 	type = "AWS_PROXY"	
 	uri = aws_lambda_function.main.invoke_arn
 }
 
 resource "aws_api_gateway_deployment" "main" {
-	for_each = toset(var.rest_api ? [0] : [])
-	depends_on = [aws_api_gateway_integration.main[0]]
-	rest_api_id = aws_api_gateway_rest_api.main[0].id
+	for_each = toset(var.rest_api ? ["0"] : [])
+	depends_on = [aws_api_gateway_integration.main["0"]]
+	rest_api_id = aws_api_gateway_rest_api.main["0"].id
 	stage_name = "main"
 
 	lifecycle {
@@ -84,10 +84,10 @@ resource "aws_api_gateway_deployment" "main" {
 }
 
 resource "aws_lambda_permission" "main" {
-	for_each = toset(var.rest_api ? [0] : [])
+	for_each = toset(var.rest_api ? ["0"] : [])
 	statement_id = "AllowExecutionFromAPIGateway"
 	action = "lambda:InvokeFunction"
 	function_name = aws_lambda_function.main.function_name
 	principal = "apigateway.amazonaws.com"
-	source_arn = "${aws_api_gateway_deployment.main[0]}/*/${aws_api_gateway_resource.main[0].path}"
+	source_arn = "${aws_api_gateway_deployment.main["0"]}/*/${aws_api_gateway_resource.main["0"].path}"
 }
