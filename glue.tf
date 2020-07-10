@@ -101,7 +101,7 @@ module "pricech_model" {
 	extra-py-files = ["glue_utils.py"]
 }
 
-module "train_init" {
+module "glue_train_init" {
 	source = "./pythonjob"
 	script_name = "train_init"
 	role = module.glue_role.role_arn

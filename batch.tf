@@ -6,16 +6,6 @@ module "batch_role" {
 	inp = var.inp
 }
 
-module "batch_jobs" {
-	source = "./batch_jobs"
-	batch_role = module.batch_role.role_arn
-	ec2_role_name = module.ec2_role.role_name
-	sec_groups = module.vpc.security_groups
-	subnets = module.vpc.subnets
-	image_id = "ami-0dd9f78450fe3a3fa"
-	inp = local.common_inputs
-}
-
 resource "aws_iam_instance_profile" "batch" {
 	role = module.ec2_role.role_name
 }
@@ -60,7 +50,7 @@ module "test_train_init" {
 	inp = var.inp
 }
 
-module "train_init" {
+module "batch_train_init" {
 	source = "./batchjob"
 	job_name = "train_init"
 	image_name = aws_ecr_repository.ml.name
