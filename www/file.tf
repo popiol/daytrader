@@ -4,4 +4,5 @@ resource "aws_s3_bucket_object" "main" {
 	source = "${path.module}/${var.file_name}"
 	etag = filemd5("${path.module}/${var.file_name}")
     acl = "public-read"
+	content_type = "text/html; charset=UTF-8"
 }
