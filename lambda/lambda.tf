@@ -9,7 +9,7 @@ resource "aws_lambda_function" "main" {
 	tags = var.inp.app
 
 	dynamic "environment" {
-		for_each = toset(length(var.env_vars) > 0 ? "0" : [])
+		for_each = toset(length(var.env_vars) > 0 ? ["0"] : [])
 
 		content {
 			variables = var.env_vars
