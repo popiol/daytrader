@@ -35,8 +35,3 @@ variable "env_vars" {
 variable "role" {
 	type = string
 }
-
-variable "rest_api" {
-	type = bool
-	default = false
-}

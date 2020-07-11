@@ -24,5 +24,11 @@ module "get_sample_quotes" {
 	env_vars = {
 		app_id = var.inp.app.id
 	}
-	rest_api = true
+}
+
+module "get_sample_quotes_api" {
+	source = "./restapi"
+	lambda_function = module.get_sample_quotes.arn
+	query_params = ["method.request.querystring.job_name"]
+	inp = local.common_inputs
 }

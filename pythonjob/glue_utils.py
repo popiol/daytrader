@@ -74,7 +74,7 @@ class Discretizer():
             start = max(start-(end-start)/2, -.9)
             end = min(end+(end-start)/2, 1.9)
             val = random.uniform(start, end)
-            val = (val - self.discretizer.avg * 20) * .2
+            val = (val - .0005) * .3
             outputs.append(val)
         return tuple(outputs)
 
