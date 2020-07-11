@@ -48,19 +48,6 @@ resource "aws_api_gateway_stage" "main" {
 	stage_name = aws_api_gateway_deployment.main.stage_name
 	rest_api_id = aws_api_gateway_rest_api.main.id
 	deployment_id = aws_api_gateway_deployment.main.id
-	cache_cluster_enabled = true
-	cache_cluster_size = "0.5"
-}
-
-resource "aws_api_gateway_method_settings" "main" {
-	rest_api_id = aws_api_gateway_rest_api.main.id
-	stage_name = aws_api_gateway_stage.main.stage_name
-	method_path = "${aws_api_gateway_resource.main.path_part}/${aws_api_gateway_method.main.http_method}"
-
-	settings {
-		metrics_enabled = false
-		caching_enabled = true		
-	}
 }
 
 resource "aws_api_gateway_method_response" "main" {

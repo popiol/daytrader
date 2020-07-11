@@ -15,6 +15,6 @@ variable "lambda_function" {
 }
 
 variable "query_params" {
-	type = string
+	type = list(string)
 	default = []
 }
