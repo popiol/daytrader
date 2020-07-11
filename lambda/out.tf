@@ -3,7 +3,7 @@ output "arn" {
 }
 
 output "name" {
-    value = aws_lambda_function.main.name
+    value = aws_lambda_function.main.function_name
 }
 
 output "invoke_arn" {
