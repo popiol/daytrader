@@ -56,7 +56,10 @@ def lambda_handler(event, context):
         
         return {
             'statusCode': 200,
-            'body': json.dumps(plots)
+            'body': json.dumps(plots),
+            'headers' : {
+                'Access-Control-Allow-Origin' : '*'
+            }
         }
     except:
         return {
