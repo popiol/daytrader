@@ -28,7 +28,9 @@ module "get_sample_quotes" {
 
 module "get_sample_quotes_api" {
 	source = "./restapi"
+	api_name = module.get_sample_quotes.name
 	lambda_function = module.get_sample_quotes.arn
+	lambda_invoke_arn = module.get_sample_quotes.invoke_arn
 	query_params = ["method.request.querystring.job_name"]
 	inp = local.common_inputs
 }
