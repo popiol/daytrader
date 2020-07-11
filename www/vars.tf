@@ -12,3 +12,8 @@ variable "inp" {
 variable "file_name" {
 	type = string
 }
+
+variable "vars" {
+	type = map(string)
+	default = {}
+}
