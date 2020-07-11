@@ -44,12 +44,6 @@ resource "aws_lambda_permission" "main" {
 	source_arn = "arn:aws:execute-api:${var.inp.aws_region}:${var.inp.aws_user_id}:${aws_api_gateway_rest_api.main.id}/*/${aws_api_gateway_method.main.http_method}${aws_api_gateway_resource.main.path}"
 }
 
-resource "aws_api_gateway_stage" "main" {
-	stage_name = aws_api_gateway_deployment.main.stage_name
-	rest_api_id = aws_api_gateway_rest_api.main.id
-	deployment_id = aws_api_gateway_deployment.main.id
-}
-
 resource "aws_api_gateway_method_response" "main" {
     rest_api_id = aws_api_gateway_rest_api.main.id
     resource_id = aws_api_gateway_resource.main.id
