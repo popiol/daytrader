@@ -94,5 +94,5 @@ resource "aws_lambda_permission" "main" {
 	action = "lambda:InvokeFunction"
 	function_name = aws_lambda_function.main.function_name
 	principal = "apigateway.amazonaws.com"
-	source_arn = "${aws_api_gateway_deployment.main["0"].execution_arn}/*/${aws_api_gateway_resource.main["0"].path}"
+	source_arn = "${aws_api_gateway_deployment.main["0"].execution_arn}/*${aws_api_gateway_resource.main["0"].path}"
 }
