@@ -13,3 +13,8 @@ variable "inp" {
 variable "lambda_function" {
 	type = string
 }
+
+variable "query_params" {
+	type = string
+	default = []
+}

@@ -71,5 +71,5 @@ resource "aws_api_gateway_method_response" "main" {
     response_parameters = {
         "method.response.header.Access-Control-Allow-Origin" = true
     }
-    depends_on = ["aws_api_gateway_method.main"]
+    depends_on = [aws_api_gateway_method.main]
 }
