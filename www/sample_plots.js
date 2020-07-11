@@ -4,7 +4,20 @@ $(document).ready(function(){
     }).done(function(data){
         for (comp_code in data) {
             $("#plots").append("<h2>"+comp_code+"</h2>")
-            $("#plots").append("<p>"+JSON.stringify(data[comp_code])+"</p>")
+            id = 'plot_'+comp_code
+            $("#plots").append($("<p>").attr('id', id))
+            var chart = new ApexCharts(document.querySelector("#"+id), {
+				chart: {
+					type: 'line',
+					width: '42%',
+					height: 200
+				},
+				series: [{
+					name: comp_code,
+					data: data[comp_code]
+				}]
+			});
+			chart.render();
         }
     })
 })
