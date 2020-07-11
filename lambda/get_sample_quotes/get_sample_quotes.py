@@ -33,7 +33,7 @@ def get_field_value(results, field_name):
 
 def lambda_handler(event, context):
     try:
-        app_id = event['queryStringParameters']['app_id']
+        app_id = os.environ['app_id']
         job_name = event['queryStringParameters']['job_name']
         results = get_query_result(f'fields @logStream as logStream | filter @logStream like /{app_id}_{job_name}/ | sort @timestamp desc | limit 1')
         logStream = get_field_value(results, 'logStream')
