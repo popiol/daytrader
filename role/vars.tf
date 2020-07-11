@@ -19,8 +19,3 @@ variable "attached_policies" {
 	type = list(string)
     default = []
 }
-
-variable "custom_policies" {
-	type = list(string)
-    default = []
-}
