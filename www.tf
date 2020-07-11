@@ -4,9 +4,9 @@ module "sample_plots_html" {
     inp = local.common_inputs
 }
 
-module "sample_plots_html" {
+module "sample_plots_js" {
     source = "./www"
-    file_name = "main.js"
+    file_name = "sample_plots.js"
     vars = {
         get_sample_quotes_url = module.get_sample_quotes.invoke_url
     }
