@@ -1,6 +1,6 @@
 import pytest
 import myutils
-import glue.pythonjob.glue_utils as glue_utils
+import pythonjob.glue_utils as glue_utils
 import boto3
 import numpy as np
 

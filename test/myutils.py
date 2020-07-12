@@ -37,16 +37,16 @@ def get_vars():
     vars['alert_topic'] = sns_arn
 
     #get terraform outputs
-    os.system('terraform init')
-    os.system('terraform output > out.txt')
-    with open('out.txt','r') as f:
-        for line in f:
-            if '=' not in line:
-                continue
-            key, val = line.split('=')
-            key = key.strip()
-            val = val.strip()
-            vars[key] = val
+    #os.system('terraform init')
+    #os.system('terraform output > out.txt')
+    #with open('out.txt','r') as f:
+    #    for line in f:
+    #        if '=' not in line:
+    #            continue
+    #        key, val = line.split('=')
+    #        key = key.strip()
+    #        val = val.strip()
+    #        vars[key] = val
 
     return vars
 
@@ -94,3 +94,15 @@ def run_lambda_fun(fun_name, inp, sync=True):
         if vars['status'] != 200:
             vars['aaa_error'] = res['FunctionError']
     return vars
+
+def copy_from_prod(bucket_name, obj_key):
+    prod_bucket_name = 'popiol.daytrader-master-quotes'
+    if prod_bucket_name == bucket_name:
+        return
+    filename = 'tmp_' + obj_key.split('/')[-1]
+    s3 = boto3.resource('s3')
+    bucket = s3.Bucket(prod_bucket_name)
+    bucket.Object(obj_key)
+    bucket.download_file(obj_key, filename)
+    bucket = s3.Bucket(bucket_name)
+    bucket.upload_file(filename, obj_key)

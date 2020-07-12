@@ -8,6 +8,7 @@ from boto3.dynamodb.conditions import Key, Attr
 import json
 import glue_utils
 import random
+from decimal import Decimal
 
 #get params
 args = getResolvedOptions(sys.argv, ['bucket_name','alert_topic','log_table','event_table','app','temporary','repeat'])
@@ -157,15 +158,6 @@ for _ in range(repeat):
             quote_dt = quote_dt.strftime(glue_utils.DB_DATE_FORMAT)
             price *= 1 + random.gauss(0, .005)
         
-        #add event to db
-        event_table.put_item(
-            Item = {
-                'comp_code': comp_code,
-                'quote_dt': quote_dt,
-                'source_file': process_key
-            }
-        )
-
         #get prev event
         prev_event = None
         if last_quote_dt is not None:
@@ -176,6 +168,20 @@ for _ in range(repeat):
             #print(row)
             event = glue_utils.Event(row)
 
+        #add event to db
+        event_table.put_item(
+            Item = {
+                'comp_code': comp_code,
+                'quote_dt': quote_dt,
+                'source_file': process_key,
+                'vals': {
+                    'price': Decimal(str(event.get_price())),
+                    'high_price': Decimal(str(event.get_high_price())),
+                    'low_price': Decimal(str(event.get_low_price()))
+                }
+            }
+        )
+        
         #add event to s3
         obj_key = glue_utils.create_event_key(comp_code, quote_dt)
         event.save(bucket, obj_key)

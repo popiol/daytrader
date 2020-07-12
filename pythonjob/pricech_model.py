@@ -7,6 +7,7 @@ import glue_utils
 from sklearn.preprocessing import KBinsDiscretizer
 import pickle
 from sklearn.neural_network import MLPClassifier
+import datetime
 
 #get params
 args = getResolvedOptions(sys.argv, ['bucket_name','alert_topic','log_table','event_table','app','temporary'])
@@ -17,13 +18,22 @@ event_table_name = args['event_table']
 app = json.loads(args['app'])
 temporary = True if args['temporary'] == "true" or args['temporary'] == "1" else False
 
+#create model
+try:
+    model = glue_utils.PriceChModel(bucket)
+    full_refresh = False
+except:
+    model = MLPClassifier(warm_start=True)
+    model = glue_utils.PriceChModel(model=model)
+    full_refresh = True
+
 #get list of all company codes
 s3 = boto3.resource('s3')
 bucket = s3.Bucket(bucket_name)
 objs = bucket.objects.all()
 comp_codes = {}
 for obj in objs:
-    if obj.key.startswith('events/'):
+    if obj.key.startswith('events/') and (full_refresh or datetime.date.today()-obj.last_modified.date() < datetime.timedelta(7)):
         comp_code = obj.key.split('/')[-1].split('_')[0]
         comp_codes[comp_code] = 1
 
@@ -40,15 +50,18 @@ if not comp_codes:
 #get bins
 discretizer = glue_utils.Discretizer(bucket)
 
-#create model
-model = MLPClassifier(warm_start=True)
-
 #build model
 db = boto3.resource('dynamodb')
 event_table = db.Table(event_table_name)
+start_dt = datetime.datetime.now()
+start_dt -= datetime.timedelta(days=7)
+start_dt = start_dt.strftime(glue_utils.DB_DATE_FORMAT)
 for comp_code in comp_codes:
+    expr = Key('comp_code').eq(comp_code)
+    if not full_refresh:
+        expr = expr & Key('quote_dt').gt(start_dt) 
     res = event_table.query(
-        KeyConditionExpression = Key('comp_code').eq(comp_code)
+        KeyConditionExpression = expr
     )
     
     if not res['Items']:
@@ -59,12 +72,8 @@ for comp_code in comp_codes:
     train_y = []
     for item in res['Items']:
         quote_dt = item['quote_dt']
-        event_key = glue_utils.create_event_key(comp_code, quote_dt)
-        f = bucket.Object(event_key).get()
         prev_event = event
-        event = f['Body'].read().decode('utf-8')
-        event = json.loads(event)
-        event = glue_utils.Event(event)
+        event = glue_utils.Event(bucket=bucket, comp_code=comp_code, quote_dt=quote_dt)
         if prev_event is None:
             continue
         price1 = prev_event.get_price()
@@ -86,9 +95,9 @@ for comp_code in comp_codes:
         inputs = event.get_inputs()
         train_x.append(inputs)
         train_y.append(price_class + high_class + low_class)
+        
     if train_x and train_y:
-        model.fit(train_x, train_y)
+        model.model.fit(train_x, train_y)
 
 #save model
-model = glue_utils.PriceChModel(model=model)
 model.save(bucket)

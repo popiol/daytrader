@@ -6,30 +6,23 @@ variable "inp" {
 		aws_user_id = string
 		bucket_name = string
 		alert_topic = string
-		temporary = bool
+		temporary = string
 	})
 }
 
-variable "batch_role" {
+variable "api_name" {
 	type = string
 }
 
-variable "ec2_role_name" {
+variable "lambda_function" {
 	type = string
 }
 
-variable "stop_instance_function" {
+variable "lambda_invoke_arn" {
 	type = string
 }
 
-variable "sec_groups" {
+variable "query_params" {
 	type = list(string)
-}
-
-variable "subnets" {
-	type = list(string)
-}
-
-variable "image_id" {
-	type = string
+	default = []
 }

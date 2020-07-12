@@ -1,13 +1,7 @@
 output "access_policy" {
-  value = {
-    event_process_log = module.event_process_log.access_policy
-    event_table = module.event_table.access_policy
-  }
+  value = data.aws_iam_policy_document.access.json
 }
 
 output "table_name" {
-  value = {
-    event_process_log = module.event_process_log.table_name
-    event_table = module.event_table.table_name
-  }
+  value = aws_dynamodb_table.main.name
 }

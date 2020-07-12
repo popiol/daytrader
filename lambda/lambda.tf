@@ -7,6 +7,14 @@ resource "aws_lambda_function" "main" {
 	runtime = "python3.8"
 	timeout = 900
 	tags = var.inp.app
+
+	dynamic "environment" {
+		for_each = toset(length(var.env_vars) > 0 ? ["0"] : [])
+
+		content {
+			variables = var.env_vars
+		}
+	}
 }
 
 resource "aws_cloudwatch_event_rule" "main" {
@@ -21,7 +29,7 @@ resource "aws_cloudwatch_event_target" "get_quotes" {
 	target_id = aws_cloudwatch_event_rule.main[each.key].name
 	rule = aws_cloudwatch_event_rule.main[each.key].name
 	arn = aws_lambda_function.main.arn
-	input = jsonencode(var.inp)
+	input = jsonencode(merge(var.inp, var.inp2))
 }
 
 resource "aws_lambda_function_event_invoke_config" "main" {

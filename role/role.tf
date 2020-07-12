@@ -22,10 +22,3 @@ resource "aws_iam_role_policy_attachment" "main" {
 	role = aws_iam_role.main.name
 	policy_arn = "arn:aws:iam::aws:policy/${each.key}"
 }
-
-resource "aws_iam_role_policy" "main" {
-    for_each = toset(var.custom_policies)
-	name = jsondecode(each.key)["Id"]
-	role = aws_iam_role.main.id
-	policy = each.key
-}

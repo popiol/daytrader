@@ -5,12 +5,15 @@ variable "inp" {
 		aws_user = string
 		bucket_name = string
 		alert_topic = string
-		log_table = string
-		event_table = string
 		temporary = bool
-	})
+    })
 }
 
-variable "role" {
+variable "file_name" {
 	type = string
+}
+
+variable "vars" {
+	type = map(string)
+	default = {}
 }
