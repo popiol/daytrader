@@ -22,14 +22,14 @@ def create_event_key(comp_code, quote_dt):
     dt2 = quote_dt.replace('-','').replace(' ','').replace(':','')
     return "events/date={}/{}_{}.json".format(dt, comp_code, dt2)
 
-def run_batch_job(job_name, queue_name):
+def run_batch_job(job_name, queue_name, asynch=False):
     batch = boto3.client('batch')
     res = batch.submit_job(jobName=job_name, jobQueue=queue_name, jobDefinition=job_name)
     job_id = res['jobId']
     for _ in range(12):
         res = batch.describe_jobs(jobs=[job_id])
         job_status = res['jobs'][0]['status']
-        if job_status in ['SUCCEEDED','FAILED']: break
+        if job_status in ['SUCCEEDED','FAILED'] or asynch: break
         time.sleep(60)
     return {'job_status': job_status}
 
@@ -50,7 +50,7 @@ class Discretizer():
         obj_key = "model/discretizer.pickle"
         bucket.put_object(Key=obj_key, Body=discretizer)
 
-    def random_price_change(self, proba_all):
+    def random_price_change(self, proba_all, offset=0):
         outputs = []
         for type in ['price','high','low']:
             if type == 'price':
@@ -74,7 +74,7 @@ class Discretizer():
             start = max(start-(end-start)/2, -.9)
             end = min(end+(end-start)/2, 1.9)
             val = random.uniform(start, end)
-            val = (val - .0005) * .3
+            val = (val + .0005 * (offset-1)) * .3
             outputs.append(val)
         return tuple(outputs)
 
@@ -213,7 +213,7 @@ class PriceChModel():
         return tuple([np.shape(self.model.coefs_[0])[0]])
 
 class Simulator():
-    def __init__(self, bucket):
+    def __init__(self, bucket, offset=0):
         comp_codes = []
         n_comps = SIM_N_COMPS
         self.last_comp_code_i = -1
@@ -234,6 +234,7 @@ class Simulator():
         self.samples = {}
         for comp_code in comp_codes[:10]:
             self.samples[comp_code] = [self.events[comp_code].get_price()]
+        self.offset = offset
 
     def generate_comp_code(self):
         self.last_comp_code_i += 1
@@ -276,7 +277,7 @@ class Simulator():
         for comp_code in self.comp_codes:
             inputs = self.events[comp_code].get_inputs()
             proba = self.model.predict_proba(inputs)
-            price_ch, high_price_ch, low_price_ch = self.discretizer.random_price_change(proba)
+            price_ch, high_price_ch, low_price_ch = self.discretizer.random_price_change(proba, self.offset)
             if base_ch is None:
                 base_ch = price_ch / 5
             else:

@@ -48,7 +48,7 @@ class Agent():
         self.bucket = bucket
         self.cash = 1000
         self.agent_name = agent_name
-        print("Cash:", self.cash)
+        #print("Cash:", self.cash)
         self.provision = .001
         
     def save(self):
@@ -60,7 +60,7 @@ class Agent():
         obj_key = f'model/{self.agent_name}_model.zip'
         self.bucket.upload_file(filename, obj_key)
 
-    def rename(self, agent_name):
+    def save_as(self, agent_name):
         self.agent_name = agent_name
         self.save()
         return self
@@ -80,21 +80,19 @@ class Agent():
         quote_dt = event.event['quote_dt']
         hour = int(quote_dt[11:13])
         if 9 <= hour <= 15 and comp_code in self.orders:
-            if self.orders[comp_code]['buy'] and self.orders[comp_code]['price'] > float(event.event['low_price']):
+            if self.orders[comp_code]['buy'] and self.orders[comp_code]['price'] > float(event.event['price']):
                 self.portfolio[comp_code] = self.orders[comp_code]
                 self.portfolio[comp_code]['n_ticks'] = 1
                 self.cash -= self.portfolio[comp_code]['n_shares'] * self.orders[comp_code]['price'] * (1 + self.provision)
-                print(event.event['quote_dt'])
-                print("Buy", self.portfolio[comp_code]['n_shares'], "shares of", comp_code, "for", self.orders[comp_code]['price'])
-                print("Cash:", self.cash, ", Capital:", self.get_capital())
-            elif not self.orders[comp_code]['buy'] and self.orders[comp_code]['price'] < float(event.event['high_price']):
+                #print(event.event['quote_dt'])
+                #print("Buy", self.portfolio[comp_code]['n_shares'], "shares of", comp_code, "for", self.orders[comp_code]['price'])
+                #print("Cash:", self.cash, ", Capital:", self.get_capital())
+            elif not self.orders[comp_code]['buy'] and self.orders[comp_code]['price'] < float(event.event['price']):
                 del self.portfolio[comp_code]
                 self.cash += self.orders[comp_code]['n_shares'] * self.orders[comp_code]['price'] * (1 - self.provision)
-                print(event.event['quote_dt'])
-                print("Sell", self.orders[comp_code]['n_shares'], "shares of", comp_code, "for", self.orders[comp_code]['price'])
-                print("Cash:", self.cash, ", Capital:", self.get_capital())
-            #else:
-            #    print("Order:", self.orders[comp_code])
+                #print(event.event['quote_dt'])
+                #print("Sell", self.orders[comp_code]['n_shares'], "shares of", comp_code, "for", self.orders[comp_code]['price'])
+                #print("Cash:", self.cash, ", Capital:", self.get_capital())
         
     def add_sell_order(self, event, sell_price_ch):
         comp_code = event.event['comp_code']
@@ -119,12 +117,13 @@ class Agent():
         for event in events:
             comp_code = event.event['comp_code']
             self.handle_orders(event)
-            buy_action, buy_price, sell_price = get_outputs(event)
+            inputs1 = self.get_inputs(event)
+            buy_action, buy_price, sell_price = get_outputs(event, inputs1)
             if (best_event is None or buy_action > best_buy) and comp_code not in self.portfolio and abs(buy_price) < .1:
                 best_event = event
                 best_buy = buy_action
                 best_price = event.event['price'] * (1+buy_price)
-            inputs.append(self.get_inputs(event))
+            inputs.append(inputs1)
             outputs.append([buy_action, buy_price, sell_price])
             orders.update(self.add_sell_order(event, sell_price))
         self.orders = orders
@@ -139,7 +138,7 @@ class Agent():
             self.portfolio[comp_code]['n_ticks'] += 1
         return inputs, outputs
 
-    def get_train_init_outputs(self, event):
+    def get_train_init_outputs(self, event, inputs):
         comp_code = event.event['comp_code']
         price = event.get_price()
         price8 = event.event['price8']
@@ -169,5 +168,53 @@ class Agent():
     def train(self, events):
         pass
 
+    def reset_test(self):
+        self.score = 0
+        self.min_weekly = None
+        self.weekly_ticks = 0
+        self.week_start_val = None
+
+    def get_test_outputs(self, event, inputs):
+        outputs = self.model.predict(inputs)
+        outputs = [x[0]*2-1 for x in outputs]
+        return tuple(outputs)
+
     def test(self, events):
-        pass
+        week_n_ticks = 40
+        prev_capital = self.get_capital()
+        self.next(events, self.get_test_outputs)
+        capital = self.get_capital()
+        score = capital / prev_capital - 1
+        if self.weekly_ticks == 0:
+            if self.week_start_val is not None:
+                weekly_val = capital / self.week_start_val - 1
+                if self.min_weekly is None or weekly_val < self.min_weekly:
+                    self.min_weekly = weekly_val
+                score += self.min_weekly / week_n_ticks
+            self.week_start_val = capital
+        self.weekly_ticks = (self.weekly_ticks+1) % week_n_ticks
+        self.score += score
+        
+def compare_agents(agent1, agent2, hist=False):
+    scores1 = []
+    scores2 = []
+    offset_range = [0] if hist else [-1,0,1] 
+    for offset in offset_range:
+        if hist:
+            simulator = glue_utils.HistSimulator(bucket)
+        else:
+            simulator = glue_utils.Simulator(bucket, offset)
+        agent1.test_reset()
+        agent2.test_reset()
+        max_it = 100000 if hist else 1000
+        for _ in range(max_it):
+            events = simulator.next()
+            if events is None:
+                break
+            agent1.test(events)
+            agent2.test(events)
+        scores1.append(agent1.score)
+        scores2.append(agent2.score)
+    score1 = np.average(scores1) + min(scores1)
+    score2 = np.average(scores2) + min(scores2)
+    return score1, score2

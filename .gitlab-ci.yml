@@ -55,5 +55,5 @@ clean:
     - cd temprepo
     - ./get_vars.sh
     - terraform init
-    - terraform destroy -var-file=config.tfvars -auto-approve -target=module.batch_jobs.aws_batch_job_queue.main
+    - terraform destroy -var-file=config.tfvars -auto-approve -target=aws_batch_job_queue.main
     - terraform destroy -var-file=config.tfvars -auto-approve
