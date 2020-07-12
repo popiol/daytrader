@@ -13,6 +13,7 @@ LOW_CHANGE_N_BINS = HIGH_CHANGE_N_BINS
 ALL_CHANGE_N_BINS = PRICE_CHANGE_N_BINS + HIGH_CHANGE_N_BINS + LOW_CHANGE_N_BINS
 DB_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
 SIM_N_COMPS = 500
+MIN_EVENTS_LEN = 200
 
 def logg(x):
     print("---- [{}] ".format(datetime.datetime.now()), x)
@@ -330,21 +331,24 @@ class HistSimulator():
 
     def next(self):
         objs = self.bucket.objects.all()
-        min_dt = None
-        for obj in objs:
-            if obj.key.startswith('events/date='):
-                dt = obj.key.split('/')[1].split('=')[1]
-                if dt > self.quote_dt and (min_dt is None or dt < min_dt):
-                    min_dt = dt
-        self.quote_dt = min_dt
-        if self.quote_dt is None:
-            return None
-        files = []
-        for obj in objs:
-            if obj.key.startswith('events/date='):
-                dt = obj.key.split('/')[1].split('=')[1]
-                if dt == self.quote_dt:
-                    files.append(obj.key)
+        for _ in range(10):
+            min_dt = None
+            for obj in objs:
+                if obj.key.startswith('events/date='):
+                    dt = obj.key.split('/')[1].split('=')[1]
+                    if dt > self.quote_dt and (min_dt is None or dt < min_dt):
+                        min_dt = dt
+            self.quote_dt = min_dt
+            if self.quote_dt is None:
+                return None
+            files = []
+            for obj in objs:
+                if obj.key.startswith('events/date='):
+                    dt = obj.key.split('/')[1].split('=')[1]
+                    if dt == self.quote_dt:
+                        files.append(obj.key)
+            if len(files) >= MIN_EVENTS_LEN:
+                break
         events = {}
         for obj_key in files:
             comp_code = obj_key.split('/')[-1].split('_')[0]

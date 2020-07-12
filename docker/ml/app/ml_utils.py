@@ -50,6 +50,7 @@ class Agent():
         self.agent_name = agent_name
         #print("Cash:", self.cash)
         self.provision = .001
+        self.reset_test()
         
     def save(self):
         dirname = 'model.dump'
