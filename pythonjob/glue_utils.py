@@ -13,7 +13,7 @@ LOW_CHANGE_N_BINS = HIGH_CHANGE_N_BINS
 ALL_CHANGE_N_BINS = PRICE_CHANGE_N_BINS + HIGH_CHANGE_N_BINS + LOW_CHANGE_N_BINS
 DB_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
 SIM_N_COMPS = 500
-MIN_EVENTS_LEN = 200
+MIN_EVENTS_LEN = 100
 
 def logg(x):
     print("---- [{}] ".format(datetime.datetime.now()), x)

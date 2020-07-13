@@ -57,6 +57,13 @@ module "batch_train_init" {
 	inp = local.common_inputs
 }
 
+module "test_test_model" {
+	source = "./batchjob"
+	job_name = "test_test_model"
+	image_name = aws_ecr_repository.ml.name
+	inp = local.common_inputs
+}
+
 module "batch_test_model" {
 	source = "./batchjob"
 	job_name = "test_model"
