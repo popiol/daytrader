@@ -7,7 +7,8 @@ import numpy as np
 import shutil
 import sys
 
-bucket_name = os.environ['BUCKET_NAME']
+bucket_name = os.environ['bucket_name']
+temporary = int(os.environ['temporary'])
 s3 = boto3.resource("s3")
 bucket = s3.Bucket(bucket_name)
 

@@ -338,7 +338,6 @@ class HistSimulator():
                     dt = obj.key.split('/')[1].split('=')[1]
                     if dt > self.quote_dt and (min_dt is None or dt < min_dt):
                         min_dt = dt
-            print("Min dt:", min_dt)
             self.quote_dt = min_dt
             if self.quote_dt is None:
                 return None
@@ -350,8 +349,6 @@ class HistSimulator():
                         files.append(obj.key)
             if len(files) >= MIN_EVENTS_LEN:
                 break
-            else:
-                print("Too few companies:", len(files))
         events = {}
         for obj_key in files:
             comp_code = obj_key.split('/')[-1].split('_')[0]

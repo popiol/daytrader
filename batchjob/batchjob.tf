@@ -7,10 +7,8 @@ resource "aws_batch_job_definition" "main" {
         memory = 1500
         vcpus = 2
         environment = [
-            {
-                name = "BUCKET_NAME"
-                value = var.inp.bucket_name
-            }
+            {name = "bucket_name", value = var.inp.bucket_name},
+            {name = "temporary", value = var.inp.temporary ? "1" : "0"}
         ]
     })
 }

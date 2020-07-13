@@ -13,7 +13,8 @@ capital_ch = []
 agent.reset_test()
 for _ in range(100):
     events = simulator.next()
-    assert events is not None
+    if not ml_utils.temporary:
+        assert events is not None
     assert len(events) >= glue_utils.MIN_EVENTS_LEN
     agent.test(events)
     n_orders.append(len(agent.orders))
