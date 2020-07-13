@@ -215,8 +215,8 @@ def compare_agents(agent1, agent2, hist=False):
             events = simulator.next()
             if events is None:
                 break
-            agent1.reset(events)
-            agent2.reset(events)
+            agent1.test(events)
+            agent2.test(events)
         scores1.append(agent1.score)
         scores2.append(agent2.score)
     score1 = np.average(scores1) + min(scores1)
