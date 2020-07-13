@@ -44,14 +44,11 @@ class Agent():
             self.model = keras.Model(inputs=inputs, outputs=[buy_action, buy_price, sell_price])
             self.model.compile(optimizer='nadam', loss='huber_loss')
             self.loaded = False
-        self.portfolio = {}
-        self.orders = {}
         self.bucket = bucket
-        self.cash = 1000
         self.agent_name = agent_name
         #print("Cash:", self.cash)
         self.provision = .001
-        self.reset_test()
+        self.reset()
         
     def save(self):
         dirname = 'model.dump'
@@ -121,6 +118,7 @@ class Agent():
             self.handle_orders(event)
             inputs1 = self.get_inputs(event)
             buy_action, buy_price, sell_price = get_outputs(event, inputs1)
+            print("Outputs:", buy_action, buy_price, sell_price)
             if (best_event is None or buy_action > best_buy) and comp_code not in self.portfolio and abs(buy_price) < .1:
                 best_event = event
                 best_buy = buy_action
@@ -129,6 +127,7 @@ class Agent():
             outputs.append([buy_action, buy_price, sell_price])
             orders.update(self.add_sell_order(event, sell_price))
         self.orders = orders
+        print("Best buy:", best_buy)
         if self.cash > 200 and best_event is not None:
             capital = self.get_capital()
             n = math.floor(capital / best_price * best_buy * (1 - self.provision))
@@ -170,11 +169,14 @@ class Agent():
     def train(self, events):
         pass
 
-    def reset_test(self):
+    def reset(self):
         self.score = 0
         self.min_weekly = None
         self.weekly_ticks = 0
         self.week_start_val = None
+        self.portfolio = {}
+        self.orders = {}
+        self.cash = 1000
 
     def get_test_outputs(self, event, inputs):
         outputs = self.model.predict(np.array([inputs]))
