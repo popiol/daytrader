@@ -15,6 +15,8 @@ for _ in range(100):
     events = simulator.next()
     if not ml_utils.temporary:
         assert events is not None
+    if events is None:
+        break
     assert len(events) >= glue_utils.MIN_EVENTS_LEN
     agent.test(events)
     n_orders.append(len(agent.orders))
