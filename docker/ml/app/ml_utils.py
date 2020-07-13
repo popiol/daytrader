@@ -176,7 +176,7 @@ class Agent():
         self.week_start_val = None
 
     def get_test_outputs(self, event, inputs):
-        outputs = self.model.predict(inputs)
+        outputs = self.model.predict(np.array([inputs]))
         outputs = [x[0]*2-1 for x in outputs]
         return tuple(outputs)
 
