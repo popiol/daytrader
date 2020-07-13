@@ -208,15 +208,15 @@ def compare_agents(agent1, agent2, hist=False):
             simulator = glue_utils.HistSimulator(bucket)
         else:
             simulator = glue_utils.Simulator(bucket, offset)
-        agent1.test_reset()
-        agent2.test_reset()
+        agent1.reset()
+        agent2.reset()
         max_it = 100000 if hist else 1000
         for _ in range(max_it):
             events = simulator.next()
             if events is None:
                 break
-            agent1.test(events)
-            agent2.test(events)
+            agent1.reset(events)
+            agent2.reset(events)
         scores1.append(agent1.score)
         scores2.append(agent2.score)
     score1 = np.average(scores1) + min(scores1)

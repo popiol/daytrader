@@ -10,7 +10,6 @@ n_orders = []
 portfolio_size = []
 capital = agent.get_capital()
 capital_ch = []
-agent.reset_test()
 for _ in range(100):
     events = simulator.next()
     if not ml_utils.temporary:
