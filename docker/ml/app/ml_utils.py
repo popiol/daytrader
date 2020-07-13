@@ -118,6 +118,7 @@ class Agent():
             self.handle_orders(event)
             inputs1 = self.get_inputs(event)
             buy_action, buy_price, sell_price = get_outputs(event, inputs1)
+            print("Outputs:", buy_action, buy_price, sell_price)
             if (best_event is None or buy_action > best_buy) and comp_code not in self.portfolio and abs(buy_price) < .1:
                 best_event = event
                 best_buy = buy_action
@@ -126,6 +127,8 @@ class Agent():
             outputs.append([buy_action, buy_price, sell_price])
             orders.update(self.add_sell_order(event, sell_price))
         self.orders = orders
+        if best_event is not None:
+            print("Best buy:", best_buy)
         if self.cash > 200 and best_event is not None:
             capital = self.get_capital()
             n = math.floor(capital / best_price * best_buy * (1 - self.provision))
