@@ -128,7 +128,7 @@ class Agent():
             outputs.append([buy_action, buy_price, sell_price])
             orders.update(self.add_sell_order(event, sell_price))
         self.orders = orders
-        if self.cash > 200:
+        if self.cash > 200 and best_event is not None:
             capital = self.get_capital()
             n = math.floor(capital / best_price * best_buy * (1 - self.provision))
             n = min(n, math.floor(self.cash / best_price * (1 - self.provision)))
