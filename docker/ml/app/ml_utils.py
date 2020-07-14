@@ -123,7 +123,9 @@ class Agent():
                 best_buy = buy_action
                 best_price = event.event['price'] * (1+buy_price)
             inputs.append(inputs1)
-            outputs.append([buy_action, buy_price, sell_price])
+            outputs1 = [buy_action, buy_price, sell_price]
+            outputs1 = [(x+1)/2 for x in outputs1]
+            outputs.append(outputs1)
             orders.update(self.add_sell_order(event, sell_price))
         self.orders = orders
         if self.cash > 200 and best_event is not None:

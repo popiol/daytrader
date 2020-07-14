@@ -13,7 +13,7 @@ class TestTrainInit():
         vars = myutils.get_vars()
         myutils.copy_from_prod(vars['bucket_name'], 'model/discretizer.pickle')
         myutils.copy_from_prod(vars['bucket_name'], 'model/pricech_model.pickle')
-        myutils.copy_from_prod(vars['bucket_name'], 'model/initial_model.zip')
+        #myutils.copy_from_prod(vars['bucket_name'], 'model/initial_model.zip')
         job_name = vars['id'] + '_test_test_model'
         res = glue_utils.run_batch_job(job_name, vars['id'])
         #job_name = vars['id'] + '_test_model'
