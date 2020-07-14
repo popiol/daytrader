@@ -15,7 +15,6 @@ for hist in range(2):
     portfolio_size = []
     capital = agent.get_capital()
     capital_ch = []
-    #for _ in range(100):
     for _ in range(100):
         events = simulator.next()
         if not ml_utils.temporary:
