@@ -162,11 +162,11 @@ class Agent():
 
     def train_init(self, events):
         inputs, outputs = self.next(events, self.get_train_init_outputs)
-        outputs = list(zip(*outputs))
-        outputs = [np.array(x) for x in outputs]
         for inp, out in zip(inputs, outputs):
             print(inp)
             print(out)
+        outputs = list(zip(*outputs))
+        outputs = [np.array(x) for x in outputs]
         self.fit(np.array(inputs), outputs)
 
     def train(self, events):
