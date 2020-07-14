@@ -9,7 +9,8 @@ for hist in range(2):
         simulator = glue_utils.HistSimulator(ml_utils.bucket)
     else:
         simulator = glue_utils.Simulator(ml_utils.bucket)
-    agent = ml_utils.Agent('initial', ml_utils.bucket)
+    #agent = ml_utils.Agent('initial', ml_utils.bucket)
+    agent = ml_utils.Agent('dev', ml_utils.bucket)
     n_orders = []
     portfolio_size = []
     capital = agent.get_capital()
