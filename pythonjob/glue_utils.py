@@ -296,6 +296,7 @@ class Simulator():
             for comp_code in self.samples:
                 if comp_code in self.events:
                     self.samples[comp_code].append(self.events[comp_code].get_price())
+        print(batch[0].get_inputs())
         return batch
 
     def print_sample_quotes(self):

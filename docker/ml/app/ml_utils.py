@@ -69,7 +69,6 @@ class Agent():
 
     def get_inputs(self, event):
         inputs = event.get_inputs()
-        print(inputs)
         comp_code = event.event['comp_code']
         n_ticks = self.get_n_ticks(comp_code)
         inputs.append(n_ticks)

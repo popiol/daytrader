@@ -35,5 +35,6 @@ for hist in range(2):
     assert max(portfolio_size) > 0
     assert 1 > max(max(capital_ch), abs(min(capital_ch))) > 0
     assert min(capital_ch) > -1
+    break
 
 simulator.print_sample_quotes()
