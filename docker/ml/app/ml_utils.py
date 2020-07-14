@@ -177,8 +177,10 @@ class Agent():
         self.cash = 1000
 
     def get_test_outputs(self, event, inputs):
-        outputs = self.model.predict(np.array([inputs]))
+        outputs = self.model.predict([inputs])
         outputs = [x[0]*2-1 for x in outputs]
+        print(inputs)
+        print(outputs)
         return tuple(outputs)
 
     def test(self, events):
