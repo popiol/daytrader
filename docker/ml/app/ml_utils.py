@@ -186,12 +186,8 @@ class Agent():
     def get_test_outputs(self, events, inputs):
         outputs = self.model.predict(inputs)
         outputs = list(zip(*outputs))
-        outputs = [[y*2-1 for y in x] for x in outputs]
-        assert len(events) == len(outputs)
+        outputs = [[y[0]*2-1 for y in x] for x in outputs]
         outputs = {event.event['comp_code']: out for event, out in zip(events, outputs)}
-        for comp_code in outputs:
-            print(outputs[comp_code])
-            assert not isinstance(outputs[comp_code][1], list)
         return outputs
 
     def test(self, events):
