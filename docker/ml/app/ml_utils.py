@@ -46,7 +46,6 @@ class Agent():
             self.loaded = False
         self.bucket = bucket
         self.agent_name = agent_name
-        #print("Cash:", self.cash)
         self.provision = .001
         self.reset()
         
@@ -104,28 +103,31 @@ class Agent():
         return orders
 
     def get_capital(self):
+        print("Portfolio:", self.portfolio)
+        print("Cash:", self.cash)
         capital = sum(self.portfolio[x]['n_shares'] * self.portfolio[x]['price'] for x in self.portfolio)
         capital += self.cash
         return capital
 
     def next(self, events, get_outputs):
         inputs = []
-        outputs = []
+        outputs2 = []
         best_event = None
         orders = {}
         for event in events:
+            inputs.append(self.get_inputs(event))
+        outputs = get_outputs(events, inputs)
+        for event in events:
             comp_code = event.event['comp_code']
             self.handle_orders(event)
-            inputs1 = self.get_inputs(event)
-            buy_action, buy_price, sell_price = get_outputs(event, inputs1)
+            buy_action, buy_price, sell_price = outputs[comp_code]
             if (best_event is None or buy_action > best_buy) and comp_code not in self.portfolio and abs(buy_price) < .1:
                 best_event = event
                 best_buy = buy_action
                 best_price = event.event['price'] * (1+buy_price)
-            inputs.append(inputs1)
             outputs1 = [buy_action, buy_price, sell_price]
             outputs1 = [(x+1)/2 for x in outputs1]
-            outputs.append(outputs1)
+            outputs2.append(outputs1)
             orders.update(self.add_sell_order(event, sell_price))
         self.orders = orders
         if self.cash > 200 and best_event is not None:
@@ -137,22 +139,25 @@ class Agent():
                 self.orders[comp_code] = {'buy':True, 'price':best_price, 'n_shares':n}
         for comp_code in self.portfolio:
             self.portfolio[comp_code]['n_ticks'] += 1
-        return inputs, outputs
+        return inputs, outputs2
 
-    def get_train_init_outputs(self, event, inputs):
-        comp_code = event.event['comp_code']
-        price = event.get_price()
-        price8 = event.event['price8']
-        price4 = event.event['price4']
-        price32 = event.event['price32']
-        triangle = (price4 - price - abs(price8 - price4)) / price
-        triangle = triangle / (abs(triangle) + 1)
-        buy = 1 if triangle > 0 and price32 / price > -.01 else 0
-        buy_action = math.pow(triangle*8, .44) if buy else triangle / 2 - .5
-        buy_price = 0
-        n_ticks = self.get_n_ticks(comp_code)
-        sell_price = max((8 - n_ticks) * .04, 0)
-        return buy_action, buy_price, sell_price
+    def get_train_init_outputs(self, events, inputs):
+        outputs = {}
+        for event in events:
+            comp_code = event.event['comp_code']
+            price = event.get_price()
+            price8 = event.event['price8']
+            price4 = event.event['price4']
+            price32 = event.event['price32']
+            triangle = (price4 - price - abs(price8 - price4)) / price
+            triangle = triangle / (abs(triangle) + 1)
+            buy = 1 if triangle > 0 and price32 / price > -.01 else 0
+            buy_action = math.pow(triangle*8, .44) if buy else triangle / 2 - .5
+            buy_price = 0
+            n_ticks = self.get_n_ticks(comp_code)
+            sell_price = max((8 - n_ticks) * .04, 0)
+            outputs[comp_code] = (buy_action, buy_price, sell_price)
+        return outputs
 
     def fit(self, x, y):
         with open('/dev/null', 'w') as f:
@@ -162,9 +167,6 @@ class Agent():
 
     def train_init(self, events):
         inputs, outputs = self.next(events, self.get_train_init_outputs)
-        for inp, out in zip(inputs, outputs):
-            print(inp)
-            print(out)
         outputs = list(zip(*outputs))
         outputs = [np.array(x) for x in outputs]
         self.fit(np.array(inputs), outputs)
@@ -181,12 +183,11 @@ class Agent():
         self.orders = {}
         self.cash = 1000
 
-    def get_test_outputs(self, event, inputs):
-        outputs = self.model.predict([inputs])
-        outputs = [x[0]*2-1 for x in outputs]
-        print(inputs)
-        print([(x+1)/2 for x in outputs])
-        return tuple(outputs)
+    def get_test_outputs(self, events, inputs):
+        outputs = self.model.predict(inputs)
+        outputs = list(zip(*outputs))
+        outputs = [[y*2-1 for y in x] for x in outputs]
+        return outputs
 
     def test(self, events):
         week_n_ticks = 40
