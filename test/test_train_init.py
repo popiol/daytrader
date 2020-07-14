@@ -28,6 +28,5 @@ class TestTrainInit():
         bucket_name = vars['bucket_name']
         s3 = boto3.resource('s3')
         bucket = s3.Bucket(bucket_name)
-        #obj_key = f'model/initial_model.zip'
         obj_key = f'model/dev_model.zip'
         bucket.Object(obj_key).get()

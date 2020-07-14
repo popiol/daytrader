@@ -6,6 +6,7 @@ import datetime
 import json
 import boto3
 import time
+from collections.abc import Iterable
 
 PRICE_CHANGE_N_BINS = 10
 HIGH_CHANGE_N_BINS = 5
@@ -77,7 +78,7 @@ class Discretizer():
             val = random.uniform(start, end)
             val = (val + .0005 * (offset-1)) * .3
             outputs.append(val)
-        return tuple(outputs)
+        return outputs
 
     def price_class(self, price_ch):
         return [1 if x <= price_ch <= self.bins[0][i+1] else 0 for i,x in enumerate(self.bins[0][:-1])]
@@ -252,6 +253,7 @@ class Simulator():
         price = 0
         while price <= .1 or price > 2500:
             price = math.pow(max(0,random.gauss(.5,.2)),6)*1000
+        assert not isinstance(price, Iterable)
         return round(price, 2)
 
     def next(self):
@@ -279,11 +281,13 @@ class Simulator():
             inputs = self.events[comp_code].get_inputs()
             proba = self.model.predict_proba(inputs)
             price_ch, high_price_ch, low_price_ch = self.discretizer.random_price_change(proba, self.offset)
+            assert not isinstance(price_ch, Iterable)
             if base_ch is None:
                 base_ch = price_ch / 5
             else:
                 price_ch += base_ch
             price = self.events[comp_code].event['price'] * (price_ch + 1)
+            assert not isinstance(price, Iterable)
             high_price = self.events[comp_code].event['price'] * (high_price_ch + 1)
             low_price = self.events[comp_code].event['price'] * (low_price_ch + 1)
             high_price = max(high_price, price)

@@ -6,6 +6,7 @@ import math
 import numpy as np
 import shutil
 import sys
+from collections.abc import Iterable
 
 bucket_name = os.environ['bucket_name']
 temporary = int(os.environ['temporary'])
@@ -95,6 +96,7 @@ class Agent():
     def add_sell_order(self, event, sell_price_ch):
         comp_code = event.event['comp_code']
         price = event.event['price']
+        assert not isinstance(price, Iterable)
         orders = {}
         if comp_code in self.portfolio and abs(sell_price_ch) < .1:
             self.portfolio[comp_code]['price'] = price
@@ -121,10 +123,12 @@ class Agent():
             comp_code = event.event['comp_code']
             self.handle_orders(event)
             buy_action, buy_price, sell_price = outputs[comp_code]
+            assert not isinstance(buy_price, Iterable)
             if (best_event is None or buy_action > best_buy) and comp_code not in self.portfolio and abs(buy_price) < .1:
                 best_event = event
                 best_buy = buy_action
                 best_price = event.event['price'] * (1+buy_price)
+                assert not isinstance(best_price, Iterable)
             outputs1 = [buy_action, buy_price, sell_price]
             outputs1 = [(x+1)/2 for x in outputs1]
             outputs2.append(outputs1)

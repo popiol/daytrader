@@ -9,7 +9,6 @@ for hist in range(2):
         simulator = glue_utils.HistSimulator(ml_utils.bucket)
     else:
         simulator = glue_utils.Simulator(ml_utils.bucket)
-    #agent = ml_utils.Agent('initial', ml_utils.bucket)
     agent = ml_utils.Agent('dev', ml_utils.bucket)
     n_orders = []
     portfolio_size = []
@@ -34,6 +33,5 @@ for hist in range(2):
     assert max(portfolio_size) > 0
     assert 1 > max(max(capital_ch), abs(min(capital_ch))) > 0
     assert min(capital_ch) > -1
-    break
 
 simulator.print_sample_quotes()
