@@ -284,8 +284,8 @@ class Simulator():
             else:
                 price_ch += base_ch
             price = self.events[comp_code].event['price'] * (price_ch + 1)
-            high_price = self.events[comp_code].event['high_price'] * (high_price_ch + 1)
-            low_price = self.events[comp_code].event['low_price'] * (low_price_ch + 1)
+            high_price = self.events[comp_code].event['price'] * (high_price_ch + 1)
+            low_price = self.events[comp_code].event['price'] * (low_price_ch + 1)
             high_price = max(high_price, price)
             low_price = min(low_price, price)
             events[comp_code] = self.events[comp_code].next(price, high_price, low_price, quote_dt)

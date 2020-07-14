@@ -16,7 +16,7 @@ for hist in range(2):
     capital = agent.get_capital()
     capital_ch = []
     #for _ in range(100):
-    for _ in range(10):
+    for _ in range(100):
         events = simulator.next()
         if not ml_utils.temporary:
             assert events is not None
