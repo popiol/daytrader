@@ -69,6 +69,7 @@ class Agent():
 
     def get_inputs(self, event):
         inputs = event.get_inputs()
+        print(inputs)
         comp_code = event.event['comp_code']
         n_ticks = self.get_n_ticks(comp_code)
         inputs.append(n_ticks)
@@ -162,9 +163,6 @@ class Agent():
 
     def train_init(self, events):
         inputs, outputs = self.next(events, self.get_train_init_outputs)
-        for inp, out in zip(inputs, outputs):
-            print(inp)
-            print(out)
         outputs = list(zip(*outputs))
         outputs = [np.array(x) for x in outputs]
         self.fit(np.array(inputs), outputs)
@@ -184,8 +182,6 @@ class Agent():
     def get_test_outputs(self, event, inputs):
         outputs = self.model.predict([inputs])
         outputs = [x[0]*2-1 for x in outputs]
-        print(inputs)
-        print(outputs)
         return tuple(outputs)
 
     def test(self, events):
