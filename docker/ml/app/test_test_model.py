@@ -2,6 +2,7 @@ import ml_utils
 import glue_utils
 import numpy as np
 import warnings
+import math
 
 warnings.filterwarnings("ignore")
 for hist in range(2):
@@ -14,12 +15,15 @@ for hist in range(2):
     portfolio_size = []
     capital = agent.get_capital()
     capital_ch = []
-    for _ in range(100):
+    sum_len = 0
+    for it in range(100):
         events = simulator.next()
         if not ml_utils.temporary:
             assert events is not None
         if events is None:
             break
+        sum_len += len(events)
+        assert sum_len >= glue_utils.SIM_N_COMPS * math.floor(it/10)
         agent.test(events)
         n_orders.append(len(agent.orders))
         portfolio_size.append(len(agent.portfolio))
