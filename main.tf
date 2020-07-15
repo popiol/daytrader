@@ -39,6 +39,6 @@ module "ec2_role" {
 	source = "./role"
 	role_name = "ec2"
 	service = "ec2"
-	attached_policies = ["AmazonEC2FullAccess", "service-role/AmazonEC2ContainerServiceforEC2Role", "EC2InstanceConnect", "AmazonS3FullAccess"]
+	attached_policies = ["AmazonEC2FullAccess", "service-role/AmazonEC2ContainerServiceforEC2Role", "EC2InstanceConnect", "AmazonS3FullAccess", "AmazonDynamoDBFullAccess"]
 	inp = var.inp
 }
