@@ -3,7 +3,7 @@ import datetime
 import time
 import json
 import os
-import glue_utils
+import pythonjob.glue_utils as glue_utils
 
 def get_vars():
     vars = {}
