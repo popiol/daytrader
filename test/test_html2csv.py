@@ -10,7 +10,7 @@ import time
 import datetime
 import csv
 import io
-import glue_utils
+import pythonjob.glue_utils as glue_utils
 
 class TestHtml2Csv():
 

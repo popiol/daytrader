@@ -11,7 +11,7 @@ import datetime
 import json
 import io
 from boto3.dynamodb.conditions import Key, Attr
-import glue_utils
+import pythonjob.glue_utils as glue_utils
 
 class TestEvents():
 
