@@ -8,6 +8,7 @@ import boto3
 from boto3.dynamodb.conditions import Key, Attr
 from decimal import Decimal
 import time
+import sys
 
 PRICE_CHANGE_N_BINS = 10
 HIGH_CHANGE_N_BINS = 5
@@ -148,6 +149,7 @@ class Event():
             if res['Items']:
                 self.source_file = res['Items'][0]['source_file']
             if not res['Items'] or 'vals' not in res['Items'][0] or len(res['Items'][0]['vals']) < 10:
+                print(comp_code, quote_dt, file=sys.stderr)
                 obj_key = create_event_key(comp_code, quote_dt)
                 f = bucket.Object(obj_key).get()
                 event = f['Body'].read().decode('utf-8')
