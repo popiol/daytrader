@@ -2,7 +2,7 @@ module "batch_role" {
 	source = "./role"
 	role_name = "batch"
 	service = "batch"
-	attached_policies = ["service-role/AWSBatchServiceRole"]
+	attached_policies = ["service-role/AWSBatchServiceRole", "AmazonDynamoDBFullAccess"]
 	inp = var.inp
 }
 
