@@ -144,12 +144,11 @@ class Event():
         persist = False
         if event is None:
             res = event_table.query(
-                KeyConditionExpression = Key('comp_code').eq(comp_code) & Key('quote_dt').gt(quote_dt)
+                KeyConditionExpression = Key('comp_code').eq(comp_code) & Key('quote_dt').eq(quote_dt)
             )
             if res['Items']:
                 self.source_file = res['Items'][0]['source_file']
             if not res['Items'] or 'vals' not in res['Items'][0] or len(res['Items'][0]['vals']) < 10:
-                print(comp_code, quote_dt, file=sys.stderr)
                 obj_key = create_event_key(comp_code, quote_dt)
                 f = bucket.Object(obj_key).get()
                 event = f['Body'].read().decode('utf-8')
