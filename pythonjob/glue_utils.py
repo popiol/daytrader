@@ -43,6 +43,7 @@ def get_start_dt(event_table, start_dt=None):
         start_dt -= datetime.timedelta(days=3600)
         start_dt = start_dt.strftime(DB_DATE_FORMAT)
     res = event_table.scan(FilterExpression=Attr('quote_dt').gt(start_dt), Limit=1)
+    print(start_dt, len(res['Items']), file=sys.stderr)
     if not res['Items']:
         return None
     comp_code = res['Items'][0]['comp_code']
@@ -397,7 +398,6 @@ class HistSimulator():
 
     def next(self):
         self.quote_dt = get_start_dt(self.event_table, self.quote_dt)
-        print("quote_dt:", self.quote_dt, file=sys.stderr)
         if self.quote_dt is None:
             return None
         res = self.event_table.scan(
