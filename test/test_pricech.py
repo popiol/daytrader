@@ -28,7 +28,7 @@ class TestPriceCh():
         db = boto3.resource('dynamodb')
         event_table = db.Table(event_table_name)
         model = glue_utils.PriceChModel(bucket)
-        res = event_table.scan(Limit=1)
+        res = event_table.scan()
         item = res['Items'][0]
         event = glue_utils.Event(event_table=event_table, comp_code=item['comp_code'], quote_dt=item['quote_dt'])
         assert model.get_input_shape() == np.shape(event.get_inputs())
