@@ -39,7 +39,7 @@ def run_batch_job(job_name, queue_name, asynch=False):
 def get_start_dt(event_table, start_dt=None):
     if start_dt is None:
         start_dt = datetime.datetime.now()
-        start_dt -= datetime.timedelta(years=10)
+        start_dt -= datetime.timedelta(days=3600)
         start_dt = start_dt.strftime(DB_DATE_FORMAT)
     res = event_table.scan(FilterExpression=Attr('quote_dt').gt(start_dt), Limit=1)
     comp_code = res['Items'][0]['comp_code']
