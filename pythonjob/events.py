@@ -169,5 +169,5 @@ for _ in range(repeat):
 
         #add event to db
         event.source_file = process_key
-        event.persist()
+        event.persist(event_table)
         

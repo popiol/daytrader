@@ -190,17 +190,17 @@ class Event():
                 event[key] = 0
         self.event = event
         self.event_table = event_table
-        if persist:
-            self.persist()
+        if persist and self.event_table is not None:
+            self.persist(self.event_table)
 
     def persist_types(self, x):
         if isinstance(x, float):
             return Decimal(str(x))
         return x
 
-    def persist(self):
+    def persist(self, event_table):
         vals = {x: self.persist_types(self.event[x]) for x in self.event if x not in ['comp_code','quote_dt']}
-        self.event_table.put_item(
+        event_table.put_item(
             Item = {
                 'comp_code': self.event['comp_code'],
                 'quote_dt': self.event['quote_dt'],
