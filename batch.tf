@@ -14,6 +14,7 @@ resource "aws_batch_compute_environment" "main" {
 	compute_environment_name = var.inp.app.id
 	service_role = module.batch_role.role_arn
 	type = "MANAGED"
+	depends_on = [module.batch_role]
 
 	compute_resources {
 		instance_role = aws_iam_instance_profile.batch.arn
