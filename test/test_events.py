@@ -38,8 +38,11 @@ class TestEvents():
         log_table = db.Table(log_table_name)
         res = log_table.scan(FilterExpression=Attr('process_dt').gte(vars['timestamp']))
         source_files = [x['obj_key'] for x in res['Items']]
-        res = event_table.scan(FilterExpression=Attr('source_file').is_in(source_files))
-        vars['events'] = res['Items']
+        events = []
+        for source_file in source_files:
+            res = event_table.scan(FilterExpression=Attr('source_file').eq(source_file))
+            events.extend(res['Items'])
+        vars['events'] = events
         return vars
 
     def test_status(self, vars):
