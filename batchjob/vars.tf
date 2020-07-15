@@ -6,6 +6,8 @@ variable "inp" {
 		aws_user_id = string
 		bucket_name = string
 		alert_topic = string
+		log_table = string
+		event_table = string
 		temporary = bool
 	})
 }

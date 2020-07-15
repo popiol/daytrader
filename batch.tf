@@ -47,26 +47,26 @@ module "test_train_init" {
 	source = "./batchjob"
 	job_name = "test_train_init"
 	image_name = aws_ecr_repository.ml.name
-	inp = local.common_inputs
+	inp = local.glue_inputs
 }
 
 module "batch_train_init" {
 	source = "./batchjob"
 	job_name = "train_init"
 	image_name = aws_ecr_repository.ml.name
-	inp = local.common_inputs
+	inp = local.glue_inputs
 }
 
 module "test_test_model" {
 	source = "./batchjob"
 	job_name = "test_test_model"
 	image_name = aws_ecr_repository.ml.name
-	inp = local.common_inputs
+	inp = local.glue_inputs
 }
 
 module "batch_test_model" {
 	source = "./batchjob"
 	job_name = "test_model"
 	image_name = aws_ecr_repository.ml.name
-	inp = local.common_inputs
+	inp = local.glue_inputs
 }

@@ -6,7 +6,7 @@ import numpy as np
 import sys
 import traceback
 
-class TestTrainInit():
+class TestTestModel():
 
     @pytest.fixture(scope='class')
     def vars(self):
