@@ -20,6 +20,7 @@ for hist in range(2):
             assert events is not None
         if events is None:
             break
+        print(events[0].event['quote_dt'], len(events))
         assert len(events) >= glue_utils.MIN_EVENTS_LEN
         agent.test(events)
         n_orders.append(len(agent.orders))
