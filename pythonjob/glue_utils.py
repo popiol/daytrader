@@ -392,8 +392,6 @@ class HistSimulator():
         self.quote_dt = None
         self.next()
         self.samples = {}
-        for comp_code in list(self.events)[:10]:
-            self.samples[comp_code] = [self.events[comp_code].get_price()]
 
     def next(self):
         self.quote_dt = get_start_dt(self.event_table, self.quote_dt)
@@ -413,9 +411,13 @@ class HistSimulator():
         batch = list(self.events.values())
         hour = int(self.quote_dt[8:10])
         if hour == 16:
-            for comp_code in self.samples:
-                if comp_code in self.events:
-                    self.samples[comp_code].append(self.events[comp_code].get_price())
+            if self.samples:
+                for comp_code in self.samples:
+                    if comp_code in self.events:
+                        self.samples[comp_code].append(self.events[comp_code].get_price())
+            else:
+                for comp_code in list(self.events)[:10]:
+                    self.samples[comp_code] = [self.events[comp_code].get_price()]
         return batch
 
     def print_sample_quotes(self):
