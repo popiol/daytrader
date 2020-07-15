@@ -50,7 +50,7 @@ bucket = s3.Bucket(bucket_name)
 objs = bucket.objects.all()
 files = []
 for obj in objs:
-    if obj.key.startswith('csv/') and obj.storage_class == 'STANDARD' and datetime.date.today()-obj.last_modified.date() < datetime.timedelta(7):
+    if obj.key.startswith('csv/') and datetime.date.today()-obj.last_modified.date() < datetime.timedelta(7):
         files.append(obj.key)
 
 #alert if input files missing

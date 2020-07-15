@@ -8,7 +8,6 @@ from boto3.dynamodb.conditions import Key, Attr
 import json
 import glue_utils
 import random
-from decimal import Decimal
 
 #get params
 args = getResolvedOptions(sys.argv, ['bucket_name','alert_topic','log_table','event_table','app','temporary','repeat'])
@@ -56,7 +55,7 @@ bucket = s3.Bucket(bucket_name)
 objs = bucket.objects.all()
 files = []
 for obj in objs:
-    if obj.key.startswith('csv_clean/') and obj.storage_class == 'STANDARD' and datetime.date.today()-obj.last_modified.date() < datetime.timedelta(7):
+    if obj.key.startswith('csv_clean/') and datetime.date.today()-obj.last_modified.date() < datetime.timedelta(7):
         files.append(obj.key)
 
 #alert if input files missing
@@ -162,26 +161,13 @@ for _ in range(repeat):
         prev_event = None
         if last_quote_dt is not None:
             #print(comp_code, last_quote_dt)
-            prev_event = glue_utils.Event(bucket=bucket, comp_code=comp_code, quote_dt=last_quote_dt)
+            prev_event = glue_utils.Event(bucket=bucket, event_table=event_table, comp_code=comp_code, quote_dt=last_quote_dt)
             event = prev_event.next(price, high_price, low_price, quote_dt)
         else:
             #print(row)
             event = glue_utils.Event(row)
 
         #add event to db
-        event_table.put_item(
-            Item = {
-                'comp_code': comp_code,
-                'quote_dt': quote_dt,
-                'source_file': process_key,
-                'vals': {
-                    'price': Decimal(str(event.get_price())),
-                    'high_price': Decimal(str(event.get_high_price())),
-                    'low_price': Decimal(str(event.get_low_price()))
-                }
-            }
-        )
+        event.source_file = process_key
+        event.persist()
         
-        #add event to s3
-        obj_key = glue_utils.create_event_key(comp_code, quote_dt)
-        event.save(bucket, obj_key)

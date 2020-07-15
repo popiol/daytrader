@@ -17,6 +17,10 @@ log_table_name = args['log_table']
 event_table_name = args['event_table']
 app = json.loads(args['app'])
 temporary = True if args['temporary'] == "true" or args['temporary'] == "1" else False
+s3 = boto3.resource('s3')
+bucket = s3.Bucket(bucket_name)
+db = boto3.resource('dynamodb')
+event_table = db.Table(event_table_name)
 
 #create model
 try:
@@ -28,31 +32,22 @@ except:
     full_refresh = True
 
 #get list of all company codes
-s3 = boto3.resource('s3')
-bucket = s3.Bucket(bucket_name)
-objs = bucket.objects.all()
-comp_codes = {}
-for obj in objs:
-    if obj.key.startswith('events/') and (full_refresh or datetime.date.today()-obj.last_modified.date() < datetime.timedelta(7)):
-        comp_code = obj.key.split('/')[-1].split('_')[0]
-        comp_codes[comp_code] = 1
+comp_codes = glue_utils.list_companies(event_table)
 
 #alert if input files missing
 if not comp_codes:
     sns = boto3.resource('sns')
     topic = sns.Topic(alert_topic)
     topic.publish(
-        Message = "Missing files in events/"
+        Message = "Missing events"
     )
-    print("Missing files in events/")
+    print("Missing events")
     exit()
 
 #get bins
 discretizer = glue_utils.Discretizer(bucket)
 
 #build model
-db = boto3.resource('dynamodb')
-event_table = db.Table(event_table_name)
 start_dt = datetime.datetime.now()
 start_dt -= datetime.timedelta(days=7)
 start_dt = start_dt.strftime(glue_utils.DB_DATE_FORMAT)
@@ -73,7 +68,7 @@ for comp_code in comp_codes:
     for item in res['Items']:
         quote_dt = item['quote_dt']
         prev_event = event
-        event = glue_utils.Event(bucket=bucket, comp_code=comp_code, quote_dt=quote_dt)
+        event = glue_utils.Event(bucket=bucket, event_table=event_table, comp_code=comp_code, quote_dt=quote_dt)
         if prev_event is None:
             continue
         price1 = prev_event.get_price()

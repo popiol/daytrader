@@ -5,6 +5,8 @@ import numpy as np
 import datetime
 import json
 import boto3
+from boto3.dynamodb.conditions import Key, Attr
+from decimal import Decimal
 import time
 
 PRICE_CHANGE_N_BINS = 10
@@ -33,6 +35,53 @@ def run_batch_job(job_name, queue_name, asynch=False):
         if job_status in ['SUCCEEDED','FAILED'] or asynch: break
         time.sleep(60)
     return {'job_status': job_status}
+
+def get_start_dt(event_table, start_dt=None):
+    if start_dt is None:
+        start_dt = datetime.datetime.now()
+        start_dt -= datetime.timedelta(years=10)
+        start_dt = start_dt.strftime(DB_DATE_FORMAT)
+    res = event_table.scan(FilterExpression=Attr('quote_dt').gt(start_dt), Limit=1)
+    comp_code = res['Items'][0]['comp_code']
+    res = event_table.query(
+        KeyConditionExpression = Key('comp_code').eq(comp_code) & Key('quote_dt').gt(start_dt),
+        ScanIndexForward = True,
+        Limit = 1
+    )
+    for _ in range(10):
+        quote_dt = res['Items'][0]['quote_dt']
+        res = event_table.scan(FilterExpression=Attr('quote_dt').lt(quote_dt) & Attr('quote_dt').gt(start_dt), Limit=1)
+        if not res['Items']:
+            break
+        comp_code = res['Items'][0]['comp_code']
+        res = event_table.query(
+            KeyConditionExpression = Key('comp_code').eq(comp_code) & Key('quote_dt').gt(start_dt),
+            ScanIndexForward = True,
+            Limit = 1
+        )
+    return quote_dt
+
+def list_companies(event_table):
+    comp_codes = {}
+    quote_dt = get_start_dt(event_table)
+    for _ in range(10):
+        res = event_table.scan(FilterExpression=Attr('quote_dt').eq(quote_dt))
+        max_dt = None
+        for item in res['Items']:
+            comp_code = item['comp_code']
+            comp_codes[comp_code] = 1
+            res2 = event_table.query(
+                KeyConditionExpression = Key('comp_code').eq(comp_code),
+                ScanIndexForward = False,
+                Limit = 1
+            )
+            quote_dt2 = res2['Items'][0]['quote_dt']
+            if max_dt is None or quote_dt2 > max_dt:
+                max_dt = quote_dt2
+        if quote_dt >= max_dt:
+            break
+        quote_dt = max_dt
+    return list(comp_codes)
 
 class Discretizer():
     def __init__(self, bucket=None, discretizer=None):
@@ -89,13 +138,25 @@ class Discretizer():
         return [1 if x <= price_ch <= self.bins[2][i+1] else 0 for i,x in enumerate(self.bins[2][:-1])]
 
 class Event():
-    def __init__(self, event=None, bucket=None, comp_code=None, quote_dt=None, obj_key=None):
+    def __init__(self, event=None, bucket=None, event_table=None, comp_code=None, quote_dt=None):
+        self.source_file = source_file
+        persist = False
         if event is None:
-            if obj_key is None:
+            res = event_table.query(
+                KeyConditionExpression = Key('comp_code').eq(comp_code) & Key('quote_dt').gt(quote_dt)
+            )
+            if res['Items']:
+                self.source_file = res['Items'][0]['source_file']
+            if not res['Items'] or 'vals' not in res['Items'][0] or len(res['Items'][0]['vals']) < 10:
                 obj_key = create_event_key(comp_code, quote_dt)
-            f = bucket.Object(obj_key).get()
-            event = f['Body'].read().decode('utf-8')
-            event = json.loads(event)
+                f = bucket.Object(obj_key).get()
+                event = f['Body'].read().decode('utf-8')
+                event = json.loads(event)
+                persist = True
+            else:
+                event = res['Items'][0]['vals']
+                event['comp_code'] = comp_code
+                event['quote_dt'] = quote_dt
         for key in event.keys():
             if key.startswith('price') or key.startswith('high') or key.startswith('low') or key.startswith('jump'):
                 event[key] = float(event[key])
@@ -127,8 +188,26 @@ class Event():
             key = f'ch>{th}'
             if key not in event:
                 event[key] = 0
-        hour = int(event['quote_dt'][11:13])
         self.event = event
+        self.event_table = event_table
+        if persist:
+            self.persist()
+
+    def persist_types(self, x):
+        if isinstance(x, float):
+            return Decimal(str(x))
+        return x
+
+    def persist(self):
+        vals = {x: self.persist_types(self.event[x]) for x in self.event if x not in ['comp_code','quote_dt']}
+        self.event_table.put_item(
+            Item = {
+                'comp_code': self.event['comp_code'],
+                'quote_dt': self.event['quote_dt'],
+                'source_file': self.source_file,
+                'vals': vals
+            }
+        )
 
     def get_price(self):
         return float(self.event['price']) * float(self.event['scale'])
@@ -304,70 +383,38 @@ class Simulator():
             print(self.samples[comp_code])
 
 class HistSimulator():
-    def __init__(self, bucket):
+    def __init__(self, bucket, event_table):
         self.bucket = bucket
-        objs = bucket.objects.all()
-        min_dt = None
-        for obj in objs:
-            if obj.key.startswith('events/date='):
-                dt = obj.key.split('/')[1].split('=')[1]
-                if min_dt is None or dt < min_dt:
-                    min_dt = dt
-        self.quote_dt = min_dt
-        files = []
-        for obj in objs:
-            if obj.key.startswith('events/date='):
-                dt = obj.key.split('/')[1].split('=')[1]
-                if dt == self.quote_dt:
-                    files.append(obj.key)
-        events = {}
-        for obj_key in files:
-            comp_code = obj_key.split('/')[-1].split('_')[0]
-            events[comp_code] = Event(bucket=self.bucket, obj_key=obj_key)
-        self.events = events
+        self.event_table = event_table
+        self.quote_dt = None
+        self.next()
         self.samples = {}
         for comp_code in list(self.events)[:10]:
             self.samples[comp_code] = [self.events[comp_code].get_price()]
 
     def next(self):
-        objs = self.bucket.objects.all()
-        for _ in range(10):
-            min_dt = None
-            for obj in objs:
-                if obj.key.startswith('events/date='):
-                    dt = obj.key.split('/')[1].split('=')[1]
-                    if dt > self.quote_dt and (min_dt is None or dt < min_dt):
-                        min_dt = dt
-            self.quote_dt = min_dt
-            if self.quote_dt is None:
-                return None
-            files = []
-            for obj in objs:
-                if obj.key.startswith('events/date='):
-                    dt = obj.key.split('/')[1].split('=')[1]
-                    if dt == self.quote_dt:
-                        files.append(obj.key)
-            if len(files) >= MIN_EVENTS_LEN:
-                break
-        events = {}
-        for obj_key in files:
-            comp_code = obj_key.split('/')[-1].split('_')[0]
-            events[comp_code] = Event(bucket=self.bucket, obj_key=obj_key)
-        batch = []
-        for comp_code in events:
-            if comp_code in self.events:
-                price = events[comp_code].get_price()
-                high_price = events[comp_code].get_high_price()
-                low_price = events[comp_code].get_low_price()
-                quote_dt = events[comp_code].event['quote_dt']
-                event = self.events[comp_code].next(price, high_price, low_price, quote_dt)
-                self.events[comp_code] = event
-            else:
-                self.events[comp_code] = events[comp_code]
-            batch.append(self.events[comp_code])
+        self.quote_dt = get_start_dt(self.event_table, self.quote_dt)
+        res = self.event_table.query(
+            KeyConditionExpression = Key('quote_dt').eq(self.quote_dt),
+            Limit=SIM_N_COMPS
+        )
+        self.events = {}
+        for item in res['Items']:
+            comp_code = item['comp_code']
+            quote_dt = item['quote_dt']
+            event = item['vals']
+            event['comp_code'] = comp_code
+            event['quote_dt'] = quote_dt
+            self.events[comp_code] = Event(event)
+        batch = list(self.events.values())
         hour = int(self.quote_dt[8:10])
         if hour == 16:
             for comp_code in self.samples:
                 if comp_code in self.events:
                     self.samples[comp_code].append(self.events[comp_code].get_price())
         return batch
+
+    def print_sample_quotes(self):
+        for comp_code in self.samples:
+            print(comp_code)
+            print(self.samples[comp_code])
