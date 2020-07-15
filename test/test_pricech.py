@@ -24,13 +24,13 @@ class TestPriceCh():
         bucket_name = vars['bucket_name']
         s3 = boto3.resource('s3')
         bucket = s3.Bucket(bucket_name)
-        objs = bucket.objects.all()
-        for obj in objs:
-            if obj.key.startswith('events/'):
-                obj_key = obj.key
-                break
+        event_table_name = vars['id'] + '_events'
+        db = boto3.resource('dynamodb')
+        event_table = db.Table(event_table_name)
         model = glue_utils.PriceChModel(bucket)
-        event = glue_utils.Event(bucket=bucket, obj_key=obj_key)
+        res = event_table.scan(Limit=1)
+        item = res['Items'][0]
+        event = glue_utils.Event(event_table=event_table, comp_code=item['comp_code'], quote_dt=item['quote_dt'])
         assert model.get_input_shape() == np.shape(event.get_inputs())
         discretizer = glue_utils.Discretizer(bucket)
         y = model.predict_proba(event.get_inputs())
