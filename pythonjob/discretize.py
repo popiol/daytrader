@@ -25,6 +25,13 @@ bucket = s3.Bucket(bucket_name)
 
 #get list of all company codes
 comp_codes = glue_utils.list_companies(event_table)
+if not comp_codes:
+    objs = bucket.objects.all()
+    comp_codes = {}
+    for obj in objs:
+        if obj.key.startswith('events/'):
+            comp_code = obj.key.split('/')[-1].split('_')[0]
+            comp_codes[comp_code] = 1
 
 #alert if input files missing
 if not comp_codes:

@@ -67,6 +67,8 @@ def get_start_dt(event_table, start_dt=None):
 def list_companies(event_table):
     comp_codes = {}
     quote_dt = get_start_dt(event_table)
+    if quote_dt is None:
+        return comp_codes
     for _ in range(10):
         res = event_table.scan(FilterExpression=Attr('quote_dt').eq(quote_dt))
         max_dt = None
