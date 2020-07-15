@@ -139,7 +139,7 @@ class Discretizer():
 
 class Event():
     def __init__(self, event=None, bucket=None, event_table=None, comp_code=None, quote_dt=None):
-        self.source_file = source_file
+        self.source_file = ""
         persist = False
         if event is None:
             res = event_table.query(
