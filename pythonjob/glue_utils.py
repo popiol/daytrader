@@ -394,8 +394,8 @@ class HistSimulator():
 
     def next(self):
         self.quote_dt = get_start_dt(self.event_table, self.quote_dt)
-        res = self.event_table.query(
-            KeyConditionExpression = Key('quote_dt').eq(self.quote_dt),
+        res = self.event_table.scan(
+            FilterExpression = Attr('quote_dt').eq(self.quote_dt),
             Limit=SIM_N_COMPS
         )
         self.events = {}

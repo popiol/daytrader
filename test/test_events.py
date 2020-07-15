@@ -36,7 +36,7 @@ class TestEvents():
         db = boto3.resource('dynamodb')
         event_table = db.Table(event_table_name)
         log_table = db.Table(log_table_name)
-        res = log_table.query(KeyConditionExpression=Key('process_dt').gte(vars['timestamp']))
+        res = log_table.scan(FilterExpression=Attr('process_dt').gte(vars['timestamp']))
         source_files = [x['obj_key'] for x in res['Items']]
         res = event_table.scan(FilterExpression=Attr('source_file').is_in(source_files))
         vars['events'] = res['Items']
