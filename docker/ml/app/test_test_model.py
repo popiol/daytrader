@@ -5,7 +5,8 @@ import warnings
 import math
 
 warnings.filterwarnings("ignore")
-for hist in range(2):
+#for hist in range(2):
+for hist in [1]:
     if hist:
         simulator = glue_utils.HistSimulator(ml_utils.bucket, ml_utils.event_table)
     else:
