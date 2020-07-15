@@ -14,14 +14,16 @@ for hist in range(2):
     portfolio_size = []
     capital = agent.get_capital()
     capital_ch = []
+    prev_len = None
     for _ in range(100):
         events = simulator.next()
         if not ml_utils.temporary:
             assert events is not None
         if events is None:
             break
-        print(events[0].event['quote_dt'], len(events))
-        assert len(events) >= glue_utils.MIN_EVENTS_LEN
+        if prev_len is not None:
+            assert len(events)+prev_len >= glue_utils.MIN_EVENTS_LEN
+        prev_len = len(events)
         agent.test(events)
         n_orders.append(len(agent.orders))
         portfolio_size.append(len(agent.portfolio))
