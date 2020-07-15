@@ -76,10 +76,10 @@ for _ in range(repeat):
     shift_dt = False
     stop_shift_dt = False
     for key in files:
-        res = log_table.get_item(
-            Key = {"obj_key": key}
+        res = log_table.query(
+            KeyConditionExpression = Key('obj_key').eq(key),
         )
-        if 'Item' not in res:
+        if not res['Items']:
             if process_key is None or key.split('_')[-2] < process_key.split('_')[-2] or shift_dt:
                 process_key = key
                 shift_dt = False
