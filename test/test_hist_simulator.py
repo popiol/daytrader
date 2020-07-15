@@ -30,8 +30,6 @@ class TestHistSimulator():
             comp_codes[comp_code] = event
         assert len(comp_codes) >= glue_utils.MIN_EVENTS_LEN
         events = simulator.next()
-        n_same = sum(1 if x.event['comp_code'] in comp_codes else 0 for x in events)
-        assert n_same >= glue_utils.MIN_EVENTS_LEN
         for event in events:
             comp_code = event.event['comp_code']
             if comp_code not in comp_codes:

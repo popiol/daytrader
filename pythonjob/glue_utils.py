@@ -43,7 +43,6 @@ def get_start_dt(event_table, start_dt=None):
         start_dt -= datetime.timedelta(days=3600)
         start_dt = start_dt.strftime(DB_DATE_FORMAT)
     res = event_table.scan(FilterExpression=Attr('quote_dt').gt(start_dt))
-    print(start_dt, len(res['Items']), file=sys.stderr)
     if not res['Items']:
         return None
     comp_code = res['Items'][0]['comp_code']
