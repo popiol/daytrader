@@ -20,6 +20,8 @@ app = json.loads(args['app'])
 temporary = True if args['temporary'] == "true" or args['temporary'] == "1" else False
 db = boto3.resource('dynamodb')
 event_table = db.Table(event_table_name)
+s3 = boto3.resource('s3')
+bucket = db.Table(bucket_name)
 
 #get list of all company codes
 comp_codes = glue_utils.list_companies(event_table)
