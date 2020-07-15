@@ -18,16 +18,13 @@ log_table_name = args['log_table']
 event_table_name = args['event_table']
 app = json.loads(args['app'])
 temporary = True if args['temporary'] == "true" or args['temporary'] == "1" else False
-
-#get list of all company codes
+db = boto3.resource('dynamodb')
+event_table = db.Table(event_table_name)
 s3 = boto3.resource('s3')
 bucket = s3.Bucket(bucket_name)
-objs = bucket.objects.all()
-comp_codes = {}
-for obj in objs:
-    if obj.key.startswith('events/'):
-        comp_code = obj.key.split('/')[-1].split('_')[0]
-        comp_codes[comp_code] = 1
+
+#get list of all company codes
+comp_codes = glue_utils.list_companies(event_table)
 
 #alert if input files missing
 if not comp_codes:
@@ -43,8 +40,6 @@ if not comp_codes:
 price_ch = []
 high_ch = []
 low_ch = []
-db = boto3.resource('dynamodb')
-event_table = db.Table(event_table_name)
 for comp_code in comp_codes:
     res = event_table.query(
         KeyConditionExpression = Key('comp_code').eq(comp_code)
@@ -57,23 +52,10 @@ for comp_code in comp_codes:
     for item in res['Items']:
         quote_dt = item['quote_dt']
         prev_price = price
-        if 'vals' in item:
-            price = float(item['vals']['price'])
-            high_price = float(item['vals']['high_price'])
-            low_price = float(item['vals']['low_price'])
-        else:
-            event = glue_utils.Event(bucket=bucket, comp_code=comp_code, quote_dt=quote_dt)
-            price = event.get_price()
-            high_price = event.get_high_price()
-            low_price = event.get_low_price()
-            item['vals'] = {
-                'price': Decimal(str(event.get_price())),
-                'high_price': Decimal(str(event.get_high_price())),
-                'low_price': Decimal(str(event.get_low_price()))
-            }
-            event_table.put_item(
-                Item = item
-            )
+        event = glue_utils.Event(bucket=bucket, event_table=event_table, comp_code=comp_code, quote_dt=quote_dt)
+        price = event.get_price()
+        high_price = event.get_high_price()
+        low_price = event.get_low_price()
 
         if high_price < .01:
             high_price = price

@@ -3,6 +3,7 @@ import datetime
 import time
 import json
 import os
+import pythonjob.glue_utils as glue_utils
 
 def get_vars():
     vars = {}
@@ -56,7 +57,7 @@ def run_glue_job(job_name, args={}):
 
     while True:
         try:
-            vars['timestamp'] = datetime.datetime.utcnow().strftime('%Y%m%d%H%M%S')
+            vars['timestamp'] = datetime.datetime.utcnow().strftime(glue_utils.DB_DATE_FORMAT)
             res = glue.start_job_run(
                 JobName = job_name,
                 Arguments = args

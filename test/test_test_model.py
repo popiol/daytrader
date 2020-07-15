@@ -6,16 +6,17 @@ import numpy as np
 import sys
 import traceback
 
-class TestTrainInit():
+class TestTestModel():
 
     @pytest.fixture(scope='class')
     def vars(self):
         vars = myutils.get_vars()
         myutils.copy_from_prod(vars['bucket_name'], 'model/discretizer.pickle')
         myutils.copy_from_prod(vars['bucket_name'], 'model/pricech_model.pickle')
-        job_name = vars['id'] + '_test_train_init'
+        myutils.copy_from_prod(vars['bucket_name'], 'model/initial_model.zip')
+        job_name = vars['id'] + '_test_test_model'
         res = glue_utils.run_batch_job(job_name, vars['id'])
-        #job_name = vars['id'] + '_train_init'
+        #job_name = vars['id'] + '_test_model'
         #res = myutils.run_glue_job(job_name)
         vars.update(res)
         return vars

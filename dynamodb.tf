@@ -1,7 +1,7 @@
 module "event_process_log" {
 	source = "./dynamodb"
 	table_name = "event_process_log"
-	keys = ["obj_key"]
+	keys = ["obj_key", "process_dt"]
 	inp = var.inp
 }
 

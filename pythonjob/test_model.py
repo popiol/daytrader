@@ -18,6 +18,6 @@ app = json.loads(args['app'])
 temporary = True if args['temporary'] == "true" or args['temporary'] == "1" else False
 
 app_id = app['id']
-job_name = f'{app_id}_train_init'
+job_name = f'{app_id}_test_model'
 
 glue_utils.run_batch_job(job_name, app_id, True)

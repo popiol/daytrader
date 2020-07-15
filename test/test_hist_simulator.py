@@ -12,23 +12,24 @@ class TestHistSimulator():
         bucket_name = vars['bucket_name']
         s3 = boto3.resource('s3')
         bucket = s3.Bucket(bucket_name)
-        vars['simulator'] = glue_utils.HistSimulator(bucket)
+        event_table_name = vars['id'] + '_events'
+        db = boto3.resource('dynamodb')
+        event_table = db.Table(event_table_name)
+        vars['simulator'] = glue_utils.HistSimulator(bucket, event_table)
         return vars
 
     def test_events(self, vars):
         simulator = vars['simulator']
         events = simulator.next()
-        assert len(events) > .2 * glue_utils.SIM_N_COMPS
+        assert len(events) >= glue_utils.MIN_EVENTS_LEN
         comp_codes = {}
         for event in events:
             comp_code = event.event['comp_code']
             assert 1 <= len(comp_code) <= 5
-            assert 'A' <= comp_code <= 'ZZZZ'
+            assert 'A' <= comp_code <= 'ZZZZZ'
             comp_codes[comp_code] = event
-        assert len(comp_codes) > .2 * glue_utils.SIM_N_COMPS
+        assert len(comp_codes) >= glue_utils.MIN_EVENTS_LEN
         events = simulator.next()
-        n_same = sum(1 if x.event['comp_code'] in comp_codes else 0 for x in events)
-        assert n_same > .2 * glue_utils.SIM_N_COMPS
         for event in events:
             comp_code = event.event['comp_code']
             if comp_code not in comp_codes:
