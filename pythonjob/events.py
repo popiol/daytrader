@@ -100,10 +100,13 @@ for _ in range(repeat):
     if process_key is None:
         exit()
 
+    process_dt = datetime.datetime.utcnow().strftime(glue_utils.DB_DATE_FORMAT)
+
     #add process log
     log_table.put_item(
         Item = {
             'obj_key': process_key,
+            'process_dt': process_dt,
             'job_id' : job_id
         }
     )

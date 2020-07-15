@@ -10,6 +10,7 @@ import time
 import datetime
 import csv
 import io
+import glue_utils
 
 class TestHtml2Csv():
 
@@ -31,7 +32,7 @@ class TestHtml2Csv():
         bucket = s3.Bucket(bucket_name)
         files = []
         for obj in bucket.objects.all():
-            if obj.last_modified.strftime('%Y%m%d%H%M%S') >= vars['timestamp'] and obj.key.startswith('csv/'):
+            if obj.last_modified.strftime(glue_utils.DB_DATE_FORMAT) >= vars['timestamp'] and obj.key.startswith('csv/'):
                 files.append(obj.key)
         vars['keys'] = files
         return vars

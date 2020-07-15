@@ -10,6 +10,8 @@ import time
 import datetime
 import json
 import io
+from boto3.dynamodb.conditions import Key, Attr
+import glue_utils
 
 class TestEvents():
 
@@ -28,57 +30,28 @@ class TestEvents():
         return vars
 
     @pytest.fixture(scope='class')
-    def files(self, vars):
-        bucket_name = vars['bucket_name']
-        s3 = boto3.resource('s3')
-        bucket = s3.Bucket(bucket_name)
-        files = []
-        for obj in bucket.objects.all():
-            if obj.last_modified.strftime('%Y%m%d%H%M%S') >= vars['timestamp'] and obj.key.startswith('events/'):
-                files.append(obj.key)
-        vars['keys'] = files
+    def dbitems(self, vars):
+        event_table_name = vars['id'] + '_events'
+        log_table_name = vars['id'] + '_event_process_log'
+        db = boto3.resource('dynamodb')
+        event_table = db.Table(event_table_name)
+        log_table = db.Table(log_table_name)
+        res = log_table.query(KeyConditionExpression=Key('process_dt').gte(vars['timestamp']))
+        source_files = [x['obj_key'] for x in res['Items']]
+        res = event_table.scan(FilterExpression=Attr('source_file').is_in(source_files))
+        vars['events'] = res['Items']
         return vars
 
     def test_status(self, vars):
         job_status = vars['job_status']
         assert job_status == 'SUCCEEDED'
     
-    def test_n_files(self, files):
-        assert len(files['keys']) > 0
+    def test_n_files(self, dbitems):
+        assert len(dbitems['events']) > 0
     
-    def test_file_keys(self, files):
-        for key in files['keys']:
-            assert key.startswith('events/date=')
-            assert key.endswith('.json')
-            assert re.search(r"[0-9]{14}", key)
-            assert re.search(r"/date=[0-9]{10}/", key)
-    
-    def check_header(self, content, key):
-        file = io.StringIO(content)
-        reader = csv.DictReader(file)
-        header = [x.lower() for x in reader.fieldnames]
-        if key.startswith('csv_clean'):
-            cols = self.COLUMNS
-        else:
-            cols = self.REJ_COLUMNS
-        for col in cols:
-            assert col.lower() in header
-
-    def check_count(self, content, key):
-        file = io.StringIO(content)
-        reader = csv.reader(file)
-        n = sum(1 for row in reader)
-        if key.startswith('csv_clean'):
-            assert n > 40
-        else:
-            assert n > 1
-        
-    def test_files(self, files):
-        bucket_name = files['bucket_name']
-        s3 = boto3.resource('s3')
-        for key in files['keys']:
-            obj = s3.Object(bucket_name, key)
-            json_obj = json.load(obj.get()['Body'])
-            for attr in self.ATTRIBUTES:
-                assert attr in json_obj
+    def test_file_keys(self, dbitems):
+        for event in dbitems['events']:
+            assert 'vals' in event
+            assert len(event['vals']) > 10
+            assert 'price' in event['vals']
     

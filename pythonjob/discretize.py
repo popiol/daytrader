@@ -18,6 +18,8 @@ log_table_name = args['log_table']
 event_table_name = args['event_table']
 app = json.loads(args['app'])
 temporary = True if args['temporary'] == "true" or args['temporary'] == "1" else False
+db = boto3.resource('dynamodb')
+event_table = db.Table(event_table_name)
 
 #get list of all company codes
 comp_codes = glue_utils.list_companies(event_table)
@@ -36,8 +38,6 @@ if not comp_codes:
 price_ch = []
 high_ch = []
 low_ch = []
-db = boto3.resource('dynamodb')
-event_table = db.Table(event_table_name)
 for comp_code in comp_codes:
     res = event_table.query(
         KeyConditionExpression = Key('comp_code').eq(comp_code)
