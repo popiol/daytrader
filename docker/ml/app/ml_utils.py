@@ -9,10 +9,11 @@ import sys
 
 bucket_name = os.environ['bucket_name']
 event_table_name = os.environ['event_table_name']
+aws_region = os.environ['aws_region']
 temporary = int(os.environ['temporary'])
 s3 = boto3.resource("s3")
 bucket = s3.Bucket(bucket_name)
-db = boto3.resource('dynamodb')
+db = boto3.resource('dynamodb', region_name=aws_region)
 event_table = db.Table(event_table_name)
 
 def s3_download(bucket, obj_key):
