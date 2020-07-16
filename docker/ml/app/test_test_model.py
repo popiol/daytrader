@@ -5,8 +5,7 @@ import warnings
 import math
 
 warnings.filterwarnings("ignore")
-#for hist in range(2):
-for hist in [1]:
+for hist in range(2):
     if hist:
         simulator = glue_utils.HistSimulator(ml_utils.bucket, ml_utils.event_table)
     else:
@@ -16,15 +15,20 @@ for hist in [1]:
     portfolio_size = []
     capital = agent.get_capital()
     capital_ch = []
-    sum_len = 0
-    for it in range(100):
+    prev_day = None
+    ndays = 0
+    for _ in range(1000):
+        if ndays > 10:
+            break
         events = simulator.next()
         if not ml_utils.temporary:
             assert events is not None
         if events is None:
             break
-        sum_len += len(events)
-        assert sum_len >= glue_utils.SIM_N_COMPS * math.floor(it/10)
+        day = int(events[0].event['quote_dt'][8:10])
+        if prev_day is not None and day != prev_day:
+            ndays += 1
+        prev_day = day
         agent.test(events)
         n_orders.append(len(agent.orders))
         portfolio_size.append(len(agent.portfolio))

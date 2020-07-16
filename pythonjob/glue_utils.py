@@ -39,7 +39,9 @@ def run_batch_job(job_name, queue_name, asynch=False):
 
 def get_start_dt(event_table, start_dt=None):
     if start_dt is None:
-        start_dt = '2020-04-01 00:00:00'
+        start_dt = datetime.datetime.now()
+        start_dt -= datetime.timedelta(days=3600)
+        start_dt = start_dt.strftime(DB_DATE_FORMAT)
     res = event_table.scan(FilterExpression=Attr('quote_dt').gt(start_dt))
     if not res['Items']:
         return None
