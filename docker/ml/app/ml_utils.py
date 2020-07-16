@@ -119,6 +119,8 @@ class Agent():
         for event in events:
             inputs.append(self.get_inputs(event))
         outputs = get_outputs(events, inputs)
+        print(inputs)
+        print(outputs)
         for event in events:
             comp_code = event.event['comp_code']
             self.handle_orders(event)
@@ -189,8 +191,6 @@ class Agent():
         outputs = self.model.predict(inputs)
         outputs = list(zip(*outputs))
         outputs = [[y[0]*2-1 for y in x] for x in outputs]
-        print(inputs)
-        print(outputs)
         outputs = {event.event['comp_code']: out for event, out in zip(events, outputs)}
         return outputs
 
