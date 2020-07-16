@@ -189,6 +189,8 @@ class Agent():
         outputs = self.model.predict(inputs)
         outputs = list(zip(*outputs))
         outputs = [[y[0]*2-1 for y in x] for x in outputs]
+        print(inputs)
+        print(outputs)
         outputs = {event.event['comp_code']: out for event, out in zip(events, outputs)}
         return outputs
 
