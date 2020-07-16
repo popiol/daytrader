@@ -397,7 +397,6 @@ class HistSimulator():
 
     def next(self):
         self.quote_dt = get_start_dt(self.event_table, self.quote_dt)
-        print("quote_dt", self.quote_dt)
         if self.quote_dt is None:
             return None
         res = self.event_table.scan(
