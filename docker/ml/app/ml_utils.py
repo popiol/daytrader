@@ -162,8 +162,6 @@ class Agent():
         return outputs
 
     def fit(self, x, y):
-        print(x)
-        print(y)
         with open('/dev/null', 'w') as f:
             sys.stdout = f
             self.model.fit(x, y)
@@ -189,8 +187,6 @@ class Agent():
 
     def get_test_outputs(self, events, inputs):
         outputs = self.model.predict(inputs)
-        print(inputs)
-        print(outputs)
         outputs = list(zip(*outputs))
         outputs = [[y[0]*2-1 for y in x] for x in outputs]
         outputs = {event.event['comp_code']: out for event, out in zip(events, outputs)}
