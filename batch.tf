@@ -78,3 +78,10 @@ module "batch_train_model" {
 	image_name = aws_ecr_repository.ml.name
 	inp = local.glue_inputs
 }
+
+module "test_train_model" {
+	source = "./batchjob"
+	job_name = "test_train_model"
+	image_name = aws_ecr_repository.ml.name
+	inp = local.glue_inputs
+}
