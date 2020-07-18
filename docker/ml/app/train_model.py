@@ -7,9 +7,7 @@ import random
 
 warnings.filterwarnings("ignore")
 
-if "quick" in os.environ:
-    quick = int(os.environ['quick'])
-
+quick = int(os.environ['quick']) if "quick" in os.environ else 0
 settings = glue_utils.Settings(ml_utils.bucket)
 naive = settings.map['naive'] if 'naive' in settings.map else .5
 naive2 = random.choices([1, 0], [naive, 1-naive])[0]
