@@ -26,9 +26,15 @@ def create_event_key(comp_code, quote_dt):
     dt2 = quote_dt.replace('-','').replace(' ','').replace(':','')
     return "events/date={}/{}_{}.json".format(dt, comp_code, dt2)
 
-def run_batch_job(job_name, queue_name, asynch=False):
+def run_batch_job(job_name, queue_name, asynch=False, env={}):
     batch = boto3.client('batch')
-    res = batch.submit_job(jobName=job_name, jobQueue=queue_name, jobDefinition=job_name)
+    env = [{'name':x, 'value':env[x]} for x in env]
+    res = batch.submit_job(
+        jobName=job_name, 
+        jobQueue=queue_name, 
+        jobDefinition=job_name, 
+        containerOverrides=env
+    )
     job_id = res['jobId']
     for _ in range(12):
         res = batch.describe_jobs(jobs=[job_id])
