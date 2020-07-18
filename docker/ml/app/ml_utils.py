@@ -214,7 +214,7 @@ class Agent():
             outputs[comp_code] = [max(-1, min(1, x + random.uniform(-.1, .1))) for x in outputs[comp_code]]
         return outputs
 
-    def train(self, events):
+    def train(self, events, naive):
         inputs, outputs = self.next(events, self.get_train_outputs)
         self.fit(inputs, outputs)
         events2 = {}
@@ -225,26 +225,27 @@ class Agent():
             events2[comp_code] = event
             max_gain = None
             min_gain = None
-            for prev_events in self.event_hist:
-                if comp_code not in prev_events:
-                    continue
-                prev_event = prev_events[comp_code]
-                gain = event.get_price() / prev_event.get_price() - 1
-                if max_gain is None or gain > max_gain:
-                    buy_action = 500 * gain / (1 + 500 * abs(gain))
-                    sell_price = gain
-                    inputs1 = self.get_inputs(prev_event)
-                    max_gain = gain
-                    buy_price = min_gain
-                if min_gain is None or gain < min_gain:
-                    min_gain = gain
-                if buy_price is None:
-                    buy_price = min_gain
-            if max_gain is not None:
-                inputs.append(inputs1)
-                outputs1 = [buy_action, buy_price, sell_price]
-                outputs1 = [(x+1)/2 for x in outputs1]
-                outputs.append(outputs1)
+            if naive:
+                for prev_events in self.event_hist:
+                    if comp_code not in prev_events:
+                        continue
+                    prev_event = prev_events[comp_code]
+                    gain = event.get_price() / prev_event.get_price() - 1
+                    if max_gain is None or gain > max_gain:
+                        buy_action = 500 * gain / (1 + 500 * abs(gain))
+                        sell_price = gain
+                        inputs1 = self.get_inputs(prev_event)
+                        max_gain = gain
+                        buy_price = min_gain
+                    if min_gain is None or gain < min_gain:
+                        min_gain = gain
+                    if buy_price is None:
+                        buy_price = min_gain
+                if max_gain is not None:
+                    inputs.append(inputs1)
+                    outputs1 = [buy_action, buy_price, sell_price]
+                    outputs1 = [(x+1)/2 for x in outputs1]
+                    outputs.append(outputs1)
         if inputs:
             self.fit(inputs, outputs)
         self.event_hist.append(events2)
