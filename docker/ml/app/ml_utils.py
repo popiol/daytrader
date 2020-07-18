@@ -248,7 +248,7 @@ class Agent():
         if len(self.event_hist) > 10:
             del self.event_hist[0]
         
-def compare_agents(agent1, agent2, hist=False):
+def compare_agents(agent1, agent2, hist=False, quick=False):
     scores1 = []
     scores2 = []
     offset_range = [0] if hist else [-1,0,1] 
@@ -260,6 +260,8 @@ def compare_agents(agent1, agent2, hist=False):
         agent1.reset()
         agent2.reset()
         max_it = 100000 if hist else 1000
+        if quick:
+            max_it = 100
         for _ in range(max_it):
             events = simulator.next()
             if events is None:
