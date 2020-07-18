@@ -217,6 +217,7 @@ class Agent():
     def train(self, events):
         inputs, outputs = self.next(events, self.get_train_outputs)
         self.fit(inputs, outputs)
+        print(outputs)
         events2 = {}
         inputs = []
         outputs = []
@@ -247,7 +248,6 @@ class Agent():
                 outputs.append(outputs1)
         if inputs:
             self.fit(inputs, outputs)
-            print(outputs)
         self.event_hist.append(events2)
         if len(self.event_hist) > 10:
             del self.event_hist[0]
