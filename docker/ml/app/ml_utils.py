@@ -224,25 +224,29 @@ class Agent():
             comp_code = event.event['comp_code']
             events2[comp_code] = event
             max_gain = None
+            min_gain = None
             for prev_events in self.event_hist:
                 if comp_code not in prev_events:
                     continue
                 prev_event = prev_events[comp_code]
                 gain = event.get_price() / prev_event.get_price() - 1
+                if max_gain is None and (min_gain is None or gain < min_gain):
+                    min_gain = gain
+                    buy_price = gain + .001
                 if max_gain is None or gain > max_gain:
                     buy_action = 1000 * gain / (1 + 1000 * abs(gain))
                     sell_price = gain - .001
                     inputs1 = self.get_inputs(prev_event)
-                    min_gain = gain
-                if max_gain is not None and gain < min_gain:
-                    min_gain = gain
-                    buy_price = gain + .001
             if max_gain is not None:
                 inputs.append(inputs1)
-                outputs.append([buy_action, buy_price, sell_price])
+                outputs1 = [buy_action, buy_price, sell_price]
+                outputs1 = [(x+1)/2 for x in outputs1]
+                outputs.append(outputs1)
         if inputs:
             self.fit(inputs, outputs)
         self.event_hist.append(events2)
+        if len(self.event_hist) > 10:
+            del self.event_hist[0]
         
 def compare_agents(agent1, agent2, hist=False):
     scores1 = []
