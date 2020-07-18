@@ -206,7 +206,7 @@ class Agent():
                 score += self.min_weekly / week_n_ticks
             self.week_start_val = capital
         self.weekly_ticks = (self.weekly_ticks+1) % week_n_ticks
-        self.score += score
+        self.score += score + len(self.portfolio) / 10000
 
     def get_train_outputs(self, events, inputs):
         outputs = self.get_test_outputs(events, inputs)
@@ -230,14 +230,16 @@ class Agent():
                     continue
                 prev_event = prev_events[comp_code]
                 gain = event.get_price() / prev_event.get_price() - 1
-                if max_gain is None and (min_gain is None or gain < min_gain):
-                    min_gain = gain
-                    buy_price = gain + .001
                 if max_gain is None or gain > max_gain:
                     buy_action = 1000 * gain / (1 + 1000 * abs(gain))
-                    sell_price = gain - .001
+                    sell_price = gain
                     inputs1 = self.get_inputs(prev_event)
                     max_gain = gain
+                    buy_price = min_gain
+                if min_gain is None or gain < min_gain:
+                    min_gain = gain
+                if buy_price is None:
+                    buy_price = min_gain
             if max_gain is not None:
                 inputs.append(inputs1)
                 outputs1 = [buy_action, buy_price, sell_price]
