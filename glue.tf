@@ -110,3 +110,11 @@ module "glue_test_model" {
 	inp = local.glue_inputs
 	extra-py-files = ["glue_utils.py"]
 }
+
+module "glue_train_model" {
+	source = "./pythonjob"
+	script_name = "train_model"
+	role = module.glue_role.role_arn
+	inp = local.glue_inputs
+	extra-py-files = ["glue_utils.py"]
+}

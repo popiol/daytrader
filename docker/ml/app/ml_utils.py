@@ -6,6 +6,7 @@ import math
 import numpy as np
 import shutil
 import sys
+import random
 
 bucket_name = os.environ['bucket_name']
 event_table_name = os.environ['event_table_name']
@@ -52,6 +53,7 @@ class Agent():
         self.agent_name = agent_name
         self.provision = .001
         self.reset()
+        self.event_hist = []
         
     def save(self):
         dirname = 'model.dump'
@@ -162,6 +164,9 @@ class Agent():
         return outputs
 
     def fit(self, x, y):
+        x = np.array(x)
+        y = list(zip(*y))
+        y = [np.array(x) for x in y]
         with open('/dev/null', 'w') as f:
             sys.stdout = f
             self.model.fit(x, y)
@@ -169,12 +174,7 @@ class Agent():
 
     def train_init(self, events):
         inputs, outputs = self.next(events, self.get_train_init_outputs)
-        outputs = list(zip(*outputs))
-        outputs = [np.array(x) for x in outputs]
-        self.fit(np.array(inputs), outputs)
-
-    def train(self, events):
-        pass
+        self.fit(inputs, outputs)
 
     def reset(self):
         self.score = 0
@@ -207,6 +207,42 @@ class Agent():
             self.week_start_val = capital
         self.weekly_ticks = (self.weekly_ticks+1) % week_n_ticks
         self.score += score
+
+    def get_train_outputs(self, events, inputs):
+        outputs = self.get_test_outputs(events, inputs)
+        for comp_code in outputs:
+            outputs[comp_code] = [max(-1, min(1, x + random.uniform(-.1, .1))) for x in outputs[comp_code]]
+        return outputs
+
+    def train(self, events):
+        inputs, outputs = self.next(events, self.get_train_outputs)
+        self.fit(inputs, outputs)
+        events2 = {}
+        inputs = []
+        outputs = []
+        for event in events:
+            comp_code = event.event['comp_code']
+            events2[comp_code] = event
+            max_gain = None
+            for hist_i in self.event_hist:
+                if comp_code not in self.event_hist[hist_i]:
+                    continue
+                prev_event = self.event_hist[hist_i][comp_code]
+                gain = event.get_price() / prev_event.get_price() - 1
+                if max_gain is None or gain > max_gain:
+                    buy_action = 1000 * gain / (1 + 1000 * abs(gain))
+                    sell_price = gain - .001
+                    inputs1 = self.get_inputs(prev_event)
+                    min_gain = gain
+                if max_gain is not None and gain < min_gain:
+                    min_gain = gain
+                    buy_price = gain + .001
+            if max_gain is not None:
+                inputs.append(inputs1)
+                outputs.append([buy_action, buy_price, sell_price])
+        if inputs:
+            self.fit(inputs, outputs)
+        self.event_hist.append(events2)
         
 def compare_agents(agent1, agent2, hist=False):
     scores1 = []
