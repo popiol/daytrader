@@ -13,7 +13,7 @@ if "quick" in os.environ:
 simulator = glue_utils.Simulator(ml_utils.bucket)
 naive = simulator.naive if hasattr(simulator, 'naive') else .5
 naive2 = random.choices([1, 0], [naive, 1-naive])[0]
-print("Naive:", "true" if naive2 else "false")
+print("Naive:", naive, "-", "true" if naive2 else "false")
 dev = ml_utils.Agent('current', ml_utils.bucket)
 maxit = 100 if quick else 1000
 for _ in range(maxit):
