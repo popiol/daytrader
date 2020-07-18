@@ -20,7 +20,6 @@ resource "aws_batch_compute_environment" "main" {
 		instance_role = aws_iam_instance_profile.batch.arn
 		max_vcpus = 2
 		min_vcpus = 0
-		desired_vcpus = 0
 		security_group_ids = module.vpc.security_groups
 		subnets = module.vpc.subnets
 		type = "EC2"
@@ -68,6 +67,13 @@ module "test_test_model" {
 module "batch_test_model" {
 	source = "./batchjob"
 	job_name = "test_model"
+	image_name = aws_ecr_repository.ml.name
+	inp = local.glue_inputs
+}
+
+module "batch_train_model" {
+	source = "./batchjob"
+	job_name = "train_model"
 	image_name = aws_ecr_repository.ml.name
 	inp = local.glue_inputs
 }

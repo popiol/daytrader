@@ -6,6 +6,7 @@ import math
 import numpy as np
 import shutil
 import sys
+import random
 
 bucket_name = os.environ['bucket_name']
 event_table_name = os.environ['event_table_name']
@@ -52,6 +53,7 @@ class Agent():
         self.agent_name = agent_name
         self.provision = .001
         self.reset()
+        self.event_hist = []
         
     def save(self):
         dirname = 'model.dump'
@@ -162,6 +164,9 @@ class Agent():
         return outputs
 
     def fit(self, x, y):
+        x = np.array(x)
+        y = list(zip(*y))
+        y = [np.array(x) for x in y]
         with open('/dev/null', 'w') as f:
             sys.stdout = f
             self.model.fit(x, y)
@@ -169,12 +174,7 @@ class Agent():
 
     def train_init(self, events):
         inputs, outputs = self.next(events, self.get_train_init_outputs)
-        outputs = list(zip(*outputs))
-        outputs = [np.array(x) for x in outputs]
-        self.fit(np.array(inputs), outputs)
-
-    def train(self, events):
-        pass
+        self.fit(inputs, outputs)
 
     def reset(self):
         self.score = 0
@@ -206,9 +206,54 @@ class Agent():
                 score += self.min_weekly / week_n_ticks
             self.week_start_val = capital
         self.weekly_ticks = (self.weekly_ticks+1) % week_n_ticks
-        self.score += score
+        self.score += score + len(self.portfolio) / 10000
+
+    def get_train_outputs(self, events, inputs):
+        outputs = self.get_test_outputs(events, inputs)
+        for comp_code in outputs:
+            outputs[comp_code] = [max(-1, min(1, x + random.uniform(-.1, .1))) for x in outputs[comp_code]]
+        return outputs
+
+    def train(self, events, naive):
+        inputs, outputs = self.next(events, self.get_train_outputs)
+        if not naive:
+            self.fit(inputs, outputs)
+        events2 = {}
+        inputs = []
+        outputs = []
+        for event in events:
+            comp_code = event.event['comp_code']
+            events2[comp_code] = event
+            max_gain = None
+            min_gain = None
+            if naive:
+                for prev_events in self.event_hist:
+                    if comp_code not in prev_events:
+                        continue
+                    prev_event = prev_events[comp_code]
+                    gain = event.get_price() / prev_event.get_price() - 1
+                    if max_gain is None or gain > max_gain:
+                        buy_action = 500 * gain / (1 + 500 * abs(gain))
+                        sell_price = gain
+                        inputs1 = self.get_inputs(prev_event)
+                        max_gain = gain
+                        buy_price = min_gain
+                    if min_gain is None or gain < min_gain:
+                        min_gain = gain
+                    if buy_price is None:
+                        buy_price = min_gain
+                if max_gain is not None:
+                    inputs.append(inputs1)
+                    outputs1 = [buy_action, buy_price, sell_price]
+                    outputs1 = [(x+1)/2 for x in outputs1]
+                    outputs.append(outputs1)
+        if inputs:
+            self.fit(inputs, outputs)
+        self.event_hist.append(events2)
+        if len(self.event_hist) > 10:
+            del self.event_hist[0]
         
-def compare_agents(agent1, agent2, hist=False):
+def compare_agents(agent1, agent2, hist=False, quick=False):
     scores1 = []
     scores2 = []
     offset_range = [0] if hist else [-1,0,1] 
@@ -220,6 +265,8 @@ def compare_agents(agent1, agent2, hist=False):
         agent1.reset()
         agent2.reset()
         max_it = 100000 if hist else 1000
+        if quick:
+            max_it = 100
         for _ in range(max_it):
             events = simulator.next()
             if events is None:

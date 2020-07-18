@@ -25,11 +25,9 @@ event_table = db.Table(event_table_name)
 #create model
 try:
     model = glue_utils.PriceChModel(bucket)
-    full_refresh = False
 except:
     model = MLPClassifier(warm_start=True)
     model = glue_utils.PriceChModel(model=model)
-    full_refresh = True
 
 #get list of all company codes
 comp_codes = glue_utils.list_companies(event_table)
@@ -52,11 +50,8 @@ start_dt = datetime.datetime.now()
 start_dt -= datetime.timedelta(days=7)
 start_dt = start_dt.strftime(glue_utils.DB_DATE_FORMAT)
 for comp_code in comp_codes:
-    expr = Key('comp_code').eq(comp_code)
-    if not full_refresh:
-        expr = expr & Key('quote_dt').gt(start_dt) 
     res = event_table.query(
-        KeyConditionExpression = expr
+        KeyConditionExpression = Key('comp_code').eq(comp_code)
     )
     
     if not res['Items']:

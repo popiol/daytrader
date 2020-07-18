@@ -107,3 +107,23 @@ resource "aws_glue_trigger" "start_events" {
 		job_name = module.events.job_name
 	}
 }
+
+resource "aws_glue_trigger" "train_model" {
+	name = "${var.inp.app.id}_train_model"
+	type = "SCHEDULED"
+	schedule = "cron(13 5 ? * * *)"
+
+	actions {
+		job_name = module.glue_test_model.job_name
+	}
+}
+
+resource "aws_glue_trigger" "test_model" {
+	name = "${var.inp.app.id}_test_model"
+	type = "SCHEDULED"
+	schedule = "cron(13 9 ? * * *)"
+
+	actions {
+		job_name = module.glue_test_model.job_name
+	}
+}
