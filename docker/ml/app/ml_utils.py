@@ -220,6 +220,7 @@ class Agent():
         events2 = {}
         inputs = []
         outputs = []
+        print("Hist len:", len(self.event_hist))
         for event in events:
             comp_code = event.event['comp_code']
             events2[comp_code] = event
