@@ -10,8 +10,8 @@ warnings.filterwarnings("ignore")
 if "quick" in os.environ:
     quick = int(os.environ['quick'])
 
-settings = glue_utils.Settigns(ml_utils.bucket)
-naive = simulator.naive if 'naive' in settings.map else .5
+settings = glue_utils.Settings(ml_utils.bucket)
+naive = settings.map['naive'] if 'naive' in settings.map else .5
 naive2 = random.choices([1, 0], [naive, 1-naive])[0]
 print("Naive:", naive, "-", "true" if naive2 else "false")
 simulator = glue_utils.Simulator(ml_utils.bucket)
