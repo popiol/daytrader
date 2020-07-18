@@ -220,7 +220,6 @@ class Agent():
         events2 = {}
         inputs = []
         outputs = []
-        print("Hist len:", len(self.event_hist))
         for event in events:
             comp_code = event.event['comp_code']
             events2[comp_code] = event
@@ -238,6 +237,7 @@ class Agent():
                     buy_action = 1000 * gain / (1 + 1000 * abs(gain))
                     sell_price = gain - .001
                     inputs1 = self.get_inputs(prev_event)
+                    max_gain = gain
             if max_gain is not None:
                 inputs.append(inputs1)
                 outputs1 = [buy_action, buy_price, sell_price]
