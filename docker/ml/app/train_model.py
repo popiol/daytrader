@@ -30,5 +30,5 @@ if score1 > score2:
 if (naive2 and score1 > score2) or (not naive and score1 < score2):
     naive = min(.9, naive + .1)
 else:
-    naive = max(.1, naive - .05)
+    naive = max(.1, naive - .1)
 simulator.naive = naive
