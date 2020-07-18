@@ -33,7 +33,7 @@ def run_batch_job(job_name, queue_name, asynch=False, env={}):
         jobName=job_name, 
         jobQueue=queue_name, 
         jobDefinition=job_name, 
-        containerOverrides=env
+        containerOverrides={'environment':env}
     )
     job_id = res['jobId']
     for _ in range(12):
