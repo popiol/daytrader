@@ -244,6 +244,7 @@ class Agent():
                 outputs.append(outputs1)
         if inputs:
             self.fit(inputs, outputs)
+            print(outputs)
         self.event_hist.append(events2)
         if len(self.event_hist) > 10:
             del self.event_hist[0]
