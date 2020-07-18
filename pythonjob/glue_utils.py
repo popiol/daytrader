@@ -26,9 +26,15 @@ def create_event_key(comp_code, quote_dt):
     dt2 = quote_dt.replace('-','').replace(' ','').replace(':','')
     return "events/date={}/{}_{}.json".format(dt, comp_code, dt2)
 
-def run_batch_job(job_name, queue_name, asynch=False):
+def run_batch_job(job_name, queue_name, asynch=False, env={}):
     batch = boto3.client('batch')
-    res = batch.submit_job(jobName=job_name, jobQueue=queue_name, jobDefinition=job_name)
+    env = [{'name':x, 'value':env[x]} for x in env]
+    res = batch.submit_job(
+        jobName=job_name, 
+        jobQueue=queue_name, 
+        jobDefinition=job_name, 
+        containerOverrides={'environment':env}
+    )
     job_id = res['jobId']
     for _ in range(12):
         res = batch.describe_jobs(jobs=[job_id])
@@ -426,3 +432,19 @@ class HistSimulator():
         for comp_code in self.samples:
             print(comp_code)
             print(self.samples[comp_code])
+
+class Settings():
+    def __init__(self, bucket):
+        self.path = 'model/settings.json'
+        try:
+            f = bucket.Object(self.path).get()
+            settings = f['Body'].read().decode('utf-8')
+            settings = json.loads(settings)
+        except:
+            settings = {}
+        self.map = settings
+        self.bucket = bucket
+
+    def save(self):
+        settings = json.dumps(self.map)
+        self.bucket.put_object(Key=self.path, Body=settings)
