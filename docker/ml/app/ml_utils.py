@@ -224,10 +224,10 @@ class Agent():
             comp_code = event.event['comp_code']
             events2[comp_code] = event
             max_gain = None
-            for hist_i in self.event_hist:
-                if comp_code not in self.event_hist[hist_i]:
+            for prev_events in self.event_hist:
+                if comp_code not in prev_events:
                     continue
-                prev_event = self.event_hist[hist_i][comp_code]
+                prev_event = prev_events[comp_code]
                 gain = event.get_price() / prev_event.get_price() - 1
                 if max_gain is None or gain > max_gain:
                     buy_action = 1000 * gain / (1 + 1000 * abs(gain))
