@@ -216,7 +216,8 @@ class Agent():
 
     def train(self, events, naive):
         inputs, outputs = self.next(events, self.get_train_outputs)
-        self.fit(inputs, outputs)
+        if not naive:
+            self.fit(inputs, outputs)
         events2 = {}
         inputs = []
         outputs = []

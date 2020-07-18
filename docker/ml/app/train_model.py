@@ -27,8 +27,8 @@ print("Dev score:", score1, ", Current score:", score2)
 if score1 > score2:
     dev.save()
 
-if naive2:
-    if score1 > score2:
-        naive = min(.9, naive + .1)
-    else:
-        naive = max(.1, naive - .05)
+if (naive2 and score1 > score2) or (not naive and score1 < score2):
+    naive = min(.9, naive + .1)
+else:
+    naive = max(.1, naive - .05)
+simulator.naive = naive
