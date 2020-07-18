@@ -432,3 +432,19 @@ class HistSimulator():
         for comp_code in self.samples:
             print(comp_code)
             print(self.samples[comp_code])
+
+class Settings():
+    def __init__(self, bucket):
+        self.path = 'model/settings.json'
+        try:
+            f = bucket.Object(self.path).get()
+            settings = f['Body'].read().decode('utf-8')
+            settings = json.loads(settings)
+        except:
+            settings = {}
+        self.map = settings
+        self.bucket = bucket
+
+    def save(self):
+        settings = json.dumps(self.map)
+        self.bucket.put_object(Key=self.path, Body=settings)

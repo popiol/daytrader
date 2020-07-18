@@ -10,10 +10,11 @@ warnings.filterwarnings("ignore")
 if "quick" in os.environ:
     quick = int(os.environ['quick'])
 
-simulator = glue_utils.Simulator(ml_utils.bucket)
-naive = simulator.naive if hasattr(simulator, 'naive') else .5
+settings = glue_utils.Settigns(ml_utils.bucket)
+naive = simulator.naive if 'naive' in settings.map else .5
 naive2 = random.choices([1, 0], [naive, 1-naive])[0]
 print("Naive:", naive, "-", "true" if naive2 else "false")
+simulator = glue_utils.Simulator(ml_utils.bucket)
 dev = ml_utils.Agent('current', ml_utils.bucket)
 maxit = 100 if quick else 1000
 for _ in range(maxit):
@@ -31,4 +32,5 @@ if (naive2 and score1 > score2) or (not naive and score1 < score2):
     naive = min(.9, naive + .1)
 else:
     naive = max(.1, naive - .1)
-simulator.naive = naive
+settings.map['naive'] = naive
+settings.save()
