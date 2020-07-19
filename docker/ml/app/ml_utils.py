@@ -233,7 +233,7 @@ class Agent():
             events2[comp_code] = event
             max_gain = None
             min_gain = None
-            if naive:
+            if naive and len(self.event_hist) >= 8:
                 for prev_events in self.event_hist:
                     if comp_code not in prev_events:
                         continue
