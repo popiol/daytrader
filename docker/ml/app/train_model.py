@@ -16,14 +16,15 @@ print("Naive:", naive, "-", "true" if naive2 else "false")
 simulator = glue_utils.Simulator(ml_utils.bucket)
 dev = ml_utils.Agent('current', ml_utils.bucket)
 maxit = 100 if quick else 1000
-#for _ in range(maxit):
-#    events = simulator.next()
-#    dev.train(events, naive=naive2)
+for _ in range(maxit):
+    events = simulator.next()
+    dev.train(events, naive=naive2)
 print("Capital:", dev.get_capital())
 
 current = ml_utils.Agent('current', ml_utils.bucket)
 score1, score2 = ml_utils.compare_agents(dev, current, quick=quick)
 print("Dev score:", score1, ", Current score:", score2)
+print("Capital:", dev.get_capital(), current.get_capital())
 if score1 > score2:
     dev.save()
 
