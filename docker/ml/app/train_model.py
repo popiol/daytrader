@@ -8,18 +8,21 @@ import random
 warnings.filterwarnings("ignore")
 
 quick = int(os.environ['quick']) if "quick" in os.environ else 0
+quick = 1
 settings = glue_utils.Settings(ml_utils.bucket)
 naive = settings.map['naive'] if 'naive' in settings.map else .5
 naive2 = random.choices([1, 0], [naive, 1-naive])[0]
-naive2 = 0
+naive2 = 1
 print("Naive:", naive, "-", "true" if naive2 else "false")
-simulator = glue_utils.Simulator(ml_utils.bucket)
 dev = ml_utils.Agent('current', ml_utils.bucket)
-maxit = 100 if quick else 1000
-for _ in range(maxit):
-    events = simulator.next()
-    dev.train(events, naive=naive2)
-print("Capital:", dev.get_capital())
+for offset in [-1,0,1]
+    simulator = glue_utils.Simulator(ml_utils.bucket, offset=offset)
+    dev.reset()
+    maxit = 100 if quick else 1000
+    for _ in range(maxit):
+        events = simulator.next()
+        dev.train(events, naive=naive2)
+    print("Capital:", dev.get_capital())
 
 current = ml_utils.Agent('current', ml_utils.bucket)
 score1, score2 = ml_utils.compare_agents(dev, current, quick=quick)
