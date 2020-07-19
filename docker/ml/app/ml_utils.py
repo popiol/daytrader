@@ -1,11 +1,14 @@
+import sys
 import boto3
 import os
-import tensorflow.keras as keras
+with open('/dev/null', 'w') as f:
+    sys.stdout = f
+    import tensorflow.keras as keras
+    sys.stdout = sys.__stdout__
 import pickle
 import math
 import numpy as np
 import shutil
-import sys
 import random
 
 bucket_name = os.environ['bucket_name']
