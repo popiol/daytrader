@@ -25,6 +25,9 @@ current = ml_utils.Agent('current', ml_utils.bucket)
 score1, score2 = ml_utils.compare_agents(current, dev, quick=quick)
 print("Dev score:", score1, ", Current score:", score2)
 print("Capital:", dev.get_capital(), current.get_capital())
+score3 = score2
+score2 = score1
+score1 = score3
 if score1 > score2:
     dev.save()
 
