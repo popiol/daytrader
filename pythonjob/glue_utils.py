@@ -169,7 +169,7 @@ class Event():
                 event['comp_code'] = comp_code
                 event['quote_dt'] = quote_dt
         for key in event.keys():
-            if key.startswith('price') or key.startswith('high') or key.startswith('low') or key.startswith('jump'):
+            if key.startswith('price') or key.startswith('high') or key.startswith('low') or key.startswith('jump') or key == 'scale':
                 event[key] = float(event[key])
         if 'scale' not in event:
             event['scale'] = 1
