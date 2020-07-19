@@ -210,8 +210,8 @@ class Agent():
 
     def get_train_outputs(self, events, inputs):
         outputs = self.get_test_outputs(events, inputs)
-        #for comp_code in outputs:
-        #    outputs[comp_code] = [max(-1, min(1, x + random.uniform(-.01, .01))) for x in outputs[comp_code]]
+        for comp_code in outputs:
+            outputs[comp_code] = [max(-1, min(1, x + random.uniform(-.001, .001))) for x in outputs[comp_code]]
         return outputs
 
     def train(self, events, naive):
