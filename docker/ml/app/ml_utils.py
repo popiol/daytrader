@@ -3,8 +3,10 @@ import boto3
 import os
 with open('/dev/null', 'w') as f:
     sys.stdout = f
+    sys.stderr = f
     import tensorflow.keras as keras
     sys.stdout = sys.__stdout__
+    sys.stderr = sys.__stderr__
 import pickle
 import math
 import numpy as np
