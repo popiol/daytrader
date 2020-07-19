@@ -16,9 +16,9 @@ print("Naive:", naive, "-", "true" if naive2 else "false")
 simulator = glue_utils.Simulator(ml_utils.bucket)
 dev = ml_utils.Agent('current', ml_utils.bucket)
 maxit = 100 if quick else 1000
-for _ in range(maxit):
-    events = simulator.next()
-    dev.train(events, naive=naive2)
+#for _ in range(maxit):
+#    events = simulator.next()
+#    dev.train(events, naive=naive2)
 print("Capital:", dev.get_capital())
 
 current = ml_utils.Agent('current', ml_utils.bucket)
