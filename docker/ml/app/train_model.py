@@ -15,7 +15,7 @@ naive2 = random.choices([1, 0], [naive, 1-naive])[0]
 naive2 = 1
 print("Naive:", naive, "-", "true" if naive2 else "false")
 dev = ml_utils.Agent('current', ml_utils.bucket)
-for offset in [-1,0,1]
+for offset in [-1,0,1]:
     simulator = glue_utils.Simulator(ml_utils.bucket, offset=offset)
     dev.reset()
     maxit = 100 if quick else 1000
