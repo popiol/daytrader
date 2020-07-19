@@ -22,7 +22,7 @@ for _ in range(maxit):
 print("Capital:", dev.get_capital())
 
 current = ml_utils.Agent('current', ml_utils.bucket)
-score1, score2 = ml_utils.compare_agents(dev, current, quick=quick)
+score1, score2 = ml_utils.compare_agents(current, dev, quick=quick)
 print("Dev score:", score1, ", Current score:", score2)
 print("Capital:", dev.get_capital(), current.get_capital())
 if score1 > score2:
