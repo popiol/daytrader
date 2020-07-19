@@ -15,7 +15,7 @@ class TestTrainModel():
         myutils.copy_from_prod(vars['bucket_name'], 'model/pricech_model.pickle')
         myutils.copy_from_prod(vars['bucket_name'], 'model/initial_model.zip')
         job_name = vars['id'] + '_train_model'
-        res = glue_utils.run_batch_job(job_name, vars['id'], env={'quick':'1'})
+        res = glue_utils.run_batch_job(job_name, vars['id'])
         vars.update(res)
         return vars
 
