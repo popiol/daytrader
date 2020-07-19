@@ -28,7 +28,7 @@ s3_download(bucket, 'scripts/glue_utils.py')
 import glue_utils
 
 class Agent():
-    def __init__(self, agent_name, bucket):
+    def __init__(self, agent_name, bucket, verbose=False):
         try:
             dirname = 'model.dump'
             filename = 'model.zip'
@@ -54,6 +54,7 @@ class Agent():
         self.provision = .001
         self.reset()
         self.event_hist = []
+        self.verbose = verbose
         
     def save(self):
         dirname = 'model.dump'
@@ -88,15 +89,17 @@ class Agent():
                 self.portfolio[comp_code] = self.orders[comp_code]
                 self.portfolio[comp_code]['n_ticks'] = 1
                 self.cash -= self.portfolio[comp_code]['n_shares'] * self.orders[comp_code]['price'] * (1 + self.provision)
-                #print(event.event['quote_dt'])
-                #print("Buy", self.portfolio[comp_code]['n_shares'], "shares of", comp_code, "for", self.orders[comp_code]['price'])
-                #print("Cash:", self.cash, ", Capital:", self.get_capital())
+                if self.verbose:
+                    print(event.event['quote_dt'])
+                    print("Buy", self.portfolio[comp_code]['n_shares'], "shares of", comp_code, "for", self.orders[comp_code]['price'])
+                    print("Cash:", self.cash, ", Capital:", self.get_capital())
             elif not self.orders[comp_code]['buy'] and self.orders[comp_code]['price'] < float(event.event['price']):
                 del self.portfolio[comp_code]
                 self.cash += self.orders[comp_code]['n_shares'] * self.orders[comp_code]['price'] * (1 - self.provision)
-                #print(event.event['quote_dt'])
-                #print("Sell", self.orders[comp_code]['n_shares'], "shares of", comp_code, "for", self.orders[comp_code]['price'])
-                #print("Cash:", self.cash, ", Capital:", self.get_capital())
+                if self.verbose:
+                    print(event.event['quote_dt'])
+                    print("Sell", self.orders[comp_code]['n_shares'], "shares of", comp_code, "for", self.orders[comp_code]['price'])
+                    print("Cash:", self.cash, ", Capital:", self.get_capital())
         
     def add_sell_order(self, event, sell_price_ch):
         comp_code = event.event['comp_code']
