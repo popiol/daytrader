@@ -169,7 +169,8 @@ class Agent():
         y = [np.array(x) for x in y]
         with open('/dev/null', 'w') as f:
             sys.stdout = f
-            self.model.fit(x, y)
+            #self.model.fit(x, y)
+            self.model.train_on_batch(x, y)
             sys.stdout = sys.__stdout__
 
     def train_init(self, events):

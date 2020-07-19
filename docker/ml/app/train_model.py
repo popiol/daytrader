@@ -15,14 +15,13 @@ naive2 = random.choices([1, 0], [naive, 1-naive])[0]
 naive2 = 1
 print("Naive:", naive, "-", "true" if naive2 else "false")
 dev = ml_utils.Agent('current', ml_utils.bucket)
-for offset in [-1,0,1]:
-    simulator = glue_utils.Simulator(ml_utils.bucket, offset=offset)
-    dev.reset()
-    maxit = 100 if quick else 1000
-    for _ in range(maxit):
-        events = simulator.next()
-        dev.train(events, naive=naive2)
-    print("Capital:", dev.get_capital())
+simulator = glue_utils.Simulator(ml_utils.bucket)
+dev.reset()
+maxit = 100 if quick else 1000
+for _ in range(maxit):
+    events = simulator.next()
+    dev.train(events, naive=naive2)
+print("Capital:", dev.get_capital())
 
 current = ml_utils.Agent('current', ml_utils.bucket)
 score1, score2 = ml_utils.compare_agents(dev, current, quick=quick)
@@ -31,9 +30,13 @@ print("Capital:", dev.get_capital(), current.get_capital())
 if score1 > score2:
     dev.save()
 
-if (naive2 and score1 > score2) or (not naive2 and score1 < score2):
+if naive2 and score1 > score2:
     naive = min(.9, naive + .1)
-else:
+elif not naive2 and score1 < score2:
+    naive = min(.9, naive + .05)
+elif naive2 and score1 < score2:
+    naive = max(.1, naive - .05)
+elif not naive2 and score1 > score2:
     naive = max(.1, naive - .1)
 settings.map['naive'] = naive
 settings.save()
