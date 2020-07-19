@@ -211,7 +211,7 @@ class Agent():
     def get_train_outputs(self, events, inputs):
         outputs = self.get_test_outputs(events, inputs)
         for comp_code in outputs:
-            outputs[comp_code] = [max(-1, min(1, x + random.uniform(-.1, .1))) for x in outputs[comp_code]]
+            outputs[comp_code] = [max(-1, min(1, x + random.uniform(-.01, .01))) for x in outputs[comp_code]]
         return outputs
 
     def train(self, events, naive):
@@ -233,7 +233,7 @@ class Agent():
                     prev_event = prev_events[comp_code]
                     gain = event.get_price() / prev_event.get_price() - 1
                     if max_gain is None or gain > max_gain:
-                        buy_action = 1000 * gain / (1 + 1000 * abs(gain))
+                        buy_action = 500 * gain / (1 + 500 * abs(gain))
                         sell_price = gain
                         inputs1 = self.get_inputs(prev_event)
                         max_gain = gain
