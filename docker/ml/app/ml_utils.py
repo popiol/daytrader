@@ -247,7 +247,7 @@ class Agent():
                         min_gain = gain
                     if buy_price is None:
                         buy_price = min_gain
-                if max_gain is not None and (max_gain > .01 or min_gain < -.01):
+                if max_gain is not None and (max_gain > .02 or min_gain < -.02):
                     inputs.append(inputs1)
                     outputs1 = [buy_action, buy_price, sell_price]
                     outputs1 = [(x+1)/2 for x in outputs1]
