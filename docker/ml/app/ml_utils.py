@@ -1,12 +1,7 @@
 import sys
 import boto3
 import os
-with open('/dev/null', 'w') as f:
-    sys.stdout = f
-    sys.stderr = f
-    import tensorflow.keras as keras
-    sys.stdout = sys.__stdout__
-    sys.stderr = sys.__stderr__
+import tensorflow.keras as keras
 import pickle
 import math
 import numpy as np
