@@ -80,15 +80,17 @@ class Agent():
         inputs.append(n_ticks)
         return inputs
 
-    def handle_orders(self, event):
+    def handle_orders(self, event, orders):
         comp_code = event.event['comp_code']
         quote_dt = event.event['quote_dt']
         hour = int(quote_dt[11:13])
+        transaction_made = False
         if 9 <= hour <= 15 and comp_code in self.orders:
             if self.orders[comp_code]['buy'] and self.orders[comp_code]['price'] > float(event.event['price']):
                 self.portfolio[comp_code] = self.orders[comp_code]
                 self.portfolio[comp_code]['n_ticks'] = 1
                 self.cash -= self.portfolio[comp_code]['n_shares'] * self.orders[comp_code]['price'] * (1 + self.provision)
+                transaction_made = True
                 if self.verbose:
                     print(event.event['quote_dt'])
                     print("Buy", self.portfolio[comp_code]['n_shares'], "shares of", comp_code, "for", self.orders[comp_code]['price'])
@@ -96,20 +98,21 @@ class Agent():
             elif not self.orders[comp_code]['buy'] and self.orders[comp_code]['price'] < float(event.event['price']):
                 del self.portfolio[comp_code]
                 self.cash += self.orders[comp_code]['n_shares'] * self.orders[comp_code]['price'] * (1 - self.provision)
+                transaction_made = True
                 if self.verbose:
                     print(event.event['quote_dt'])
                     print("Sell", self.orders[comp_code]['n_shares'], "shares of", comp_code, "for", self.orders[comp_code]['price'])
                     print("Cash:", self.cash, ", Capital:", self.get_capital())
+        if transaction_made and comp_code in orders:
+            del orders[comp_code]
         
-    def add_sell_order(self, event, sell_price_ch):
+    def add_sell_order(self, event, sell_price_ch, orders):
         comp_code = event.event['comp_code']
         price = event.event['price']
-        orders = {}
-        if comp_code in self.portfolio and comp_code not in self.orders and abs(sell_price_ch) < .1 and self.portfolio[comp_code]['n_ticks'] > 1:
+        if comp_code in self.portfolio and comp_code not in orders and abs(sell_price_ch) < .1 and self.portfolio[comp_code]['n_ticks'] > 1:
             self.portfolio[comp_code]['price'] = price
             sell_price = price * (1+sell_price_ch)
             orders[comp_code] = {'buy':False, 'price':sell_price, 'n_shares':self.portfolio[comp_code]['n_shares']}
-        return orders
 
     def get_capital(self):
         capital = sum(self.portfolio[x]['n_shares'] * self.portfolio[x]['price'] for x in self.portfolio)
@@ -122,14 +125,13 @@ class Agent():
         best_event = None
         quote_dt = events[0].event['quote_dt']
         hour = int(quote_dt[11:13])
-        #if hour == 9:
-        self.orders = {}
+        orders = {} if hour == 9 else self.orders
         for event in events:
             inputs.append(self.get_inputs(event))
         outputs = get_outputs(events, inputs)
         for event in events:
             comp_code = event.event['comp_code']
-            self.handle_orders(event)
+            self.handle_orders(event, orders)
             buy_action, buy_price, sell_price = outputs[comp_code]
             if (best_event is None or buy_action > best_buy) and comp_code not in self.portfolio and abs(buy_price) < .1:
                 best_event = event
@@ -138,7 +140,8 @@ class Agent():
             outputs1 = [buy_action, buy_price, sell_price]
             outputs1 = [(x+1)/2 for x in outputs1]
             outputs2.append(outputs1)
-            self.orders.update(self.add_sell_order(event, sell_price))
+            self.add_sell_order(event, sell_price, orders)
+        self.orders = orders
         n_buys = sum(1 if self.orders[x]['buy'] else 0 for x in self.orders)
         if self.cash > 200 and best_event is not None and n_buys == 0:
             capital = self.get_capital()
