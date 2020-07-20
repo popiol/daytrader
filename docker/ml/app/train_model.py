@@ -9,8 +9,8 @@ warnings.filterwarnings("ignore")
 
 settings = glue_utils.Settings(ml_utils.bucket)
 naive = settings.map['naive'] if 'naive' in settings.map else .5
+naive = .5
 naive2 = random.choices([1, 0], [naive, 1-naive])[0]
-naive2 = 0
 print("Naive:", naive, "-", "true" if naive2 else "false")
 dev = ml_utils.Agent('current', ml_utils.bucket)
 simulator = glue_utils.Simulator(ml_utils.bucket)
