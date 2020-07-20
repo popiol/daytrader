@@ -105,7 +105,7 @@ class Agent():
         comp_code = event.event['comp_code']
         price = event.event['price']
         orders = {}
-        if comp_code in self.portfolio and abs(sell_price_ch) < .1:
+        if comp_code in self.portfolio and comp_code not in self.orders and abs(sell_price_ch) < .1 and self.portfolio[comp_code]['n_ticks'] > 1:
             self.portfolio[comp_code]['price'] = price
             sell_price = price * (1+sell_price_ch)
             orders[comp_code] = {'buy':False, 'price':sell_price, 'n_shares':self.portfolio[comp_code]['n_shares']}
@@ -120,7 +120,10 @@ class Agent():
         inputs = []
         outputs2 = []
         best_event = None
-        orders = {}
+        quote_dt = events[0].event['quote_dt']
+        hour = int(quote_dt[11:13])
+        if hour == 9:
+            self.orders = {}
         for event in events:
             inputs.append(self.get_inputs(event))
         outputs = get_outputs(events, inputs)
@@ -135,9 +138,9 @@ class Agent():
             outputs1 = [buy_action, buy_price, sell_price]
             outputs1 = [(x+1)/2 for x in outputs1]
             outputs2.append(outputs1)
-            orders.update(self.add_sell_order(event, sell_price))
-        self.orders = orders
-        if self.cash > 200 and best_event is not None:
+            self.orders.update(self.add_sell_order(event, sell_price))
+        n_buys = sum(1 if self.orders[x]['buy'] else 0 for x in self.orders)
+        if self.cash > 200 and best_event is not None and n_buys == 0:
             capital = self.get_capital()
             n = math.floor(capital / best_price * best_buy * (1 - self.provision))
             n = min(n, math.floor(self.cash / best_price * (1 - self.provision)))

@@ -312,7 +312,7 @@ class Simulator():
             comp_code = self.generate_comp_code()
             comp_codes.append(comp_code)
         self.comp_codes = comp_codes
-        quote_dt = '2020-01-01 08:30:00'
+        quote_dt = '2020-01-01 09:30:00'
         self.quote_dt = quote_dt
         events = {}
         for comp_code in comp_codes:
