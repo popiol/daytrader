@@ -10,12 +10,13 @@ warnings.filterwarnings("ignore")
 settings = glue_utils.Settings(ml_utils.bucket)
 naive = settings.map['naive'] if 'naive' in settings.map else .5
 naive2 = random.choices([1, 0], [naive, 1-naive])[0]
-naive2 = 1
+naive2 = 0
 print("Naive:", naive, "-", "true" if naive2 else "false")
 dev = ml_utils.Agent('current', ml_utils.bucket)
 simulator = glue_utils.Simulator(ml_utils.bucket)
 dev.reset()
-for _ in range(10):
+max_it = 10 if naive2 else 1
+for _ in range(max_it):
     events = simulator.next()
     dev.train(events, naive=naive2)
 print("Capital:", dev.get_capital())
