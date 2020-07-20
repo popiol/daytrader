@@ -122,8 +122,8 @@ class Agent():
         best_event = None
         quote_dt = events[0].event['quote_dt']
         hour = int(quote_dt[11:13])
-        if hour == 9:
-            self.orders = {}
+        #if hour == 9:
+        self.orders = {}
         for event in events:
             inputs.append(self.get_inputs(event))
         outputs = get_outputs(events, inputs)
