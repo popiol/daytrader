@@ -238,7 +238,7 @@ class Agent():
                     prev_event = prev_events[comp_code]
                     gain = event.get_price() / prev_event.get_price() - 1
                     if max_gain is None or gain > max_gain:
-                        buy_action = 1000 * gain / (1 + 1000 * abs(gain))
+                        buy_action = 500 * gain / (1 + 500 * abs(gain))
                         sell_price = gain
                         inputs1 = self.get_inputs(prev_event)
                         max_gain = gain
@@ -247,7 +247,7 @@ class Agent():
                         min_gain = gain
                     if buy_price is None:
                         buy_price = min_gain
-                if max_gain is not None:
+                if max_gain is not None and (max_gain > .01 or min_gain < -.01):
                     inputs.append(inputs1)
                     outputs1 = [buy_action, buy_price, sell_price]
                     outputs1 = [(x+1)/2 for x in outputs1]
