@@ -243,13 +243,14 @@ class Agent():
                 gain.append(prices[comp_code] / prev_prices[comp_code] - 1)
         if gain:
             max_gain = max(gain)
+            avg_gain = np.average(gain)
             total_score = 1
             for prev_score in self.score_hist[-10:]:
                 total_score *= prev_score + 1
             total_score -= 1
-            loss_value = max(0, max_gain - total_score)
+            loss_value = max(0, (max_gain - total_score + .01) / (max_gain - avg_gain + .01))
             with tf.GradientTape() as tape:
-                grads = tape.gradient(loss_value, self.model.trainable_variables)
+                grads = tape.gradient(tf.constant(loss_value), self.model.trainable_variables)
                 self.optimizer.apply_gradients(zip(grads, self.model.trainable_variables))
         self.price_hist.append(prices)
         
