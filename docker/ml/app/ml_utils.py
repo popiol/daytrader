@@ -237,9 +237,7 @@ class Agent():
             prev_capital = self.get_capital()
             self.next(events, self.get_train_outputs)
             capital = self.get_capital()
-            print(capital)
             score = capital / prev_capital - 1
-            print(score)
             self.score_hist.append(score)
             prices = {}
             for event in events:
@@ -258,12 +256,11 @@ class Agent():
                 total_score = 1
                 for prev_score in self.score_hist[-10:]:
                     total_score *= prev_score + 1
-                print(total_score)
                 total_score -= 1
                 loss_value = max(0, (max_gain - total_score + .01) / (max_gain - avg_gain + .01))
-                print(loss_value)
-                grads = tape.gradient(loss_value, self.model.trainable_variables)
-                self.optimizer.apply_gradients(zip(grads, self.model.trainable_variables))
+                if tf.is_tensor(loss_value):
+                    grads = tape.gradient(loss_value, self.model.trainable_variables)
+                    self.optimizer.apply_gradients(zip(grads, self.model.trainable_variables))
         self.price_hist.append(prices)
         
 def compare_agents(agent1, agent2, hist=False, quick=False):
