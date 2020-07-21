@@ -258,12 +258,8 @@ class Agent():
                     total_score *= prev_score + 1
                 total_score -= 1
                 loss_value = max(0, (max_gain - total_score + .01) / (max_gain - avg_gain + .01))
-                grads = tape.gradient(tf.convert_to_tensor(loss_value), self.model.trainable_variables)
-                if grads[0] is None:
-                    print("Skip backpropagation")
-                else:
-                    print("Apply gradients")
-                    self.optimizer.apply_gradients(zip(grads, self.model.trainable_variables))
+                grads = tape.gradient(loss_value, self.model.trainable_variables)
+                self.optimizer.apply_gradients(zip(grads, self.model.trainable_variables))
         self.price_hist.append(prices)
         
 def compare_agents(agent1, agent2, hist=False, quick=False):
