@@ -1,7 +1,8 @@
 import sys
 import boto3
 import os
-import tensorflow.keras as keras
+import tensorflow as tf
+from tensorflow import keras
 import pickle
 import math
 import numpy as np
@@ -49,11 +50,11 @@ class Agent():
             self.model = keras.Model(inputs=inputs, outputs=[buy_action, buy_price, sell_price])
             self.model.compile(optimizer='nadam', loss='huber_loss')
             self.loaded = False
+        self.optimizer = keras.optimizers.Nadam()
         self.bucket = bucket
         self.agent_name = agent_name
         self.provision = .001
         self.reset()
-        self.event_hist = []
         self.verbose = verbose
         
     def save(self):
@@ -194,8 +195,9 @@ class Agent():
         self.portfolio = {}
         self.orders = {}
         self.cash = 1000
-        self.event_hist = []
-
+        self.price_hist = []
+        self.score_hist = []
+        
     def get_test_outputs(self, events, inputs):
         outputs = self.model.predict(inputs)
         outputs = list(zip(*outputs))
@@ -220,49 +222,35 @@ class Agent():
         self.score += score + len(self.portfolio) / 10000
 
     def get_train_outputs(self, events, inputs):
-        outputs = self.get_test_outputs(events, inputs)
-        for comp_code in outputs:
-            outputs[comp_code] = [max(-1, min(1, x + random.uniform(-.1, .1))) for x in outputs[comp_code]]
-        return outputs
+        return self.get_test_outputs(events, inputs)
 
-    def train(self, events, naive):
-        inputs, outputs = self.next(events, self.get_train_outputs)
-        if not naive:
-            self.fit(inputs, outputs)
-        events2 = {}
-        inputs = []
-        outputs = []
-        for event in events:
-            comp_code = event.event['comp_code']
-            events2[comp_code] = event
-            max_gain = None
-            min_gain = None
-            if naive and len(self.event_hist) >= 8:
-                for prev_events in self.event_hist:
-                    if comp_code not in prev_events:
+    def train(self, events):
+        with tf.GradientTape() as tape:
+            prev_capital = self.get_capital()
+            self.next(events, self.get_train_outputs)
+            capital = self.get_capital()
+            score = capital / prev_capital - 1
+            self.score_hist.append(score)
+            prices = {}
+            for event in events:
+                comp_code = event.event['comp_code']
+                price = event.get_price()
+                prices[comp_code] = price
+            gain = []
+            for prev_prices in self.price_hist[-10:]:
+                for comp_code in prev_prices:
+                    if comp_code not in prices:
                         continue
-                    prev_event = prev_events[comp_code]
-                    gain = event.get_price() / prev_event.get_price() - 1
-                    if max_gain is None or gain > max_gain:
-                        buy_action = 500 * gain / (1 + 500 * abs(gain))
-                        sell_price = gain + .01
-                        inputs1 = self.get_inputs(prev_event)
-                        max_gain = gain
-                        buy_price = min_gain - .01 if min_gain is not None else None
-                    if min_gain is None or gain < min_gain:
-                        min_gain = gain
-                    if buy_price is None:
-                        buy_price = min_gain - .01
-                if max_gain is not None:
-                    inputs.append(inputs1)
-                    outputs1 = [buy_action, buy_price, sell_price]
-                    outputs1 = [(x+1)/2 for x in outputs1]
-                    outputs.append(outputs1)
-        if inputs:
-            self.fit(inputs, outputs)
-        self.event_hist.append(events2)
-        if len(self.event_hist) > 10:
-            del self.event_hist[0]
+                    gain.append(prices[comp_code] / prev_prices[comp_code] - 1)
+            max_gain = max(gain)
+            total_score = 1
+            for prev_score in self.score_hist[-10:]:
+                total_score *= prev_score + 1
+            total_score -= 1
+            loss_value = max(0, max_gain - total_score)
+            grads = tape.gradient(loss_value, self.model.trainable_variables)
+            self.optimizer.apply_gradients(zip(grads, self.model.trainable_variables))
+        self.price_hist.append(prices)
         
 def compare_agents(agent1, agent2, hist=False, quick=False):
     scores1 = []
