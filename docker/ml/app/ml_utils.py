@@ -224,6 +224,8 @@ class Agent():
     def get_train_outputs(self, events, inputs):
         outputs = []
         for input1 in inputs:
+            input1 = tf.convert_to_tensor(input1)
+            input1 = tf.expand_dims(input1, 0)
             output1 = self.model(input1)
             outputs.append(output1)
         outputs = list(zip(*outputs))
