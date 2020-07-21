@@ -222,45 +222,38 @@ class Agent():
         self.score += score + len(self.portfolio) / 10000
 
     def get_train_outputs(self, events, inputs):
-        outputs = []
-        for input1 in inputs:
-            input1 = tf.convert_to_tensor(input1)
-            input1 = tf.expand_dims(input1, 0)
-            output1 = self.model(input1)
-            output1 = [x[0][0]*2-1 for x in output1]
-            outputs.append(output1)
-        outputs = {event.event['comp_code']: out for event, out in zip(events, outputs)}
-        return outputs
+        return self.get_test_outputs(events, inputs)
 
     def train(self, events):
-        with tf.GradientTape() as tape:
-            prev_capital = self.get_capital()
-            self.next(events, self.get_train_outputs)
-            capital = self.get_capital()
-            score = capital / prev_capital - 1
-            self.score_hist.append(score)
-            prices = {}
-            for event in events:
-                comp_code = event.event['comp_code']
-                price = event.get_price()
-                prices[comp_code] = price
-            gain = []
-            for prev_prices in self.price_hist[-10:]:
-                for comp_code in prev_prices:
-                    if comp_code not in prices:
-                        continue
-                    gain.append(prices[comp_code] / prev_prices[comp_code] - 1)
-            if gain:
-                max_gain = max(gain)
-                avg_gain = np.average(gain)
-                total_score = 1
-                for prev_score in self.score_hist[-10:]:
-                    total_score *= prev_score + 1
-                total_score -= 1
-                loss_value = max(0, (max_gain - total_score + .01) / (max_gain - avg_gain + .01))
-                grads = tape.gradient(tf.constant(loss_value), self.model.trainable_variables)
-                print(grads)
-                self.optimizer.apply_gradients(zip(grads, self.model.trainable_variables))
+        print(self.model.trainable_variables)
+        print(self.model.trainable_weights)
+        exit()
+        prev_capital = self.get_capital()
+        self.next(events, self.get_train_outputs)
+        capital = self.get_capital()
+        score = capital / prev_capital - 1
+        self.score_hist.append(score)
+        prices = {}
+        for event in events:
+            comp_code = event.event['comp_code']
+            price = event.get_price()
+            prices[comp_code] = price
+        gain = []
+        for prev_prices in self.price_hist[-10:]:
+            for comp_code in prev_prices:
+                if comp_code not in prices:
+                    continue
+                gain.append(prices[comp_code] / prev_prices[comp_code] - 1)
+        if gain:
+            max_gain = max(gain)
+            avg_gain = np.average(gain)
+            total_score = 1
+            for prev_score in self.score_hist[-10:]:
+                total_score *= prev_score + 1
+            total_score -= 1
+            loss_value = max(0, (max_gain - total_score + .01) / (max_gain - avg_gain + .01))
+            grads = tape.gradient(tf.constant(loss_value), self.model.trainable_variables)
+            self.optimizer.apply_gradients(zip(grads, self.model.trainable_variables))
         self.price_hist.append(prices)
         
 def compare_agents(agent1, agent2, hist=False, quick=False):
