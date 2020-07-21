@@ -227,8 +227,7 @@ class Agent():
             input1 = tf.convert_to_tensor(input1)
             input1 = tf.expand_dims(input1, 0)
             output1 = self.model(input1)
-            print(output1)
-            exit()
+            output1 = [x[0][0] for x in output1]
             outputs.append(output1)
         outputs = list(zip(*outputs))
         outputs = [[y[0]*2-1 for y in x] for x in outputs]
