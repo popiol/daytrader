@@ -251,6 +251,7 @@ class Agent():
             loss_value = max(0, (max_gain - total_score + .01) / (max_gain - avg_gain + .01))
             with tf.GradientTape() as tape:
                 grads = tape.gradient(tf.constant(loss_value), self.model.trainable_variables)
+                print(grads)
                 self.optimizer.apply_gradients(zip(grads, self.model.trainable_variables))
         self.price_hist.append(prices)
         
