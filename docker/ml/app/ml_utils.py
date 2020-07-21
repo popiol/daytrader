@@ -227,10 +227,8 @@ class Agent():
             input1 = tf.convert_to_tensor(input1)
             input1 = tf.expand_dims(input1, 0)
             output1 = self.model(input1)
-            output1 = [x[0][0] for x in output1]
+            output1 = [x[0][0]*2-1 for x in output1]
             outputs.append(output1)
-        outputs = list(zip(*outputs))
-        outputs = [[y[0]*2-1 for y in x] for x in outputs]
         outputs = {event.event['comp_code']: out for event, out in zip(events, outputs)}
         return outputs
 
