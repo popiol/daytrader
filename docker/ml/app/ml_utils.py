@@ -222,7 +222,14 @@ class Agent():
         self.score += score + len(self.portfolio) / 10000
 
     def get_train_outputs(self, events, inputs):
-        return self.get_test_outputs(events, inputs)
+        outputs = []
+        for input1 in inputs:
+            output1 = self.model(input1)
+            outputs.append(output1)
+        outputs = list(zip(*outputs))
+        outputs = [[y[0]*2-1 for y in x] for x in outputs]
+        outputs = {event.event['comp_code']: out for event, out in zip(events, outputs)}
+        return outputs
 
     def train(self, events):
         prev_capital = self.get_capital()
