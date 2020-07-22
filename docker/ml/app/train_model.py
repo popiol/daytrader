@@ -15,7 +15,7 @@ for _ in range(10):
     hist.append(simulator.next())
 best_score = None
 for _ in range(10):
-    dev = ml_utils.Agent('current', ml_utils.bucket)
+    dev = ml_utils.Agent('current', ml_utils.bucket, verbose=True)
     events = simulator.next()
     inputs, outputs, grad = dev.train(events)
     dev.reset()
