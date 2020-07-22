@@ -351,6 +351,7 @@ class Simulator():
             quote_dt += datetime.timedelta(hours=16)
         if quote_dt.weekday() > 4:
             quote_dt += datetime.timedelta(days=2)
+        renamed = {}
         if quote_dt.hour == 9:
             for i, comp_code in enumerate(self.comp_codes):
                 rename = random.choices([0,1], [250*len(self.comp_codes),5])[0]
@@ -360,6 +361,7 @@ class Simulator():
                     self.comp_codes[i] = comp_code
                     price = self.generate_price()
                     self.events[comp_code] = Event({'comp_code':comp_code,'quote_dt':self.quote_dt,'price':price,'high_price':price,'low_price':price})
+                    renamed[comp_code] = old_comp_code
                     print(f"Rename {old_comp_code} to {comp_code}")
         hour = quote_dt.hour
         quote_dt = quote_dt.strftime(DB_DATE_FORMAT)
@@ -379,6 +381,8 @@ class Simulator():
             high_price = max(high_price, price)
             low_price = min(low_price, price)
             events[comp_code] = self.events[comp_code].next(price, high_price, low_price, quote_dt)
+            if comp_code in renamed:
+                events[comp_code].event['old_comp_code'] = renamed[comp_code]
         self.events = events
         batch = list(self.events.values())
         self.quote_dt = quote_dt

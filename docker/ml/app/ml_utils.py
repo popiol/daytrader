@@ -124,14 +124,16 @@ class Agent():
         inputs = []
         outputs2 = []
         best_event = None
-        quote_dt = events[0].event['quote_dt']
-        hour = int(quote_dt[11:13])
         orders = {}
         for event in events:
             inputs.append(self.get_inputs(event))
         outputs = get_outputs(events, inputs)
         for event in events:
             comp_code = event.event['comp_code']
+            if 'old_comp_code' in event.event and event.event['old_comp_code'] in self.portfolio:
+                old_comp_code = event.event['old_comp_code']
+                self.portfolio[comp_code] = self.portfolio[old_comp_code]
+                del self.portfolio[old_comp_code]
             self.handle_orders(event, orders)
             buy_action, buy_price, sell_price = outputs[comp_code]
             if (best_event is None or buy_action > best_buy) and comp_code not in self.portfolio and abs(buy_price) < .1:
@@ -226,8 +228,9 @@ class Agent():
         for comp_code in outputs:
             if grad_base is None:
                 grad_base = [random.uniform(-.1, .1) for x in outputs[comp_code]]
+                sign = [random.randrange(2)*2-1 for x in outputs[comp_code]]
             grad = [x+random.uniform(-.1, .1) for x in grad_base]
-            outputs[comp_code] = [min(1, max(-1, x + y)) for x, y in zip(outputs[comp_code], grad)]
+            outputs[comp_code] = [min(1, max(-1, s * x + y)) for x, y, s in zip(outputs[comp_code], grad, sign)]
             self.grad.append(grad)
         return outputs
 
