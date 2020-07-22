@@ -11,7 +11,7 @@ simulator = glue_utils.Simulator(ml_utils.bucket)
 for _ in range(1000):
     simulator.next()
 hist = []
-for _ in range(10):
+for _ in range(40):
     hist.append(simulator.next())
 best_score = None
 for _ in range(10):
