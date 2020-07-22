@@ -87,8 +87,6 @@ class Agent():
         hour = int(quote_dt[11:13])
         transaction_made = False
         if 9 <= hour <= 15 and comp_code in self.orders:
-            if self.verbose:
-                print(comp_code, event.event['price'])
             if self.orders[comp_code]['buy'] and self.orders[comp_code]['price'] > float(event.event['price']):
                 self.portfolio[comp_code] = self.orders[comp_code]
                 self.portfolio[comp_code]['n_ticks'] = 1
@@ -127,11 +125,8 @@ class Agent():
         outputs2 = []
         best_event = None
         quote_dt = events[0].event['quote_dt']
-        if self.verbose:
-            print(quote_dt)
-            print("Orders:", self.orders, "Portfolio:", self.portfolio)
         hour = int(quote_dt[11:13])
-        orders = {} if hour == 9 else self.orders
+        orders = {}
         for event in events:
             inputs.append(self.get_inputs(event))
         outputs = get_outputs(events, inputs)
@@ -143,13 +138,10 @@ class Agent():
                 best_event = event
                 best_buy = buy_action
                 best_price = event.event['price'] * (1+buy_price)
-                best_buy_price = buy_price
             outputs1 = [buy_action, buy_price, sell_price]
             outputs1 = [(x+1)/2 for x in outputs1]
             outputs2.append(outputs1)
             self.add_sell_order(event, sell_price, orders)
-        if self.verbose:
-            print("Best buy:", best_buy, best_buy_price)
         self.orders = orders
         n_buys = sum(1 if self.orders[x]['buy'] else 0 for x in self.orders)
         if self.cash > 200 and best_event is not None and n_buys == 0:
