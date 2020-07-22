@@ -143,7 +143,8 @@ class Agent():
             outputs1 = [(x+1)/2 for x in outputs1]
             outputs2.append(outputs1)
             self.add_sell_order(event, sell_price, orders)
-        print("Best buy:", best_buy, best_buy_price)
+        if self.debug:
+            print("Best buy:", best_buy, best_buy_price)
         self.orders = orders
         n_buys = sum(1 if self.orders[x]['buy'] else 0 for x in self.orders)
         if self.cash > 200 and best_event is not None and n_buys == 0:
@@ -153,6 +154,8 @@ class Agent():
             if n > 0:
                 comp_code = best_event.event['comp_code']
                 self.orders[comp_code] = {'buy':True, 'price':best_price, 'n_shares':n}
+                if self.verbose:
+                    print("Orders:", self.orders)
         for comp_code in self.portfolio:
             self.portfolio[comp_code]['n_ticks'] += 1
         return inputs, outputs2
