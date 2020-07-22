@@ -89,7 +89,6 @@ class Agent():
         if 9 <= hour <= 15 and comp_code in self.orders:
             if self.verbose:
                 print(comp_code, event.event['price'])
-                print("Orders:", self.orders)
             if self.orders[comp_code]['buy'] and self.orders[comp_code]['price'] > float(event.event['price']):
                 self.portfolio[comp_code] = self.orders[comp_code]
                 self.portfolio[comp_code]['n_ticks'] = 1
@@ -128,6 +127,9 @@ class Agent():
         outputs2 = []
         best_event = None
         quote_dt = events[0].event['quote_dt']
+        if self.verbose:
+            print(quote_dt)
+            print("Orders:", self.orders, "Portfolio:", self.portfolio)
         hour = int(quote_dt[11:13])
         orders = {} if hour == 9 else self.orders
         for event in events:
@@ -157,8 +159,6 @@ class Agent():
             if n > 0:
                 comp_code = best_event.event['comp_code']
                 self.orders[comp_code] = {'buy':True, 'price':best_price, 'n_shares':n}
-                if self.verbose:
-                    print("Orders:", self.orders)
         for comp_code in self.portfolio:
             self.portfolio[comp_code]['n_ticks'] += 1
         return inputs, outputs2
