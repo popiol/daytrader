@@ -7,14 +7,23 @@ import random
 
 warnings.filterwarnings("ignore")
 
-dev = ml_utils.Agent('current', ml_utils.bucket)
 simulator = glue_utils.Simulator(ml_utils.bucket)
-dev.reset()
-for _ in range(100):
+hist = []
+for _ in range(10):
+    hist.append(simulator.next())
+best_score = None
+for _ in range(10):
+    dev = ml_utils.Agent('current', ml_utils.bucket)
     events = simulator.next()
     dev.train(events)
-print("Capital:", dev.get_capital())
+    dev.reset()
+    for events in hist:
+        dev.test(events)
+    if best_score is None or dev.score > best_score:
+        best_dev = dev
+    print("Capital:", dev.get_capital())
 
+dev = best_dev
 current = ml_utils.Agent('current', ml_utils.bucket)
 score1, score2 = ml_utils.compare_agents(dev, current, quick=True)
 print("Dev score:", score1, ", Current score:", score2)
