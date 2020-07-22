@@ -222,8 +222,11 @@ class Agent():
     def get_train_outputs(self, events, inputs):
         outputs = self.get_test_outputs(events, inputs)
         self.grad = []
+        grad_base = None
         for comp_code in outputs:
-            grad = [random.uniform(-.01, .01) for x in outputs[comp_code]]
+            if grad_base is None:
+                grad_base = [random.uniform(-.1, .1) for x in outputs[comp_code]]
+            grad = [x+random.uniform(-.1, .1) for x in grad_base]
             outputs[comp_code] = [min(1, max(-1, x + y)) for x, y in zip(outputs[comp_code], grad)]
             self.grad.append(grad)
         return outputs
