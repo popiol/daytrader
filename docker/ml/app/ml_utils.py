@@ -143,7 +143,7 @@ class Agent():
             outputs1 = [(x+1)/2 for x in outputs1]
             outputs2.append(outputs1)
             self.add_sell_order(event, sell_price, orders)
-        if self.debug:
+        if self.verbose:
             print("Best buy:", best_buy, best_buy_price)
         self.orders = orders
         n_buys = sum(1 if self.orders[x]['buy'] else 0 for x in self.orders)
