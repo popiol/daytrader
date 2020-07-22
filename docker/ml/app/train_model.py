@@ -15,16 +15,16 @@ best_score = None
 for _ in range(10):
     dev = ml_utils.Agent('current', ml_utils.bucket)
     events = simulator.next()
-    inputs, outputs, grad = dev.train(events)
+    dev.train(events)
     dev.reset()
     for events in hist:
         dev.test(events)
     if best_score is None or dev.score > best_score:
         best_dev = dev
         best_score = dev.score
-        best_inp = inputs
-        best_out = outputs
-        best_grad = grad
+        #best_inp = inputs
+        #best_out = outputs
+        #best_grad = grad
     print("Capital:", dev.get_capital())
     print("Score:", dev.score)
 
@@ -33,7 +33,7 @@ best_dev.save_as('dev')
 for _ in range(10):
     outputs = []
     for outputs1, grad in zip(best_out, best_grad):
-        outputs.append([x + y for x, y in zip(outputs1, grad)])
+        outputs.append([min(1, max(-1, x + y)) for x, y in zip(outputs1, grad)])
     best_dev.fit(best_inp, outputs)
     best_dev.reset()
     for events in hist:
