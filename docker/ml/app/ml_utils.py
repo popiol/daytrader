@@ -232,12 +232,13 @@ class Agent():
             grad = [x+random.uniform(-.1, .1) for x in grad_base]
             outputs[comp_code] = [min(1, max(-1, s * x + y)) for x, y, s in zip(outputs[comp_code], grad, sign)]
             self.grad.append(grad)
+        self.sign = sign
         return outputs
 
     def train(self, events):
         inputs, outputs = self.next(events, self.get_train_outputs)
         self.fit(inputs, outputs)
-        return inputs, outputs, self.grad
+        return inputs, outputs, self.grad, self.sign
         
 def compare_agents(agent1, agent2, hist=False, quick=False):
     scores1 = []
