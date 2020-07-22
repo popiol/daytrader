@@ -21,6 +21,7 @@ for _ in range(10):
         dev.test(events)
     if best_score is None or dev.score > best_score:
         best_dev = dev
+        best_score = dev.score
     print("Capital:", dev.get_capital())
 
 dev = best_dev
