@@ -223,8 +223,8 @@ class Agent():
         outputs = self.get_test_outputs(events, inputs)
         self.grad = []
         for comp_code in outputs:
-            grad = [min(1, max(-1, x + random.uniform(-.1, .1))) for x in outputs[comp_code]]
-            outputs[comp_code] = grad
+            grad = [random.uniform(-.1, .1) for x in outputs[comp_code]]
+            outputs[comp_code] = [min(1, max(-1, x + y)) for x, y in zip(outputs[comp_code], grad)]
             self.grad.append(grad)
         return outputs
 
