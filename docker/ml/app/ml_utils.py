@@ -221,6 +221,7 @@ class Agent():
 
     def get_train_outputs(self, events, inputs):
         outputs = self.get_test_outputs(events, inputs)
+        print(outputs)
         self.grad = []
         for comp_code in outputs:
             grad = [random.uniform(-.1, .1) for x in outputs[comp_code]]
