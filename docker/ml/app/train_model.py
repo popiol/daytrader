@@ -8,6 +8,8 @@ import random
 warnings.filterwarnings("ignore")
 
 simulator = glue_utils.Simulator(ml_utils.bucket)
+for _ in range(1000):
+    simulator.next()
 hist = []
 for _ in range(10):
     hist.append(simulator.next())
@@ -15,16 +17,16 @@ best_score = None
 for _ in range(10):
     dev = ml_utils.Agent('current', ml_utils.bucket)
     events = simulator.next()
-    dev.train(events)
+    inputs, outputs, grad = dev.train(events)
     dev.reset()
     for events in hist:
         dev.test(events)
     if best_score is None or dev.score > best_score:
         best_dev = dev
         best_score = dev.score
-        #best_inp = inputs
-        #best_out = outputs
-        #best_grad = grad
+        best_inp = inputs
+        best_out = outputs
+        best_grad = grad
     print("Capital:", dev.get_capital())
     print("Score:", dev.score)
 
