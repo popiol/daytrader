@@ -1,6 +1,9 @@
 locals {
 	rules = {
-		rule1 = asda
+		rule1 = {
+			prefix = "data/"
+			expiration = 90
+		}
 		rule2 = {
 			prefix = "logs/"
 			expiration = 60
