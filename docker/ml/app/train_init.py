@@ -9,7 +9,6 @@ simulator = glue_utils.Simulator(ml_utils.bucket)
 initial = ml_utils.Agent('initial', ml_utils.bucket)
 for _ in range(1000):
     events = simulator.next()
-    print(events[0].event['quote_dt'])
     initial.train_init(events)
 initial.save()
 print("Capital:", initial.get_capital())
