@@ -157,24 +157,6 @@ class Agent():
             self.portfolio[comp_code]['n_ticks'] += 1
         return inputs, outputs2
 
-    def get_train_init_outputs(self, events, inputs):
-        outputs = {}
-        for event in events:
-            comp_code = event.event['comp_code']
-            price = event.get_price()
-            price8 = event.event['price8']
-            price4 = event.event['price4']
-            price32 = event.event['price32']
-            triangle = (price4 - price - abs(price8 - price4)) / price
-            triangle = triangle / (abs(triangle) + 1)
-            buy = 1 if triangle > 0 and price32 / price > -.01 else 0
-            buy_action = math.pow(triangle*8, .44) if buy else triangle / 2 - .5
-            buy_price = 0
-            n_ticks = self.get_n_ticks(comp_code)
-            sell_price = max((8 - n_ticks) * .04, 0)
-            outputs[comp_code] = (buy_action, buy_price, sell_price)
-        return outputs
-
     def fit(self, x, y):
         x = np.array(x)
         y = list(zip(*y))
@@ -186,8 +168,41 @@ class Agent():
             sys.stdout = sys.__stdout__
 
     def train_init(self, events):
-        inputs, outputs = self.next(events, self.get_train_init_outputs)
-        self.fit(inputs, outputs)
+        events2 = {}
+        inputs = []
+        outputs = []
+        for event in events:
+            comp_code = event.event['comp_code']
+            events2[comp_code] = event
+        self.event_hist.append(events2)
+        if len(self.event_hist) > 10:
+            del self.event_hist[0]
+        for event in events:
+            comp_code = event.event['comp_code']
+            first_event = self.event_hist[0]
+            min_gain1 = None
+            max_gain = None
+            for prev_event in self.event_hist[1:]:
+                gain = prev_event['comp_code'].get_price() / first_event['comp_code'].get_price() - 1
+                if min_gain1 is None:
+                    min_gain1 = gain
+                else:
+                    if max_gain is None or gain > max_gain:
+                        max_gain = gain
+                        min_gain2 = min_gain1
+                    if gain < min_gain1:
+                        min_gain1 = gain
+            if max_gain is not None:
+                inputs.append(self.get_inputs(first_event))
+                buy_action = max_gain - min_gain2
+                buy_action = 100 * buy_action / (1 + 100 * abs(buy_action))
+                buy_price = min_gain2
+                sell_price = max_gain
+                output1 = [buy_action, buy_price, sell_price]
+                output1 = [(x+1)/2 for x in output1]
+                outputs.append(output1)
+        if inputs:
+            self.fit(inputs, outputs)
 
     def reset(self):
         self.score = 0
@@ -197,6 +212,7 @@ class Agent():
         self.portfolio = {}
         self.orders = {}
         self.cash = 1000
+        self.event_hist = []
         
     def get_test_outputs(self, events, inputs):
         outputs = self.model.predict(inputs)
