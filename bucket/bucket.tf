@@ -20,6 +20,7 @@ resource "aws_s3_bucket" "main" {
 	dynamic "lifecycle_rule" {
 		for_each = local.rules
 		content {
+			enabled = true
 			prefix = lifecycle_rule.value["prefix"]
 			expiration {
 				days = lifecycle_rule.value["expiration"]
