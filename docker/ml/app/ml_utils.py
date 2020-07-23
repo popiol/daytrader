@@ -183,7 +183,7 @@ class Agent():
             min_gain1 = None
             max_gain = None
             for prev_event in self.event_hist[1:]:
-                gain = prev_event['comp_code'].get_price() / first_event['comp_code'].get_price() - 1
+                gain = prev_event[comp_code].get_price() / first_event[comp_code].get_price() - 1
                 if min_gain1 is None:
                     min_gain1 = gain
                 else:
