@@ -179,10 +179,14 @@ class Agent():
             del self.event_hist[0]
         for event in events:
             comp_code = event.event['comp_code']
+            if comp_code not in self.event_hist[0]:
+                continue
             first_event = self.event_hist[0][comp_code]
             min_gain1 = None
             max_gain = None
             for prev_event in self.event_hist[1:]:
+                if comp_code not in prev_event:
+                    continue
                 gain = prev_event[comp_code].get_price() / first_event.get_price() - 1
                 if min_gain1 is None:
                     min_gain1 = gain
