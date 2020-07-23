@@ -1,8 +1,28 @@
+locals {
+	rules = {
+		rule1 = asda
+		rule2 = {
+			prefix = "logs/"
+			expiration = 60
+		}
+	}
+}
+
 resource "aws_s3_bucket" "main" {
 	bucket = "${var.inp.aws_user}.${replace(var.inp.app.id,"_","-")}-${var.bucket_name}"
 	acl = "private"
 	tags = var.inp.app
 	force_destroy = var.inp.temporary
+
+	dynamic "lifecycle_rule" {
+		for_each = local.rules
+		content {
+			prefix = lifecycle_rule.value["prefix"]
+			expiration {
+				days = lifecycle_rule.value["expiration"]
+			}
+		}
+	}
 
 	dynamic "lifecycle_rule" {
 		for_each = toset(var.archived_paths)
