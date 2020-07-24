@@ -248,7 +248,7 @@ class Agent():
         for comp_code in outputs:
             if grad_base is None:
                 grad_base = [random.uniform(-.1, .1) for x in outputs[comp_code]]
-                sign = [random.randrange(2)*2-1 for x in outputs[comp_code]]
+                sign = [random.uniform(-2, 2) for x in outputs[comp_code]]
             grad = [x+random.uniform(-.1, .1) for x in grad_base]
             outputs[comp_code] = [min(1, max(-1, s * x + y)) for x, y, s in zip(outputs[comp_code], grad, sign)]
             self.grad.append(grad)
