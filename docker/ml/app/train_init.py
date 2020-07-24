@@ -15,7 +15,8 @@ initial = ml_utils.Agent('initial', ml_utils.bucket)
 for events in hist:
     initial.test(events)
 print("Capital:", initial.get_capital())
-for events in hist:
+for _ in range(1000):
+    events = simulator.next()
     initial.train_init(events)
 initial.save()
 initial.reset()

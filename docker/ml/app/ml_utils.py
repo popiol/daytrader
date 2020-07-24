@@ -210,7 +210,6 @@ class Agent():
                 outputs.append(output1)
         if inputs:
             self.fit(inputs, outputs)
-            print(outputs)
 
     def reset(self):
         self.score = 0
