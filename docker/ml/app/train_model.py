@@ -14,6 +14,7 @@ print("Naive:", naive, "-", "true" if naive2 else "false")
 max_w = settings.map['max_w'] if 'max_w' in settings.map else 1
 max_c = settings.map['max_c'] if 'max_c' in settings.map else .1
 max_s = settings.map['max_s'] if 'max_s' in settings.map else 2
+print("Max_w:", max_w, max_c, max_s)
 
 simulator = glue_utils.Simulator(ml_utils.bucket)
 if naive2:
