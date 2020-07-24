@@ -135,7 +135,7 @@ class Discretizer():
             start = max(start-(end-start)/2, -.9)
             end = min(end+(end-start)/2, 1.9)
             val = random.uniform(start, end)
-            val = (val + .0005 * (offset-.8)) * .3
+            val = (val + .0001 * (offset-1)) * .3
             outputs.append(val)
         return outputs
 
