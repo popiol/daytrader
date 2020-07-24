@@ -56,6 +56,9 @@ class Agent():
         self.provision = .001
         self.reset()
         self.verbose = verbose
+        self.max_w = 1
+        self.max_c = .1
+        self.max_s = 2
         
     def save(self):
         dirname = 'model.dump'
@@ -241,6 +244,14 @@ class Agent():
         self.weekly_ticks = (self.weekly_ticks+1) % week_n_ticks
         self.score += score + len(self.portfolio) / 10000
 
+    def set_max_w(self, max_w, max_c, max_s):
+        self.max_w = max_w
+        self.max_c = max_c
+        self.max_s = max_s
+
+    def get_max_w(self):
+        return self.max_w, self.max_c, self.max_s
+
     def get_train_outputs(self, events, inputs):
         outputs = self.get_test_outputs(events, inputs)
         self.grad = []
@@ -249,12 +260,18 @@ class Agent():
             comp_code = event.event['comp_code']
             input1 = inputs[event_i]
             if grad_base is None:
-                grad_base = [[random.uniform(-1, 1) for y in inputs[0]] + [random.uniform(-.1, .1)] for x in outputs[comp_code]]
-                sign = [random.uniform(-2, 2) for x in outputs[comp_code]]
+                grad_base = [[random.uniform(-self.max_w, self.max_w) for y in inputs[0]] + [random.uniform(-self.max_c, self.max_c)] for x in outputs[comp_code]]
+                sign = [random.uniform(-self.max_s, self.max_s) for x in outputs[comp_code]]
             grad = [sum((input1[xi] if xi < len(input1) else 1) * x for xi, x in enumerate(grad_base[oi])) for oi in range(len(grad_base))]
             outputs[comp_code] = [min(1, max(-1, s * (x + y))) for x, y, s in zip(outputs[comp_code], grad, sign)]
             self.grad.append(grad)
         self.sign = sign
+        max_w = np.average(np.absolute([x[:-1] for x in grad_base]))
+        max_c = np.average(np.absolute([x[-1] for x in grad_base]))
+        max_s = np.average(np.absolute(sign))
+        self.max_w = (9 * self.max_w + 2*max_w) / 10
+        self.max_c = (9 * self.max_c + 2*max_c) / 10
+        self.max_s = (9 * self.max_s + 2*max_s) / 10
         return outputs
 
     def train(self, events):

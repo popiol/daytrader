@@ -11,6 +11,9 @@ settings = glue_utils.Settings(ml_utils.bucket)
 naive = settings.map['naive'] if 'naive' in settings.map else .5
 naive2 = random.choices([1, 0], [naive, 1-naive])[0]
 print("Naive:", naive, "-", "true" if naive2 else "false")
+max_w = settings.map['max_w'] if 'max_w' in settings.map else 1
+max_c = settings.map['max_c'] if 'max_c' in settings.map else .1
+max_s = settings.map['max_s'] if 'max_s' in settings.map else 2
 
 simulator = glue_utils.Simulator(ml_utils.bucket)
 if naive2:
@@ -28,6 +31,7 @@ else:
     best_score = None
     for _ in range(10):
         dev = ml_utils.Agent('current', ml_utils.bucket)
+        dev.set_max_w(max_w, max_c, max_s)
         events = simulator.next()
         inputs, outputs, grad, sign = dev.train(events)
         dev.reset()
@@ -40,6 +44,7 @@ else:
             best_out = outputs
             best_grad = grad
             best_sign = sign
+        max_w, max_c, max_s = dev.get_max_w()
         print("Capital:", dev.get_capital())
         print("Score:", dev.score)
 
@@ -79,4 +84,7 @@ elif naive2 and score1 < score2:
 elif not naive2 and score1 > score2:
     naive = max(.1, naive - .1)
 settings.map['naive'] = naive
+settings.map['max_w'] = max_w
+settings.map['max_c'] = max_c
+settings.map['max_s'] = max_s
 settings.save()
