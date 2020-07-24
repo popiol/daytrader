@@ -245,12 +245,14 @@ class Agent():
         outputs = self.get_test_outputs(events, inputs)
         self.grad = []
         grad_base = None
-        for comp_code in outputs:
+        for event_i, event in enumerate(events):
+            comp_code = event.event['comp_code']
+            input1 = inputs[event_i]
             if grad_base is None:
-                grad_base = [random.uniform(-.1, .1) for x in outputs[comp_code]]
+                grad_base = [[random.uniform(-1, 1) for y in inputs[0]] + [random.uniform(-.1, .1)] for x in outputs[comp_code]]
                 sign = [random.uniform(-2, 2) for x in outputs[comp_code]]
-            grad = [x+random.uniform(-.1, .1) for x in grad_base]
-            outputs[comp_code] = [min(1, max(-1, s * x + y)) for x, y, s in zip(outputs[comp_code], grad, sign)]
+            grad = [sum((input1[xi] if xi < len(input1) else 1) * x for xi, x in enumerate(grad_base[oi])) for oi in range(len(grad_base))]
+            outputs[comp_code] = [min(1, max(-1, s * (x + y))) for x, y, s in zip(outputs[comp_code], grad, sign)]
             self.grad.append(grad)
         self.sign = sign
         return outputs
