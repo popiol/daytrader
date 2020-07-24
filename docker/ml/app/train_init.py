@@ -6,11 +6,18 @@ import warnings
 warnings.filterwarnings("ignore")
 
 simulator = glue_utils.Simulator(ml_utils.bucket)
-initial = ml_utils.Agent('initial', ml_utils.bucket)
+for _ in range(1000):
+    simulator.next()
+hist = []
 for _ in range(100):
-    events = simulator.next()
+    hist.append(simulator.next())
+initial = ml_utils.Agent('initial', ml_utils.bucket)
+for events in hist:
     initial.train_init(events)
 initial.save()
+initial.reset()
+for events in hist:
+    initial.test(events)
 print("Capital:", initial.get_capital())
 
 simulator.print_sample_quotes()
