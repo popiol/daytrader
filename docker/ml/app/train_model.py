@@ -90,3 +90,5 @@ if score1 > score2:
     settings.map['max_c'] = max_c
     settings.map['max_s'] = max_s
 settings.save()
+
+print()

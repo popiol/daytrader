@@ -28,3 +28,4 @@ print("Initial score:", score1, ", Current score:", score2)
 print("Capital:", initial.get_capital(), current.get_capital())
 if score1 > score2:
     initial.save_as('current')
+print()
