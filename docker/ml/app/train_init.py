@@ -23,7 +23,7 @@ for events in hist:
     initial.test(events)
 print("Capital:", initial.get_capital())
 
-simulator.print_sample_quotes()
+#simulator.print_sample_quotes()
 
 current = ml_utils.Agent('current', ml_utils.bucket)
 score1, score2 = ml_utils.compare_agents(initial, current, quick=True)
