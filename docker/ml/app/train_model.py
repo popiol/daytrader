@@ -45,7 +45,7 @@ else:
             best_out = outputs
             best_grad = grad
             best_sign = sign
-        max_w, max_c, max_s = dev.get_max_w()
+            max_w, max_c, max_s = dev.get_max_w()
         print("Capital:", dev.get_capital())
         print("Score:", dev.score)
 
@@ -85,7 +85,8 @@ elif naive2 and score1 < score2:
 elif not naive2 and score1 > score2:
     naive = max(.1, naive - .1)
 settings.map['naive'] = naive
-settings.map['max_w'] = max_w
-settings.map['max_c'] = max_c
-settings.map['max_s'] = max_s
+if score1 > score2:
+    settings.map['max_w'] = max_w
+    settings.map['max_c'] = max_c
+    settings.map['max_s'] = max_s
 settings.save()
