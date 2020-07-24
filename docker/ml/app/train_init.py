@@ -10,7 +10,7 @@ initial = ml_utils.Agent('current', ml_utils.bucket)
 for _ in range(100):
     events = simulator.next()
     initial.train_init(events)
-initial.save()
+initial.save_as('initial')
 print("Capital:", initial.get_capital())
 
 simulator.print_sample_quotes()
