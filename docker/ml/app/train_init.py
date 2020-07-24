@@ -15,17 +15,18 @@ initial = ml_utils.Agent('initial', ml_utils.bucket)
 for events in hist:
     initial.test(events)
 print("Capital:", initial.get_capital())
-for _ in range(1000):
+for _ in range(100):
     events = simulator.next()
     initial.train_init(events)
 initial.save()
-initial.reset()
+initial = ml_utils.Agent('initial', ml_utils.bucket, verbose=True)
 for events in hist:
     initial.test(events)
 print("Capital:", initial.get_capital())
 
 #simulator.print_sample_quotes()
 
+initial = ml_utils.Agent('initial', ml_utils.bucket)
 current = ml_utils.Agent('current', ml_utils.bucket)
 score1, score2 = ml_utils.compare_agents(initial, current, quick=True)
 print("Initial score:", score1, ", Current score:", score2)
