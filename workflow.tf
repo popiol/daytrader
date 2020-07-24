@@ -114,7 +114,7 @@ resource "aws_glue_trigger" "train_model" {
 	schedule = "cron(13-22 3 ? * * *)"
 
 	actions {
-		job_name = module.glue_train_model.job_name
+		job_name = module.glue_train_init.job_name
 	}
 }
 
