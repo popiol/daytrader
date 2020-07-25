@@ -115,9 +115,9 @@ class Agent():
     def add_sell_order(self, event, sell_price_ch, orders):
         comp_code = event.event['comp_code']
         price = event.event['price']
-        if comp_code in self.portfolio and comp_code not in orders and abs(sell_price_ch)/5 < .1 and self.portfolio[comp_code]['n_ticks'] > 1:
+        if comp_code in self.portfolio and comp_code not in orders and abs(sell_price_ch)/50 < .1 and self.portfolio[comp_code]['n_ticks'] > 1:
             self.portfolio[comp_code]['price'] = price
-            sell_price = price * (1+sell_price_ch/5)
+            sell_price = price * (1+sell_price_ch/50)
             if self.verbose:
                 print("Sell price:", comp_code, price, sell_price)
             orders[comp_code] = {'buy':False, 'price':sell_price, 'n_shares':self.portfolio[comp_code]['n_shares']}
@@ -210,8 +210,8 @@ class Agent():
                 inputs.append(inputs1)
                 buy_action = max_gain + min_gain1
                 buy_action = 200000 * buy_action / (1 + 200000 * abs(buy_action))
-                buy_price = max(-1, min(0, min_gain2 * 40))
-                sell_price = min(1, max(0, max_gain * 40))
+                buy_price = max(-1, min(0, min_gain2 * 50))
+                sell_price = min(1, max(0, max_gain * 50))
                 output1 = [buy_action, buy_price, sell_price]
                 output1 = [(x+1)/2 for x in output1]
                 outputs.append(output1)
