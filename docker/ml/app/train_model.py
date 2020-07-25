@@ -68,10 +68,10 @@ else:
         else:
             break
 
-    dev = ml_utils.Agent('dev', ml_utils.bucket, verbose=True)
-    for events in hist:
-        dev.test(events)
-    print("Capital:", dev.get_capital())
+    #dev = ml_utils.Agent('dev', ml_utils.bucket, verbose=True)
+    #for events in hist:
+    #    dev.test(events)
+    #print("Capital:", dev.get_capital())
 
 dev = ml_utils.Agent('dev', ml_utils.bucket)
 current = ml_utils.Agent('current', ml_utils.bucket)
