@@ -29,8 +29,10 @@ s3_download(bucket, 'scripts/glue_utils.py')
 import glue_utils
 
 class Agent():
-    def __init__(self, agent_name, bucket, verbose=False):
+    def __init__(self, agent_name, bucket, verbose=False, recreate=False):
         try:
+            if recreate:
+                raise Exception()
             dirname = 'model.dump'
             filename = 'model.zip'
             obj_key = f'model/{agent_name}_model.zip'
@@ -206,7 +208,7 @@ class Agent():
             if max_gain is not None:
                 inputs1 = self.get_inputs(first_event)
                 inputs.append(inputs1)
-                buy_action = max_gain
+                buy_action = max_gain + min_gain1
                 buy_action = 100 * buy_action / (1 + 100 * abs(buy_action))
                 buy_price = min(0, min_gain2 / 2)
                 sell_price = max(0, max_gain / 2)
