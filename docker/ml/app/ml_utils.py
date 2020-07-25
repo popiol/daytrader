@@ -116,6 +116,8 @@ class Agent():
         if comp_code in self.portfolio and comp_code not in orders and abs(sell_price_ch) < .1 and self.portfolio[comp_code]['n_ticks'] > 1:
             self.portfolio[comp_code]['price'] = price
             sell_price = price * (1+sell_price_ch)
+            if self.verbose:
+                print("Sell price:", comp_code, price, sell_price)
             orders[comp_code] = {'buy':False, 'price':sell_price, 'n_shares':self.portfolio[comp_code]['n_shares']}
 
     def get_capital(self):
