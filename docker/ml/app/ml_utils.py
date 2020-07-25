@@ -117,7 +117,7 @@ class Agent():
         price = event.event['price']
         if comp_code in self.portfolio and comp_code not in orders and abs(sell_price_ch) < .1 and self.portfolio[comp_code]['n_ticks'] > 1:
             self.portfolio[comp_code]['price'] = price
-            sell_price = price * (1+sell_price_ch)
+            sell_price = price * (1+sell_price_ch/100)
             if self.verbose:
                 print("Sell price:", comp_code, price, sell_price)
             orders[comp_code] = {'buy':False, 'price':sell_price, 'n_shares':self.portfolio[comp_code]['n_shares']}
@@ -146,7 +146,7 @@ class Agent():
             if (best_event is None or buy_action > best_buy) and comp_code not in self.portfolio and abs(buy_price) < .1:
                 best_event = event
                 best_buy = buy_action
-                best_price = event.event['price'] * (1+buy_price)
+                best_price = event.event['price'] * (1+buy_price/100)
             outputs1 = [buy_action, buy_price, sell_price]
             outputs1 = [(x+1)/2 for x in outputs1]
             outputs2.append(outputs1)
@@ -209,9 +209,9 @@ class Agent():
                 inputs1 = self.get_inputs(first_event)
                 inputs.append(inputs1)
                 buy_action = max_gain + min_gain1
-                buy_action = 5000 * buy_action / (1 + 5000 * abs(buy_action))
-                buy_price = 0
-                sell_price = 0
+                buy_action = 50000 * buy_action / (1 + 50000 * abs(buy_action))
+                buy_price = max(-1, min(0, min_gain2 * 50))
+                sell_price = min(1, max(0, max_gain * 50))
                 output1 = [buy_action, buy_price, sell_price]
                 output1 = [(x+1)/2 for x in output1]
                 outputs.append(output1)
