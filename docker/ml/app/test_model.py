@@ -9,9 +9,11 @@ current = ml_utils.Agent('current', ml_utils.bucket, verbose=True)
 prod = ml_utils.Agent('prod', ml_utils.bucket)
 score1, score2 = ml_utils.compare_agents(current, prod)
 print("Current score:", score1, ", Prod score:", score2)
+print("Capital:", current.get_capital(), prod.get_capital())
 if score1 > score2:
     score1, score2 = ml_utils.compare_agents(current, prod, hist=True)
     print("Current score:", score1, ", Prod score:", score2)
+    print("Capital:", current.get_capital(), prod.get_capital())
     if score1 > score2:
         current.save_as('prod')
     

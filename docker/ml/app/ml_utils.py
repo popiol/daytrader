@@ -115,7 +115,7 @@ class Agent():
     def add_sell_order(self, event, sell_price_ch, orders):
         comp_code = event.event['comp_code']
         price = event.event['price']
-        if comp_code in self.portfolio and comp_code not in orders and abs(sell_price_ch) < .1 and self.portfolio[comp_code]['n_ticks'] > 1:
+        if comp_code in self.portfolio and comp_code not in orders and abs(sell_price_ch)/100 < .1 and self.portfolio[comp_code]['n_ticks'] > 1:
             self.portfolio[comp_code]['price'] = price
             sell_price = price * (1+sell_price_ch/100)
             if self.verbose:
