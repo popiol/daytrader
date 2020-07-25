@@ -209,9 +209,9 @@ class Agent():
                 inputs1 = self.get_inputs(first_event)
                 inputs.append(inputs1)
                 buy_action = max_gain + min_gain1
-                buy_action = 100 * buy_action / (1 + 100 * abs(buy_action))
-                buy_price = min(0, min_gain2 / 2)
-                sell_price = max(0, max_gain / 2)
+                buy_action = 5000 * buy_action / (1 + 5000 * abs(buy_action))
+                buy_price = 0
+                sell_price = 0
                 output1 = [buy_action, buy_price, sell_price]
                 output1 = [(x+1)/2 for x in output1]
                 outputs.append(output1)
