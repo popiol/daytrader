@@ -80,7 +80,7 @@ print("Dev score:", score1, ", Current score:", score2)
 print("Capital:", dev.get_capital(), current.get_capital())
 print("Bought/Sold:", dev.n_bought, "/", dev.n_sold, "-", current.n_bought, "/", current.n_sold)
 if score1 > score2:
-    dev.save()
+    dev.save_as('current')
 
 if naive2 and score1 > score2:
     naive = min(.9, naive + .1)
