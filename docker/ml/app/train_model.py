@@ -34,44 +34,18 @@ else:
         dev = ml_utils.Agent('current', ml_utils.bucket)
         dev.set_max_w(max_w, max_c, max_s)
         events = simulator.next()
-        inputs, outputs, grad, sign = dev.train(events)
+        dev.train(events)
         dev.reset()
         for events in hist:
             dev.test(events)
         if best_score is None or dev.score > best_score:
             best_dev = dev
             best_score = dev.score
-            best_inp = inputs
-            best_out = outputs
-            best_grad = grad
-            best_sign = sign
             max_w, max_c, max_s = dev.get_max_w()
         print("Capital:", dev.get_capital())
         print("Score:", dev.score)
-
     print("---- Best score", best_score, "----")
     best_dev.save_as('dev')
-    for _ in range(10):
-        outputs = []
-        for outputs1, grad in zip(best_out, best_grad):
-            outputs.append([min(1, max(-1, x+(x-(x/(s+.00001)-y))*.01)) for x, y, s in zip(outputs1, grad, best_sign)])
-        best_dev.fit(best_inp, outputs)
-        best_dev.reset()
-        for events in hist:
-            best_dev.test(events)
-        print("Capital:", best_dev.get_capital())
-        print("Score:", best_dev.score)
-        if best_dev.score > best_score:
-            best_score = best_dev.score
-            best_dev.save()
-            best_out = outputs
-        else:
-            break
-
-    #dev = ml_utils.Agent('dev', ml_utils.bucket, verbose=True)
-    #for events in hist:
-    #    dev.test(events)
-    #print("Capital:", dev.get_capital())
 
 dev = ml_utils.Agent('dev', ml_utils.bucket)
 current = ml_utils.Agent('current', ml_utils.bucket)

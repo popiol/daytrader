@@ -288,7 +288,6 @@ class Agent():
     def train(self, events):
         inputs, outputs = self.next(events, self.get_train_outputs)
         self.fit(inputs, outputs)
-        return inputs, outputs, self.grad, self.sign
         
 def compare_agents(agent1, agent2, hist=False, quick=False):
     scores1 = []
