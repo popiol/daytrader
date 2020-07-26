@@ -382,6 +382,9 @@ class Simulator():
             low_price = self.events[comp_code].event['price'] * (low_price_ch + 1)
             high_price = max(high_price, price)
             low_price = min(low_price, price)
+            price = round(price, 2)
+            high_price = round(high_price, 2)
+            low_price = round(low_price, 2)
             events[comp_code] = self.events[comp_code].next(price, high_price, low_price, quote_dt)
             if comp_code in renamed:
                 events[comp_code].event['old_comp_code'] = renamed[comp_code]
