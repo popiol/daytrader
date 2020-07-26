@@ -111,7 +111,7 @@ resource "aws_glue_trigger" "start_events" {
 resource "aws_glue_trigger" "train_model" {
 	name = "${var.inp.app.id}_train_model"
 	type = "SCHEDULED"
-	schedule = "cron(13-22 3 ? * * *)"
+	schedule = "cron(13-16 3 ? * * *)"
 
 	actions {
 		job_name = module.glue_train_init.job_name
