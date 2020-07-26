@@ -212,7 +212,7 @@ class Agent():
                 inputs.append(inputs1)
                 buy_action = max_gain + min_gain1
                 buy_action = 40000000 * buy_action / (1 + 80000000 * abs(buy_action))
-                buy_price = max(-1, min(0, min_gain2 * 50))
+                buy_price = max(-1, min(0, min_gain2 * 60))
                 sell_price = min(1, max(0, max_gain * 30))
                 output1 = [buy_action, buy_price, sell_price]
                 output1 = [(x+1)/2 for x in output1]
