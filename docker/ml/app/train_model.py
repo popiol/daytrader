@@ -24,8 +24,6 @@ if naive2:
         dev.train_init(events)
     dev.save_as('dev')
 else:
-    for _ in range(1000):
-        simulator.next()
     hist = []
     for _ in range(40):
         hist.append(simulator.next())

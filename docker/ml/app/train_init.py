@@ -6,8 +6,6 @@ import warnings
 warnings.filterwarnings("ignore")
 
 simulator = glue_utils.Simulator(ml_utils.bucket)
-for _ in range(1000):
-    simulator.next()
 hist = []
 for _ in range(100):
     hist.append(simulator.next())
