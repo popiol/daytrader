@@ -293,7 +293,7 @@ class Agent():
 def compare_agents(agent1, agent2, hist=False, quick=False):
     scores1 = []
     scores2 = []
-    offset_range = [0] if hist else [-1,0,1] 
+    offset_range = [0] if hist else [1,0,-1] 
     for offset in offset_range:
         if hist:
             simulator = glue_utils.HistSimulator(bucket, event_table)
