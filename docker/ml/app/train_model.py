@@ -97,4 +97,5 @@ if score1 > score2:
     settings.map['max_s'] = max_s
 settings.save()
 
+glue_utils.logg("Finish")
 print()
