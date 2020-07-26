@@ -151,7 +151,7 @@ class Agent():
             outputs1 = [(x+1)/2 for x in outputs1]
             outputs2.append(outputs1)
             self.add_sell_order(event, sell_price, orders)
-        if self.verbose:
+        if self.verbose and best_event is not None:
             print("Best buy:", best_event.event['comp_code'], best_buy, best_event.event['price'], best_price)
         self.orders = orders
         n_buys = sum(1 if self.orders[x]['buy'] else 0 for x in self.orders)
@@ -209,8 +209,8 @@ class Agent():
                 inputs1 = self.get_inputs(first_event)
                 inputs.append(inputs1)
                 buy_action = max_gain + min_gain1
-                buy_action = 200000 * buy_action / (1 + 200000 * abs(buy_action))
-                buy_price = max(-1, min(0, min_gain2 * 50))
+                buy_action = 20000000 * buy_action / (1 + 20000000 * abs(buy_action))
+                buy_price = max(-1, min(0, min_gain2 * 40))
                 sell_price = min(1, max(0, max_gain * 60))
                 output1 = [buy_action, buy_price, sell_price]
                 output1 = [(x+1)/2 for x in output1]
