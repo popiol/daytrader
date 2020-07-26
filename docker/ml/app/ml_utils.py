@@ -97,6 +97,7 @@ class Agent():
                 self.portfolio[comp_code]['n_ticks'] = 1
                 self.cash -= self.portfolio[comp_code]['n_shares'] * self.orders[comp_code]['price'] * (1 + self.provision)
                 transaction_made = True
+                self.n_bought += 1
                 if self.verbose:
                     print(event.event['quote_dt'])
                     print("Buy", self.portfolio[comp_code]['n_shares'], "shares of", comp_code, "for", self.orders[comp_code]['price'])
@@ -105,6 +106,7 @@ class Agent():
                 del self.portfolio[comp_code]
                 self.cash += self.orders[comp_code]['n_shares'] * self.orders[comp_code]['price'] * (1 - self.provision)
                 transaction_made = True
+                self.n_sold += 1
                 if self.verbose:
                     print(event.event['quote_dt'])
                     print("Sell", self.orders[comp_code]['n_shares'], "shares of", comp_code, "for", self.orders[comp_code]['price'])
@@ -227,6 +229,8 @@ class Agent():
         self.orders = {}
         self.cash = 1000
         self.event_hist = []
+        self.n_bought = 0
+        self.n_sold = 0
         
     def get_test_outputs(self, events, inputs):
         outputs = self.model.predict(inputs)
