@@ -77,8 +77,6 @@ dev = ml_utils.Agent('dev', ml_utils.bucket)
 current = ml_utils.Agent('current', ml_utils.bucket)
 score1, score2 = ml_utils.compare_agents(dev, current, quick=True)
 print("Dev score:", score1, ", Current score:", score2)
-print("Capital:", dev.get_capital(), current.get_capital())
-print("Bought/Sold:", dev.n_bought, "/", dev.n_sold, "-", current.n_bought, "/", current.n_sold)
 if score1 > score2:
     dev.save_as('current')
 
