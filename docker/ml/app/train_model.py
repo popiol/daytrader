@@ -54,7 +54,7 @@ else:
     for _ in range(10):
         outputs = []
         for outputs1, grad in zip(best_out, best_grad):
-            outputs.append([min(1, max(-1, 2*x-(x/s-y))) for x, y, s in zip(outputs1, grad, best_sign)])
+            outputs.append([min(1, max(-1, x+(x-(x/s-y))/2)) for x, y, s in zip(outputs1, grad, best_sign)])
         best_dev.fit(best_inp, outputs)
         best_dev.reset()
         for events in hist:
