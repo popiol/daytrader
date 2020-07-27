@@ -364,7 +364,7 @@ class Simulator():
                     price = self.generate_price()
                     self.events[comp_code] = Event({'comp_code':comp_code,'quote_dt':self.quote_dt,'price':price,'high_price':price,'low_price':price})
                     renamed[comp_code] = old_comp_code
-                    print(f"Rename {old_comp_code} to {comp_code}")
+                    #print(f"Rename {old_comp_code} to {comp_code}")
         hour = quote_dt.hour
         quote_dt = quote_dt.strftime(DB_DATE_FORMAT)
         events = {}
