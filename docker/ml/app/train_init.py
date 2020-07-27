@@ -25,7 +25,7 @@ print("Capital:", initial.get_capital())
 
 initial = ml_utils.Agent('initial', ml_utils.bucket)
 current = ml_utils.Agent('current', ml_utils.bucket)
-score1, score2 = ml_utils.compare_agents(initial, current)
+score1, score2 = ml_utils.compare_agents(initial, current, quick=True)
 print("Initial score:", score1, ", Current score:", score2)
 if score1 > score2:
     initial.save_as('current')
