@@ -302,7 +302,7 @@ def compare_agents(agent1, agent2, hist=False, quick=False):
         agent2.reset()
         max_it = 100000 if hist else 1000
         if quick:
-            max_it = 200
+            max_it = 400
         for _ in range(max_it):
             events = simulator.next()
             if events is None:

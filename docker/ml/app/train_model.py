@@ -19,7 +19,7 @@ print("Max_w:", max_w, max_c, max_s)
 simulator = glue_utils.Simulator(ml_utils.bucket)
 if naive2:
     dev = ml_utils.Agent('current', ml_utils.bucket)
-    for _ in range(440):
+    for _ in range(400):
         events = simulator.next()
         dev.train_init(events)
     dev.save_as('dev')
