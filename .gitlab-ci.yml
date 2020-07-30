@@ -28,6 +28,7 @@ build_ml_docker:
 test:
   stage: test
   script:
+    - chmod 750 get_vars.sh
     - ./get_vars.sh
     - pip3 install -e .
     #- python3 -m pytest test/test_get_quotes.py
