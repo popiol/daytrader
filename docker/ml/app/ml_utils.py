@@ -166,6 +166,7 @@ class Agent():
                 self.orders[comp_code] = {'buy':True, 'price':best_price, 'n_shares':n}
         for comp_code in self.portfolio:
             self.portfolio[comp_code]['n_ticks'] += 1
+        self.n_ticks += 1
         return inputs, outputs2
 
     def fit(self, x, y):
@@ -224,6 +225,7 @@ class Agent():
         self.score = 0
         self.min_weekly = None
         self.weekly_ticks = 0
+        self.n_ticks = 0
         self.week_start_val = None
         self.portfolio = {}
         self.orders = {}
@@ -253,7 +255,7 @@ class Agent():
                 score += self.min_weekly / week_n_ticks
             self.week_start_val = capital
         self.weekly_ticks = (self.weekly_ticks+1) % week_n_ticks
-        self.score += score + min(1,len(self.portfolio)) / 10000
+        self.score += score + min(1,len(self.portfolio)) / 10000 + min(1,self.n_sold) / 40000
 
     def set_max_w(self, max_w, max_c, max_s):
         self.max_w = max_w
