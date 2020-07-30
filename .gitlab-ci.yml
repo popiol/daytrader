@@ -10,6 +10,7 @@ deploy_to_aws:
     name: $CI_COMMIT_BRANCH
     on_stop: clean
   script:
+    - chmod 750 get_vars.sh
     - ./get_vars.sh
     - terraform init
     - terraform apply -var-file=config.tfvars -auto-approve -target=module.s3_quotes -target=module.alerts
