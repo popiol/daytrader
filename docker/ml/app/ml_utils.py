@@ -255,7 +255,7 @@ class Agent():
                 score += self.min_weekly / week_n_ticks
             self.week_start_val = capital
         self.weekly_ticks = (self.weekly_ticks+1) % week_n_ticks
-        self.score += score + min(1,len(self.portfolio)) / 10000 + self.n_sold / self.n_ticks / 5000
+        self.score += score + min(1,len(self.portfolio)) / 10000 + self.n_sold / self.n_ticks / 30000
 
     def set_max_w(self, max_w, max_c, max_s):
         self.max_w = max_w
