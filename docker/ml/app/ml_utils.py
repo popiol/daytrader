@@ -211,8 +211,8 @@ class Agent():
             if max_gain is not None:
                 inputs1 = self.get_inputs(first_event)
                 inputs.append(inputs1)
-                buy_action = max_gain + min_gain1
-                buy_action = 400000000 * buy_action / (1 + 800000000 * abs(buy_action))
+                buy_action = max_gain + min_gain1 * .5
+                buy_action = 4000000 * buy_action / (1 + 8000000 * abs(buy_action))
                 buy_price = max(-1, min(0, min_gain2 * 85))
                 sell_price = min(1, max(0, max_gain * 85))
                 output1 = [buy_action, buy_price, sell_price]
