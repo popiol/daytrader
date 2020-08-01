@@ -30,7 +30,7 @@ except:
     model = glue_utils.PriceChModel(model=model)
 
 #get list of all company codes
-comp_codes = glue_utils.list_companies(event_table)
+comp_codes, quote_dts = glue_utils.list_companies(event_table)
 
 #alert if input files missing
 if not comp_codes:

@@ -24,7 +24,7 @@ s3 = boto3.resource('s3')
 bucket = s3.Bucket(bucket_name)
 
 #get list of all company codes
-comp_codes = glue_utils.list_companies(event_table)
+comp_codes, quote_dts = glue_utils.list_companies(event_table)
 
 #alert if input files missing
 if not comp_codes:

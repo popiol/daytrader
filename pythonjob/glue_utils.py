@@ -71,19 +71,24 @@ def get_start_dt(event_table, start_dt=None):
 
 def list_companies(event_table):
     comp_codes = {}
+    quote_dts = {}
     start_dt = get_start_dt(event_table)
     if start_dt is None:
         return comp_codes
     res = event_table.scan(FilterExpression=Attr('quote_dt').gte(start_dt))
     for item in res['Items']:
         comp_code = item['comp_code']
+        quote_dt = item['quote_dt']
         comp_codes[comp_code] = 1
+        quote_dts[quote_dt] = 1
     while 'LastEvaluatedKey' in res:
         res = event_table.scan(FilterExpression=Attr('quote_dt').gte(start_dt), ExclusiveStartKey=res['LastEvaluatedKey'])
         for item in res['Items']:
             comp_code = item['comp_code']
+            quote_dt = item['quote_dt']
             comp_codes[comp_code] = 1
-    return list(comp_codes)
+            quote_dts[quote_dt] = 1
+    return list(comp_codes), list(quote_dts).sort()
 
 class Discretizer():
     def __init__(self, bucket=None, discretizer=None):
@@ -397,25 +402,27 @@ class HistSimulator():
     def __init__(self, bucket, event_table):
         self.bucket = bucket
         self.event_table = event_table
-        self.quote_dt = None
+        self.quote_dt_i = 0
         self.next()
         self.samples = {}
+        self.comp_codes, self.quote_dts = list_companies(event_table)
 
     def next(self):
-        logg("get start dt")
-        self.quote_dt = get_start_dt(self.event_table, self.quote_dt)
-        if self.quote_dt is None:
+        logg("start")
+        if self.quote_dt_i >= len(self.quote_dts):
             return None
-        logg("scan")
-        items = scan(self.event_table, filter = Attr('quote_dt').eq(self.quote_dt))
-        logg("scan finish")
+        self.quote_dt = self.quote_dts[self.quote_dt_i]
+        self.quote_dt_i += 1
         self.events = {}
-        for item in items:
-            comp_code = item['comp_code']
-            quote_dt = item['quote_dt']
-            event = item['vals']
+        for comp_code in self.comp_codes:
+            res = self.event_table.query(
+                KeyConditionExpression = Key('comp_code').eq(comp_code) & Key('quote_dt').eq(self.quote_dt)
+            )
+            if not res['Items']:
+                continue
+            event = res['Items'][0]['vals']
             event['comp_code'] = comp_code
-            event['quote_dt'] = quote_dt
+            event['quote_dt'] = self.quote_dt
             self.events[comp_code] = Event(event)
         batch = list(self.events.values())
         hour = int(self.quote_dt[8:10])
