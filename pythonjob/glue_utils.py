@@ -416,6 +416,7 @@ class HistSimulator():
         self.quote_dt_i += 1
         self.events = {}
         for comp_code in self.comp_codes:
+            logg(comp_code)
             res = self.event_table.query(
                 KeyConditionExpression = Key('comp_code').eq(comp_code) & Key('quote_dt').eq(self.quote_dt)
             )

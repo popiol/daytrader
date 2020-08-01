@@ -8,7 +8,7 @@ warnings.filterwarnings("ignore")
 simulator = glue_utils.HistSimulator(ml_utils.bucket, ml_utils.event_table)
 current = ml_utils.Agent('current', ml_utils.bucket, verbose=True)
 current.reset()
-max_it = 10
+max_it = 1
 quote_dt = None
 for it in range(max_it):
     glue_utils.logg(f"It: {it}")
