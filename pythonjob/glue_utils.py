@@ -55,7 +55,7 @@ def scan(table, filter, limit=None):
 
 def get_start_dt(event_table, start_dt=None):
     if start_dt is None:
-        start_dt = datetime.datetime.strptime('2020-05-01', 'YYYY-MM-DD')
+        start_dt = datetime.datetime.strptime('2020-05-01', '%Y-%m-%d')
         start_dt = start_dt.strftime(DB_DATE_FORMAT)
     items = scan(event_table, filter=Attr('quote_dt').gt(start_dt), limit=1)
     if not items:
