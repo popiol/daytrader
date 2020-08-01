@@ -16,6 +16,7 @@ for it in range(max_it):
         print("Stopping after", it, "iterations, quote_dt:", quote_dt)
         break
     quote_dt = events[0].event['quote_dt']
+    print(quote_dt, "# events:", len(events))
     current.test(events)
 print("Capital:", current.get_capital())
 print("Bought/Sold:", current.n_bought, "/", current.n_sold)
