@@ -55,8 +55,7 @@ def scan(table, filter, limit=None):
 
 def get_start_dt(event_table, start_dt=None):
     if start_dt is None:
-        start_dt = datetime.datetime.now()
-        start_dt -= datetime.timedelta(days=3600)
+        start_dt = datetime.datetime.strptime('2020-05-01', 'YYYY-MM-DD')
         start_dt = start_dt.strftime(DB_DATE_FORMAT)
     items = scan(event_table, filter=Attr('quote_dt').gt(start_dt), limit=1)
     if not items:
@@ -421,10 +420,13 @@ class HistSimulator():
         self.samples = {}
 
     def next(self):
+        logg("get start dt")
         self.quote_dt = get_start_dt(self.event_table, self.quote_dt)
         if self.quote_dt is None:
             return None
+        logg("scan")
         items = scan(self.event_table, filter = Attr('quote_dt').eq(self.quote_dt))
+        logg("scan finish")
         self.events = {}
         for item in items:
             comp_code = item['comp_code']
@@ -443,6 +445,7 @@ class HistSimulator():
             else:
                 for comp_code in list(self.events)[:10]:
                     self.samples[comp_code] = [self.events[comp_code].get_price()]
+        logg("done")
         return batch
 
     def print_sample_quotes(self):
