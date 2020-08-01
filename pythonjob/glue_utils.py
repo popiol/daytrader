@@ -429,11 +429,14 @@ class HistSimulator():
                 for item in res['Responses'][self.event_table_name]:
                     comp_code = item['comp_code']
                     quote_dt = item['quote_dt']
+                    logg(f"{comp_code}, {quote_dt}")
                     event = item['vals']
                     event['comp_code'] = comp_code
                     event['quote_dt'] = quote_dt
                     events[comp_code] = Event(event)
+                break
             logg(f"# of events: {len(events)}")
+            break
         if not events:
             return None
         batch = list(events.values())
