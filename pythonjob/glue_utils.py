@@ -68,6 +68,7 @@ def get_start_dt(event_table, start_dt=None):
     )
     for _ in range(10):
         quote_dt = res['Items'][0]['quote_dt']
+        logg(quote_dt)
         items = scan(event_table, filter=Attr('quote_dt').lt(quote_dt) & Attr('quote_dt').gt(start_dt), limit=1)
         if not items:
             break
