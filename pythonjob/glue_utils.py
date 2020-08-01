@@ -55,53 +55,34 @@ def scan(table, filter, limit=None):
 
 def get_start_dt(event_table, start_dt=None):
     if start_dt is None:
-        start_dt = datetime.datetime.strptime('2020-05-01', '%Y-%m-%d')
+        start_dt = datetime.datetime.strptime('2020-06-01', '%Y-%m-%d')
         start_dt = start_dt.strftime(DB_DATE_FORMAT)
-    items = scan(event_table, filter=Attr('quote_dt').gt(start_dt), limit=1)
-    if not items:
-        return None
-    comp_code = items[0]['comp_code']
-    res = event_table.query(
-        KeyConditionExpression = Key('comp_code').eq(comp_code) & Key('quote_dt').gt(start_dt),
-        ScanIndexForward = True,
-        Limit = 1
-    )
-    for _ in range(10):
-        quote_dt = res['Items'][0]['quote_dt']
-        logg(quote_dt)
-        items = scan(event_table, filter=Attr('quote_dt').lt(quote_dt) & Attr('quote_dt').gt(start_dt), limit=1)
-        if not items:
-            break
-        comp_code = items[0]['comp_code']
-        res = event_table.query(
-            KeyConditionExpression = Key('comp_code').eq(comp_code) & Key('quote_dt').gt(start_dt),
-            ScanIndexForward = True,
-            Limit = 1
-        )
+    quote_dt = None
+    res = event_table.scan(FilterExpression=Attr('quote_dt').gt(start_dt))
+    for item in res['Items']:
+        if quote_dt is None or item['quote_dt'] < quote_dt:
+            quote_dt = item['quote_dt']
+    while 'LastEvaluatedKey' in res:
+        res = event_table.scan(FilterExpression=Attr('quote_dt').gt(start_dt) & Attr('quote_dt').lt(quote_dt), ExclusiveStartKey=res['LastEvaluatedKey'])
+        for item in res['Items']:
+            if item['quote_dt'] < quote_dt:
+                quote_dt = item['quote_dt']
     return quote_dt
 
 def list_companies(event_table):
     comp_codes = {}
-    quote_dt = get_start_dt(event_table)
-    if quote_dt is None:
+    start_dt = get_start_dt(event_table)
+    if start_dt is None:
         return comp_codes
-    for _ in range(10):
-        items = scan(event_table, filter=Attr('quote_dt').eq(quote_dt))
-        max_dt = None
-        for item in items:
+    res = event_table.scan(FilterExpression=Attr('quote_dt').gte(start_dt))
+    for item in res['Items']:
+        comp_code = item['comp_code']
+        comp_codes[comp_code] = 1
+    while 'LastEvaluatedKey' in res:
+        res = event_table.scan(FilterExpression=Attr('quote_dt').gte(start_dt), ExclusiveStartKey=res['LastEvaluatedKey'])
+        for item in res['Items']:
             comp_code = item['comp_code']
             comp_codes[comp_code] = 1
-            res2 = event_table.query(
-                KeyConditionExpression = Key('comp_code').eq(comp_code),
-                ScanIndexForward = False,
-                Limit = 1
-            )
-            quote_dt2 = res2['Items'][0]['quote_dt']
-            if max_dt is None or quote_dt2 > max_dt:
-                max_dt = quote_dt2
-        if quote_dt >= max_dt:
-            break
-        quote_dt = max_dt
     return list(comp_codes)
 
 class Discretizer():
