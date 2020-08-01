@@ -88,7 +88,9 @@ def list_companies(event_table):
             quote_dt = item['quote_dt']
             comp_codes[comp_code] = 1
             quote_dts[quote_dt] = 1
-    return list(comp_codes), list(quote_dts).sort()
+    quote_dts = list(quote_dts)
+    quote_dts.sort()
+    return list(comp_codes), quote_dts
 
 class Discretizer():
     def __init__(self, bucket=None, discretizer=None):
