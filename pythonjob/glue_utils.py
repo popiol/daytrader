@@ -405,7 +405,6 @@ class HistSimulator():
         self.bucket = bucket
         self.event_table = event_table
         self.quote_dt_i = 0
-        self.next()
         self.samples = {}
         self.comp_codes, self.quote_dts = list_companies(event_table)
 
