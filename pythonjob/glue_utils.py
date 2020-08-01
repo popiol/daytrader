@@ -43,15 +43,25 @@ def run_batch_job(job_name, queue_name, asynch=False, env={}):
         time.sleep(60)
     return {'job_status': job_status}
 
+def scan(table, filter, limit=None):
+    items = []
+    res = table.scan(FilterExpression=filter)
+    while 'LastEvaluatedKey' in res and (limit is None or len(items) < limit):
+        res = table.scan(
+            FilterExpression=filter, 
+            ExclusiveStartKey=res['LastEvaluatedKey'])
+        items.extend(res['Items'])
+    return items
+
 def get_start_dt(event_table, start_dt=None):
     if start_dt is None:
         start_dt = datetime.datetime.now()
         start_dt -= datetime.timedelta(days=3600)
         start_dt = start_dt.strftime(DB_DATE_FORMAT)
-    res = event_table.scan(FilterExpression=Attr('quote_dt').gt(start_dt))
-    if not res['Items']:
+    items = scan(event_table, filter=Attr('quote_dt').gt(start_dt), limit=1)
+    if not items:
         return None
-    comp_code = res['Items'][0]['comp_code']
+    comp_code = items[0]['comp_code']
     res = event_table.query(
         KeyConditionExpression = Key('comp_code').eq(comp_code) & Key('quote_dt').gt(start_dt),
         ScanIndexForward = True,
@@ -59,10 +69,10 @@ def get_start_dt(event_table, start_dt=None):
     )
     for _ in range(10):
         quote_dt = res['Items'][0]['quote_dt']
-        res = event_table.scan(FilterExpression=Attr('quote_dt').lt(quote_dt) & Attr('quote_dt').gt(start_dt))
-        if not res['Items']:
+        items = scan(event_table, filter=Attr('quote_dt').lt(quote_dt) & Attr('quote_dt').gt(start_dt), limit=1)
+        if not items:
             break
-        comp_code = res['Items'][0]['comp_code']
+        comp_code = items[0]['comp_code']
         res = event_table.query(
             KeyConditionExpression = Key('comp_code').eq(comp_code) & Key('quote_dt').gt(start_dt),
             ScanIndexForward = True,
@@ -76,9 +86,9 @@ def list_companies(event_table):
     if quote_dt is None:
         return comp_codes
     for _ in range(10):
-        res = event_table.scan(FilterExpression=Attr('quote_dt').eq(quote_dt))
+        items = scan(event_table, filter=Attr('quote_dt').eq(quote_dt))
         max_dt = None
-        for item in res['Items']:
+        for item in items:
             comp_code = item['comp_code']
             comp_codes[comp_code] = 1
             res2 = event_table.query(
@@ -414,11 +424,9 @@ class HistSimulator():
         self.quote_dt = get_start_dt(self.event_table, self.quote_dt)
         if self.quote_dt is None:
             return None
-        res = self.event_table.scan(
-            FilterExpression = Attr('quote_dt').eq(self.quote_dt)
-        )
+        items = scan(self.event_table, filter = Attr('quote_dt').eq(self.quote_dt))
         self.events = {}
-        for item in res['Items']:
+        for item in items:
             comp_code = item['comp_code']
             quote_dt = item['quote_dt']
             event = item['vals']
