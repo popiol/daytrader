@@ -55,7 +55,7 @@ def scan(table, filter, limit=None):
 
 def get_start_dt(event_table, start_dt=None):
     if start_dt is None:
-        start_dt = datetime.datetime.strptime('2020-06-01', '%Y-%m-%d')
+        start_dt = datetime.datetime.strptime('2020-03-01', '%Y-%m-%d')
         start_dt = start_dt.strftime(DB_DATE_FORMAT)
     quote_dt = None
     res = event_table.scan(FilterExpression=Attr('quote_dt').gt(start_dt))
@@ -401,32 +401,42 @@ class Simulator():
             print(self.samples[comp_code])
 
 class HistSimulator():
-    def __init__(self, bucket, event_table):
-        self.bucket = bucket
-        self.event_table = event_table
+    def __init__(self, db, event_table_name):
+        self.db = db
+        self.event_table_name = event_table_name
+        self.event_table = db.Table(event_table_name)
         self.quote_dt_i = 0
         self.samples = {}
-        self.comp_codes, self.quote_dts = list_companies(event_table)
+        self.comp_codes, self.quote_dts = list_companies(self.event_table)
 
     def next(self):
         logg("start")
-        if self.quote_dt_i >= len(self.quote_dts):
+        events = {}
+        while len(events) < 400 and self.quote_dt_i < len(self.quote_dts):
+            self.quote_dt = self.quote_dts[self.quote_dt_i]
+            self.quote_dt_i += 1
+            keys = []
+            for comp_code in self.comp_codes:
+                keys.append({'comp_code':comp_code, 'quote_dt':self.quote_dt})
+            for batch_i in range(math.ceil(len(keys)/10)):
+                res = self.db.batch_get_item(
+                    RequestItems={
+                        self.event_table_name: {
+                            'Keys': keys[batch_i*10:(batch_i+1)*10]
+                        }
+                    }
+                )
+                for item in res['Responses'][self.event_table_name]:
+                    comp_code = item['comp_code']
+                    quote_dt = item['quote_dt']
+                    event = item['vals']
+                    event['comp_code'] = comp_code
+                    event['quote_dt'] = quote_dt
+                    events[comp_code] = Event(event)
+            logg(f"# of events: {len(events)}")
+        if not events:
             return None
-        self.quote_dt = self.quote_dts[self.quote_dt_i]
-        self.quote_dt_i += 1
-        self.events = {}
-        for comp_code in self.comp_codes:
-            logg(comp_code)
-            res = self.event_table.query(
-                KeyConditionExpression = Key('comp_code').eq(comp_code) & Key('quote_dt').eq(self.quote_dt)
-            )
-            if not res['Items']:
-                continue
-            event = res['Items'][0]['vals']
-            event['comp_code'] = comp_code
-            event['quote_dt'] = self.quote_dt
-            self.events[comp_code] = Event(event)
-        batch = list(self.events.values())
+        batch = list(events.values())
         hour = int(self.quote_dt[8:10])
         if hour == 16:
             if self.samples:
