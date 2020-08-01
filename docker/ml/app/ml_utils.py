@@ -305,10 +305,13 @@ def compare_agents(agent1, agent2, hist=False, quick=False):
         max_it = 100000 if hist else 1000
         if quick:
             max_it = 400
-        for _ in range(max_it):
+        quote_dt = None
+        for it in range(max_it):
             events = simulator.next()
             if events is None:
+                print("Stopping after", it, "iterations, quote_dt:", quote_dt)
                 break
+            quote_dt = events[0].event['quote_dt']
             agent1.test(events)
             agent2.test(events)
         scores1.append(agent1.score)
