@@ -14,8 +14,7 @@ class TestHistSimulator():
         bucket = s3.Bucket(bucket_name)
         event_table_name = vars['id'] + '_events'
         db = boto3.resource('dynamodb')
-        event_table = db.Table(event_table_name)
-        vars['simulator'] = glue_utils.HistSimulator(bucket, event_table)
+        vars['simulator'] = glue_utils.HistSimulator(db, event_table_name)
         return vars
 
     def test_events(self, vars):

@@ -297,7 +297,7 @@ def compare_agents(agent1, agent2, hist=False, quick=False):
     offset_range = [0] if hist else [-1,0,1]
     for offset in offset_range:
         if hist:
-            simulator = glue_utils.HistSimulator(bucket, event_table)
+            simulator = glue_utils.HistSimulator(db, event_table_name)
         else:
             simulator = glue_utils.Simulator(bucket, offset)
         agent1.reset()

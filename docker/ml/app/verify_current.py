@@ -5,7 +5,7 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
-simulator = glue_utils.HistSimulator(ml_utils.bucket, ml_utils.event_table)
+simulator = glue_utils.HistSimulator(ml_utils.db, ml_utils.event_table_name)
 current = ml_utils.Agent('current', ml_utils.bucket, verbose=True)
 current.reset()
 max_it = 1

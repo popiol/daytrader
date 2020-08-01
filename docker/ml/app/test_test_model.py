@@ -7,7 +7,7 @@ import math
 warnings.filterwarnings("ignore")
 for hist in range(2):
     if hist:
-        simulator = glue_utils.HistSimulator(ml_utils.bucket, ml_utils.event_table)
+        simulator = glue_utils.HistSimulator(ml_utils.db, ml_utils.event_table_name)
     else:
         simulator = glue_utils.Simulator(ml_utils.bucket)
     agent = ml_utils.Agent('dev', ml_utils.bucket)
