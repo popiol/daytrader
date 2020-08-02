@@ -435,7 +435,6 @@ class HistSimulator():
                     event['comp_code'] = comp_code
                     event['quote_dt'] = quote_dt
                     events[comp_code] = Event(event)
-                break
             logg(f"# of events: {len(events)}")
             break
         if not events:

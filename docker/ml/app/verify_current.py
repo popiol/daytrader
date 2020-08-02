@@ -6,8 +6,8 @@ import warnings
 warnings.filterwarnings("ignore")
 
 simulator = glue_utils.HistSimulator(ml_utils.db, ml_utils.event_table_name)
-#current = ml_utils.Agent('current', ml_utils.bucket, verbose=True)
-#current.reset()
+current = ml_utils.Agent('current', ml_utils.bucket, verbose=True)
+current.reset()
 max_it = 1
 quote_dt = None
 for it in range(max_it):
@@ -18,7 +18,7 @@ for it in range(max_it):
         break
     quote_dt = events[0].event['quote_dt']
     glue_utils.logg(f"{quote_dt}, # events: {len(events)}")
-    #current.test(events)
-#print("Capital:", current.get_capital())
-#print("Bought/Sold:", current.n_bought, "/", current.n_sold)
-#print("Score:", current.score)
+    current.test(events)
+print("Capital:", current.get_capital())
+print("Bought/Sold:", current.n_bought, "/", current.n_sold)
+print("Score:", current.score)
