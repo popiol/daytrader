@@ -62,12 +62,12 @@ def get_start_dt(event_table, start_dt=None):
         start_dt2 = start_dt2.strftime(DB_DATE_FORMAT)
         start_dt = max(start_dt1, start_dt2)
     quote_dt = None
-    res = event_table.scan(FilterExpression=Attr('quote_dt').gt(start_dt))
+    res = event_table.scan(FilterExpression=Attr('quote_dt').gt(start_dt), ProjectionExpression="comp_code,quote_dt")
     for item in res['Items']:
         if quote_dt is None or item['quote_dt'] < quote_dt:
             quote_dt = item['quote_dt']
     while 'LastEvaluatedKey' in res:
-        res = event_table.scan(FilterExpression=Attr('quote_dt').gt(start_dt) & Attr('quote_dt').lt(quote_dt), ExclusiveStartKey=res['LastEvaluatedKey'])
+        res = event_table.scan(FilterExpression=Attr('quote_dt').gt(start_dt) & Attr('quote_dt').lt(quote_dt), ExclusiveStartKey=res['LastEvaluatedKey'], ProjectionExpression="comp_code,quote_dt")
         for item in res['Items']:
             if item['quote_dt'] < quote_dt:
                 quote_dt = item['quote_dt']
@@ -79,14 +79,14 @@ def list_companies(event_table):
     start_dt = get_start_dt(event_table)
     if start_dt is None:
         return comp_codes
-    res = event_table.scan(FilterExpression=Attr('quote_dt').gte(start_dt))
+    res = event_table.scan(FilterExpression=Attr('quote_dt').gte(start_dt), ProjectionExpression="comp_code,quote_dt")
     for item in res['Items']:
         comp_code = item['comp_code']
         quote_dt = item['quote_dt']
         comp_codes[comp_code] = 1
         quote_dts[quote_dt] = 1
     while 'LastEvaluatedKey' in res:
-        res = event_table.scan(FilterExpression=Attr('quote_dt').gte(start_dt), ExclusiveStartKey=res['LastEvaluatedKey'])
+        res = event_table.scan(FilterExpression=Attr('quote_dt').gte(start_dt), ExclusiveStartKey=res['LastEvaluatedKey'], ProjectionExpression="comp_code,quote_dt")
         for item in res['Items']:
             comp_code = item['comp_code']
             quote_dt = item['quote_dt']
@@ -102,14 +102,14 @@ def list_events(event_table):
     start_dt = get_start_dt(event_table)
     if start_dt is None:
         return comp_codes
-    res = event_table.scan(FilterExpression=Attr('quote_dt').gte(start_dt))
+    res = event_table.scan(FilterExpression=Attr('quote_dt').gte(start_dt), ProjectionExpression="comp_code,quote_dt")
     for item in res['Items']:
         comp_code = item['comp_code']
         quote_dt = item['quote_dt']
         comp_codes.append(comp_code)
         quote_dts.append(quote_dt)
     while 'LastEvaluatedKey' in res:
-        res = event_table.scan(FilterExpression=Attr('quote_dt').gte(start_dt), ExclusiveStartKey=res['LastEvaluatedKey'])
+        res = event_table.scan(FilterExpression=Attr('quote_dt').gte(start_dt), ExclusiveStartKey=res['LastEvaluatedKey'], ProjectionExpression="comp_code,quote_dt")
         for item in res['Items']:
             comp_code = item['comp_code']
             quote_dt = item['quote_dt']
