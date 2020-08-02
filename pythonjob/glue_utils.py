@@ -465,6 +465,7 @@ class HistSimulator():
                     events[comp_code] = Event(event)
         if not events:
             return None
+        print(self.quote_dt, len(events))
         batch = list(events.values())
         hour = int(self.quote_dt[8:10])
         if hour == 16:
