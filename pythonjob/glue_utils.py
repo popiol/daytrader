@@ -116,8 +116,8 @@ def list_events(event_table):
             comp_codes.append(comp_code)
             quote_dts.append(quote_dt)
     keys = np.argsort(quote_dts)
-    quote_dts = quote_dts[keys]
-    comp_codes = comp_codes[keys]
+    quote_dts = [quote_dts[i] for i in keys]
+    comp_codes = [comp_codes[i] for i in keys]
     return comp_codes, quote_dts
 
 class Discretizer():
