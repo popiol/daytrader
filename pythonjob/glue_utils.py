@@ -417,7 +417,7 @@ class HistSimulator():
             self.quote_dt_i += 1
             keys = []
             for comp_code in self.comp_codes:
-                keys.append({'comp_code':{'S':comp_code}, 'quote_dt':{'S':self.quote_dt}})
+                keys.append({'comp_code':comp_code, 'quote_dt':self.quote_dt})
             for batch_i in range(math.ceil(len(keys)/10)):
                 res = self.db.batch_get_item(
                     RequestItems={
