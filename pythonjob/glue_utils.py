@@ -410,9 +410,8 @@ class HistSimulator():
         self.comp_codes, self.quote_dts = list_companies(self.event_table)
 
     def next(self):
-        logg("start")
         events = {}
-        while len(events) < 400 and self.quote_dt_i < len(self.quote_dts):
+        while len(events) < 300 and self.quote_dt_i < len(self.quote_dts):
             self.quote_dt = self.quote_dts[self.quote_dt_i]
             self.quote_dt_i += 1
             keys = []
@@ -430,12 +429,10 @@ class HistSimulator():
                 for item in res['Responses'][self.event_table_name]:
                     comp_code = item['comp_code']
                     quote_dt = item['quote_dt']
-                    logg(f"{comp_code}, {quote_dt}")
                     event = item['vals']
                     event['comp_code'] = comp_code
                     event['quote_dt'] = quote_dt
                     events[comp_code] = Event(event)
-            logg(f"# of events: {len(events)}")
         if not events:
             return None
         batch = list(events.values())
@@ -443,12 +440,11 @@ class HistSimulator():
         if hour == 16:
             if self.samples:
                 for comp_code in self.samples:
-                    if comp_code in self.events:
-                        self.samples[comp_code].append(self.events[comp_code].get_price())
+                    if comp_code in events:
+                        self.samples[comp_code].append(events[comp_code].get_price())
             else:
-                for comp_code in list(self.events)[:10]:
-                    self.samples[comp_code] = [self.events[comp_code].get_price()]
-        logg("done")
+                for comp_code in list(events)[:10]:
+                    self.samples[comp_code] = [events[comp_code].get_price()]
         return batch
 
     def print_sample_quotes(self):
