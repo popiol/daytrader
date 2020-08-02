@@ -55,8 +55,12 @@ def scan(table, filter, limit=None):
 
 def get_start_dt(event_table, start_dt=None):
     if start_dt is None:
-        start_dt = datetime.datetime.strptime('2020-05-01', '%Y-%m-%d')
-        start_dt = start_dt.strftime(DB_DATE_FORMAT)
+        start_dt1 = datetime.datetime.now()
+        start_dt1 -= datetime.timedelta(days=365)
+        start_dt1 = start_dt1.strftime(DB_DATE_FORMAT)
+        start_dt2 = datetime.datetime.strptime('2020-06-01', '%Y-%m-%d')
+        start_dt2 = start_dt2.strftime(DB_DATE_FORMAT)
+        start_dt = max(start_dt1, start_dt2)
     quote_dt = None
     res = event_table.scan(FilterExpression=Attr('quote_dt').gt(start_dt))
     for item in res['Items']:
@@ -91,6 +95,30 @@ def list_companies(event_table):
     quote_dts = list(quote_dts)
     quote_dts.sort()
     return list(comp_codes), quote_dts
+
+def list_events(event_table):
+    comp_codes = []
+    quote_dts = []
+    start_dt = get_start_dt(event_table)
+    if start_dt is None:
+        return comp_codes
+    res = event_table.scan(FilterExpression=Attr('quote_dt').gte(start_dt))
+    for item in res['Items']:
+        comp_code = item['comp_code']
+        quote_dt = item['quote_dt']
+        comp_codes.append(comp_code)
+        quote_dts.append(quote_dt)
+    while 'LastEvaluatedKey' in res:
+        res = event_table.scan(FilterExpression=Attr('quote_dt').gte(start_dt), ExclusiveStartKey=res['LastEvaluatedKey'])
+        for item in res['Items']:
+            comp_code = item['comp_code']
+            quote_dt = item['quote_dt']
+            comp_codes.append(comp_code)
+            quote_dts.append(quote_dt)
+    keys = np.argsort(quote_dts)
+    quote_dts = quote_dts[keys]
+    comp_codes = comp_codes[keys]
+    return comp_codes, quote_dts
 
 class Discretizer():
     def __init__(self, bucket=None, discretizer=None):
@@ -407,15 +435,18 @@ class HistSimulator():
         self.event_table = db.Table(event_table_name)
         self.quote_dt_i = 0
         self.samples = {}
-        self.comp_codes, self.quote_dts = list_companies(self.event_table)
+        self.comp_codes, self.quote_dts = list_events(self.event_table)
 
     def next(self):
         events = {}
         while len(events) < 300 and self.quote_dt_i < len(self.quote_dts):
-            self.quote_dt = self.quote_dts[self.quote_dt_i]
-            self.quote_dt_i += 1
             keys = []
-            for comp_code in self.comp_codes:
+            for _ in range(500):
+                if self.quote_dt_i >= len(self.quote_dts):
+                    break
+                self.quote_dt = self.quote_dts[self.quote_dt_i]
+                comp_code = self.comp_codes[self.quote_dt_i]
+                self.quote_dt_i += 1
                 keys.append({'comp_code':comp_code, 'quote_dt':self.quote_dt})
             for batch_i in range(math.ceil(len(keys)/10)):
                 res = self.db.batch_get_item(
