@@ -425,7 +425,6 @@ class HistSimulator():
                         }
                     }
                 )
-                print(res['Responses'][self.event_table_name])
                 for item in res['Responses'][self.event_table_name]:
                     comp_code = item['comp_code']
                     quote_dt = item['quote_dt']
