@@ -137,8 +137,6 @@ class Agent():
         for event in events:
             inputs.append(self.get_inputs(event))
         outputs = get_outputs(events, inputs)
-        if self.verbose:
-            print(events[0].event['quote_dt'], len(events))
         for event in events:
             comp_code = event.event['comp_code']
             if 'old_comp_code' in event.event and event.event['old_comp_code'] in self.portfolio:
@@ -151,6 +149,8 @@ class Agent():
                 best_event = event
                 best_buy = buy_action
                 best_price = round(event.event['price'] * (1+buy_price/50), 2)
+            elif self.verbose:
+                print(buy_action, buy_price)
             outputs1 = [buy_action, buy_price, sell_price]
             outputs1 = [(x+1)/2 for x in outputs1]
             outputs2.append(outputs1)
