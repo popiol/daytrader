@@ -15,7 +15,8 @@ HIGH_CHANGE_N_BINS = 5
 LOW_CHANGE_N_BINS = HIGH_CHANGE_N_BINS
 ALL_CHANGE_N_BINS = PRICE_CHANGE_N_BINS + HIGH_CHANGE_N_BINS + LOW_CHANGE_N_BINS
 DB_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
-SIM_N_COMPS = 500
+SIM_N_COMPS = 450
+N_VANISHING_COMPS = 100
 MIN_EVENTS_LEN = 100
 
 def logg(x):
@@ -343,7 +344,8 @@ class Simulator():
         events = {}
         for comp_code in comp_codes:
             price = self.generate_price()
-            event = {'comp_code':comp_code,'quote_dt':quote_dt,'price':price,'high_price':price,'low_price':price}
+            vanishing = 1 if len(events) >= SIM_N_COMPS - N_VANISHING_COMPS else 0
+            event = {'comp_code':comp_code,'quote_dt':quote_dt,'price':price,'high_price':price,'low_price':price,'vanishing':vanishing}
             events[comp_code] = Event(event)
         self.events = events
         self.model = PriceChModel(bucket)
@@ -376,11 +378,11 @@ class Simulator():
         quote_dt = datetime.datetime.strptime(self.quote_dt, DB_DATE_FORMAT)
         quote_dt += datetime.timedelta(hours=1)
         if quote_dt.hour > 16:
-            quote_dt += datetime.timedelta(hours=16)
+            quote_dt += datetime.timedelta(hours=17)
         if quote_dt.weekday() > 4:
             quote_dt += datetime.timedelta(days=2)
         renamed = {}
-        if quote_dt.hour == 9:
+        if quote_dt.hour == 10:
             for i, comp_code in enumerate(self.comp_codes):
                 rename = random.choices([0,1], [250*len(self.comp_codes),5])[0]
                 if rename:
@@ -415,8 +417,14 @@ class Simulator():
             if comp_code in renamed:
                 events[comp_code].event['old_comp_code'] = renamed[comp_code]
         self.events = events
-        batch = list(self.events.values())
+        batch = []
+        for event in self.events.values():
+            vanishing = event.event['vanishing']
+            add = random.randrange(2) if vanishing else 1
+            if add:
+                batch.append(event)
         self.quote_dt = quote_dt
+        print(self.quote_dt, len(batch))
         if hour == 16:
             for comp_code in self.samples:
                 if comp_code in self.events:
@@ -465,7 +473,7 @@ class HistSimulator():
                     events[comp_code] = Event(event)
         if not events:
             return None
-        print(self.quote_dt, len(events))
+        #print(self.quote_dt, len(events))
         batch = list(events.values())
         hour = int(self.quote_dt[8:10])
         if hour == 16:
