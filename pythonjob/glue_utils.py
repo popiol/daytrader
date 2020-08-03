@@ -270,7 +270,9 @@ class Event():
         return inputs
 
     def next(self, price, high_price, low_price, quote_dt):
+        assert 'vanishing' in self.event
         event = self.event.copy()
+        assert 'vanishing' in event
         prev_event = self.event
         event['price'] = price
         event['high_price'] = high_price
@@ -414,6 +416,7 @@ class Simulator():
             price = round(price, 2)
             high_price = round(high_price, 2)
             low_price = round(low_price, 2)
+            assert 'vanishing' in self.events[comp_code].event
             events[comp_code] = self.events[comp_code].next(price, high_price, low_price, quote_dt)
             assert 'vanishing' in events[comp_code].event
             if comp_code in renamed:
