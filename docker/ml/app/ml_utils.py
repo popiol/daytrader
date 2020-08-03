@@ -137,6 +137,8 @@ class Agent():
         for event in events:
             inputs.append(self.get_inputs(event))
         outputs = get_outputs(events, inputs)
+        if self.verbose:
+            print(events[0].event['quote_dt'], len(events))
         for event in events:
             comp_code = event.event['comp_code']
             if 'old_comp_code' in event.event and event.event['old_comp_code'] in self.portfolio:
