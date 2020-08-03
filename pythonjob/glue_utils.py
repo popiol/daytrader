@@ -428,7 +428,6 @@ class Simulator():
             add = random.randrange(2) if vanishing else 1
             if add:
                 batch.append(event)
-        print(self.quote_dt, len(batch))
         if hour == 16:
             for comp_code in self.samples:
                 if comp_code in self.events:
