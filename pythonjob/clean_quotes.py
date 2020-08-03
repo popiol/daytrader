@@ -6,6 +6,7 @@ import csv
 import io
 import traceback
 from pytz import timezone
+import pytz
 
 def transform(row, created_dt):
     out = {}
@@ -73,11 +74,14 @@ for key in files:
     if list(bucket.objects.filter(Prefix=clean_key)) or list(bucket.objects.filter(Prefix=rejected_key)):
         continue
     
+    created_dt = key.split('_')[1]
+    created_dt = datetime.datetime.strptime(created_dt, "%Y%m%d%H%M%S")
+    created_dt = created_dt.replace(tzinfo=pytz.utc)
+
     #logg(key)
     
     f = bucket.Object(key).get()
     inp = f['Body'].read().decode('utf-8')
-    created_dt = f['LastModified']
     csv_reader = csv.DictReader(io.StringIO(inp))
     out = io.StringIO()
     n_out = 0
