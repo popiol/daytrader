@@ -270,9 +270,7 @@ class Event():
         return inputs
 
     def next(self, price, high_price, low_price, quote_dt):
-        assert 'vanishing' in self.event
         event = self.event.copy()
-        assert 'vanishing' in event
         prev_event = self.event
         event['price'] = price
         event['high_price'] = high_price
@@ -349,7 +347,6 @@ class Simulator():
             vanishing = 1 if len(events) >= SIM_N_COMPS - N_VANISHING_COMPS else 0
             event = {'comp_code':comp_code,'quote_dt':quote_dt,'price':price,'high_price':price,'low_price':price,'vanishing':vanishing}
             events[comp_code] = Event(event)
-            assert 'vanishing' in events[comp_code].event
         self.events = events
         self.model = PriceChModel(bucket)
         self.discretizer = Discretizer(bucket)
@@ -417,9 +414,7 @@ class Simulator():
             price = round(price, 2)
             high_price = round(high_price, 2)
             low_price = round(low_price, 2)
-            assert 'vanishing' in self.events[comp_code].event
             events[comp_code] = self.events[comp_code].next(price, high_price, low_price, quote_dt)
-            assert 'vanishing' in events[comp_code].event
             if comp_code in renamed:
                 events[comp_code].event['old_comp_code'] = renamed[comp_code]
         self.events = events
