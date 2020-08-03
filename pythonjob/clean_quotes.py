@@ -6,7 +6,7 @@ import csv
 import io
 import traceback
 
-def transform(row):
+def transform(row, created_dt):
     out = {}
     
     #id
@@ -24,6 +24,7 @@ def transform(row):
 
     #date
     dt = datetime.datetime.strptime(row['Time_Date'], "%I:%M %p %d.%m.%Y")
+    assert dt < created_dt
     dt = dt.strftime("%Y-%m-%d %H:%M:%S")
     assert dt > '2020-01-01 00:00:00'
     out['quote_dt'] = dt
@@ -73,6 +74,7 @@ for key in files:
     
     f = bucket.Object(key).get()
     inp = f['Body'].read().decode('utf-8')
+    created_dt = f['LastModified']
     csv_reader = csv.DictReader(io.StringIO(inp))
     out = io.StringIO()
     n_out = 0
@@ -84,7 +86,7 @@ for key in files:
     rej_writer.writeheader()
     for row in csv_reader:
         try:
-            out_writer.writerow(transform(row))
+            out_writer.writerow(transform(row, created_dt))
             n_out += 1
         except:
             row['error_message'] = ' | '.join([x.strip() for x in traceback.format_exc().splitlines()[-2:]])
