@@ -14,4 +14,7 @@ if score1 > score2:
     print("Current score:", score1, ", Prod score:", score2)
     if score1 > score2:
         current.save_as('prod')
+else:
+    score1, score2 = ml_utils.compare_agents(current, prod, hist=True)
+    print("Current score:", score1, ", Prod score:", score2)
     
