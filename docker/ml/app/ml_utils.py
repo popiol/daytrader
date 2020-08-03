@@ -304,9 +304,9 @@ def compare_agents(agent1, agent2, hist=False, quick=False):
             simulator = glue_utils.Simulator(bucket, offset)
         agent1.reset()
         agent2.reset()
-        max_it = 100000 if hist else 1000
+        max_it = 100000 if hist else 500
         if quick:
-            max_it = 400
+            max_it = 200
         quote_dt = None
         for it in range(max_it):
             events = simulator.next()
