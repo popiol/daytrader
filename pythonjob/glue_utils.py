@@ -393,7 +393,8 @@ class Simulator():
                     comp_code = self.generate_comp_code()
                     self.comp_codes[i] = comp_code
                     price = self.generate_price()
-                    self.events[comp_code] = Event({'comp_code':comp_code,'quote_dt':self.quote_dt,'price':price,'high_price':price,'low_price':price})
+                    vanishing = self.events[old_comp_code].event['vanishing']
+                    self.events[comp_code] = Event({'comp_code':comp_code,'quote_dt':self.quote_dt,'price':price,'high_price':price,'low_price':price,'vanishing':vanishing})
                     renamed[comp_code] = old_comp_code
                     #print(f"Rename {old_comp_code} to {comp_code}")
         hour = quote_dt.hour
