@@ -5,6 +5,7 @@ import boto3
 import csv
 import io
 import traceback
+from pytz import timezone
 
 def transform(row, created_dt):
     out = {}
@@ -24,6 +25,8 @@ def transform(row, created_dt):
 
     #date
     dt = datetime.datetime.strptime(row['Time_Date'], "%I:%M %p %d.%m.%Y")
+    ny_tz = timezone('America/New_York')
+    dt = ny_tz.localize(dt)
     assert dt < created_dt
     dt = dt.strftime("%Y-%m-%d %H:%M:%S")
     assert dt > '2020-01-01 00:00:00'
