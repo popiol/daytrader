@@ -375,56 +375,59 @@ class Simulator():
         return round(price, 2)
 
     def next(self):
-        quote_dt = datetime.datetime.strptime(self.quote_dt, DB_DATE_FORMAT)
-        quote_dt += datetime.timedelta(hours=1)
-        if quote_dt.hour > 16:
-            quote_dt += datetime.timedelta(hours=17)
-        if quote_dt.weekday() > 4:
-            quote_dt += datetime.timedelta(days=2)
-        renamed = {}
-        if quote_dt.hour == 10:
-            for i, comp_code in enumerate(self.comp_codes):
-                rename = random.choices([0,1], [250*len(self.comp_codes),5])[0]
-                if rename:
-                    old_comp_code = comp_code
-                    comp_code = self.generate_comp_code()
-                    self.comp_codes[i] = comp_code
-                    price = self.generate_price()
-                    vanishing = self.events[old_comp_code].event['vanishing']
-                    self.events[comp_code] = Event({'comp_code':comp_code,'quote_dt':self.quote_dt,'price':price,'high_price':price,'low_price':price,'vanishing':vanishing})
-                    renamed[comp_code] = old_comp_code
-                    #print(f"Rename {old_comp_code} to {comp_code}")
-        hour = quote_dt.hour
-        quote_dt = quote_dt.strftime(DB_DATE_FORMAT)
-        events = {}
-        base_ch = None
-        for comp_code in self.comp_codes:
-            inputs = self.events[comp_code].get_inputs()
-            proba = self.model.predict_proba(inputs)
-            price_ch, high_price_ch, low_price_ch = self.discretizer.random_price_change(proba, self.offset)
-            if base_ch is None:
-                base_ch = price_ch / 5
-            else:
-                price_ch += base_ch
-            price = self.events[comp_code].event['price'] * (price_ch + 1)
-            high_price = self.events[comp_code].event['price'] * (high_price_ch + 1)
-            low_price = self.events[comp_code].event['price'] * (low_price_ch + 1)
-            high_price = max(high_price, price)
-            low_price = min(low_price, price)
-            price = round(price, 2)
-            high_price = round(high_price, 2)
-            low_price = round(low_price, 2)
-            events[comp_code] = self.events[comp_code].next(price, high_price, low_price, quote_dt)
-            if comp_code in renamed:
-                events[comp_code].event['old_comp_code'] = renamed[comp_code]
-        self.events = events
+        hour = int(self.quote_dt[8:10])
+        n_steps = random.choices([1,2], [3.3 + abs(hour-13), 3])[0]
+        for _ in range(n_steps):
+            quote_dt = datetime.datetime.strptime(self.quote_dt, DB_DATE_FORMAT)
+            quote_dt += datetime.timedelta(hours=1)
+            if quote_dt.hour > 16:
+                quote_dt += datetime.timedelta(hours=17)
+            if quote_dt.weekday() > 4:
+                quote_dt += datetime.timedelta(days=2)
+            renamed = {}
+            if quote_dt.hour == 10:
+                for i, comp_code in enumerate(self.comp_codes):
+                    rename = random.choices([0,1], [250*len(self.comp_codes),5])[0]
+                    if rename:
+                        old_comp_code = comp_code
+                        comp_code = self.generate_comp_code()
+                        self.comp_codes[i] = comp_code
+                        price = self.generate_price()
+                        vanishing = self.events[old_comp_code].event['vanishing']
+                        self.events[comp_code] = Event({'comp_code':comp_code,'quote_dt':self.quote_dt,'price':price,'high_price':price,'low_price':price,'vanishing':vanishing})
+                        renamed[comp_code] = old_comp_code
+                        #print(f"Rename {old_comp_code} to {comp_code}")
+            hour = quote_dt.hour
+            quote_dt = quote_dt.strftime(DB_DATE_FORMAT)
+            events = {}
+            base_ch = None
+            for comp_code in self.comp_codes:
+                inputs = self.events[comp_code].get_inputs()
+                proba = self.model.predict_proba(inputs)
+                price_ch, high_price_ch, low_price_ch = self.discretizer.random_price_change(proba, self.offset)
+                if base_ch is None:
+                    base_ch = price_ch / 5
+                else:
+                    price_ch += base_ch
+                price = self.events[comp_code].event['price'] * (price_ch + 1)
+                high_price = self.events[comp_code].event['price'] * (high_price_ch + 1)
+                low_price = self.events[comp_code].event['price'] * (low_price_ch + 1)
+                high_price = max(high_price, price)
+                low_price = min(low_price, price)
+                price = round(price, 2)
+                high_price = round(high_price, 2)
+                low_price = round(low_price, 2)
+                events[comp_code] = self.events[comp_code].next(price, high_price, low_price, quote_dt)
+                if comp_code in renamed:
+                    events[comp_code].event['old_comp_code'] = renamed[comp_code]
+            self.events = events
+            self.quote_dt = quote_dt
         batch = []
         for event in self.events.values():
             vanishing = event.event['vanishing']
             add = random.randrange(2) if vanishing else 1
             if add:
                 batch.append(event)
-        self.quote_dt = quote_dt
         print(self.quote_dt, len(batch))
         if hour == 16:
             for comp_code in self.samples:
