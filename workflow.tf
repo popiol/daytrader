@@ -101,7 +101,7 @@ resource "aws_glue_trigger" "pricech_model" {
 resource "aws_glue_trigger" "start_events" {
 	name = "${var.inp.app.id}_start_events"
 	type = "SCHEDULED"
-	schedule = "cron(57 * ? * * *)"
+	schedule = "cron(*/15 * ? * * *)"
 
 	actions {
 		job_name = module.events.job_name
