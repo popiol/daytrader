@@ -141,7 +141,7 @@ class Agent():
         for event in events:
             comp_code = event.event['comp_code']
             prev_events[comp_code] = event
-            if self.prev_events is not None:
+            if self.prev_events is not None and comp_code in self.prev_events:
                 price_ch = event.get_price() / self.prev_events[comp_code].get_price() - 1
                 if price_ch > 0:
                     self.price_up.append(price_ch)
