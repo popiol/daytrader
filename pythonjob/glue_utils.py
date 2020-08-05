@@ -354,7 +354,7 @@ class Simulator():
         for comp_code in comp_codes[:10]:
             self.samples[comp_code] = [self.events[comp_code].get_price()]
         self.offset = offset
-        for _ in range(1000):
+        for _ in range(500):
             self.next()
 
     def generate_comp_code(self):
