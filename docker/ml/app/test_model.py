@@ -5,7 +5,7 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
-current = ml_utils.Agent('current', ml_utils.bucket, verbose=True)
+current = ml_utils.Agent('current', ml_utils.bucket)
 prod = ml_utils.Agent('prod', ml_utils.bucket)
 score1, score2 = ml_utils.compare_agents(current, prod, quick=True)
 print("Current score:", score1, ", Prod score:", score2)
