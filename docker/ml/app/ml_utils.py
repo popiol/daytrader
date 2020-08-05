@@ -137,8 +137,16 @@ class Agent():
         for event in events:
             inputs.append(self.get_inputs(event))
         outputs = get_outputs(events, inputs)
+        prev_events = {}
         for event in events:
             comp_code = event.event['comp_code']
+            prev_events[comp_code] = event
+            if self.prev_events is not None:
+                price_ch = event.get_price() / self.prev_events[comp_code].get_price() - 1
+                if price_ch > 0:
+                    self.price_up.append(price_ch)
+                elif price_ch < 0:
+                    self.price_down.append(price_ch)
             if 'old_comp_code' in event.event and event.event['old_comp_code'] in self.portfolio:
                 old_comp_code = event.event['old_comp_code']
                 self.portfolio[comp_code] = self.portfolio[old_comp_code]
@@ -155,6 +163,7 @@ class Agent():
             outputs1 = [(x+1)/2 for x in outputs1]
             outputs2.append(outputs1)
             self.add_sell_order(event, sell_price, orders)
+        self.prev_events = prev_events
         if self.verbose and best_event is not None:
             print("Best buy:", best_event.event['comp_code'], best_buy, best_event.event['price'], best_price)
         self.orders = orders
@@ -235,6 +244,9 @@ class Agent():
         self.event_hist = []
         self.n_bought = 0
         self.n_sold = 0
+        self.price_up = []
+        self.price_down = []
+        self.prev_events = None
         
     def get_test_outputs(self, events, inputs):
         outputs = self.model.predict(inputs)
