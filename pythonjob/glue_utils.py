@@ -59,7 +59,7 @@ def get_start_dt(event_table, start_dt=None):
         start_dt1 = datetime.datetime.now()
         start_dt1 -= datetime.timedelta(days=365)
         start_dt1 = start_dt1.strftime(DB_DATE_FORMAT)
-        start_dt2 = datetime.datetime.strptime('2020-06-01', '%Y-%m-%d')
+        start_dt2 = datetime.datetime.strptime('2020-04-01', '%Y-%m-%d')
         start_dt2 = start_dt2.strftime(DB_DATE_FORMAT)
         start_dt = max(start_dt1, start_dt2)
     quote_dt = None
