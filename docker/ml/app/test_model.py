@@ -10,13 +10,9 @@ prod = ml_utils.Agent('prod', ml_utils.bucket)
 score1, score2 = ml_utils.compare_agents(current, prod)
 print("Current score:", score1, ", Prod score:", score2)
 print("Price up/down:", np.average(current.price_up), "/", np.average(current.price_down))
-if score1 > score2:
-    score1, score2 = ml_utils.compare_agents(current, prod, hist=True)
-    print("Current score:", score1, ", Prod score:", score2)
-    print("Price up/down:", np.average(current.price_up), "/", np.average(current.price_down))
-    if score1 > score2:
-        current.save_as('prod')
-else:
-    score1, score2 = ml_utils.compare_agents(current, prod, hist=True)
-    print("Current score:", score1, ", Prod score:", score2)
-    print("Price up/down:", np.average(current.price_up), "/", np.average(current.price_down))
+better = True if score1 > score2 else False
+score1, score2 = ml_utils.compare_agents(current, prod, hist=True)
+print("Current score:", score1, ", Prod score:", score2)
+print("Price up/down:", np.average(current.price_up), "/", np.average(current.price_down))
+if better and score1 > score2:
+    current.save_as('prod')
