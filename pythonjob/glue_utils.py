@@ -425,9 +425,9 @@ class Simulator():
                 if comp_code in renamed:
                     events[comp_code].event['old_comp_code'] = renamed[comp_code]
                 if comp_code in self.overall:
-                    self.overall[comp_code] *= price_ch
+                    self.overall[comp_code] *= price_ch+1
                 else:
-                    self.overall[comp_code] = price_ch
+                    self.overall[comp_code] = price_ch+1
             self.events = events
             self.quote_dt = quote_dt
         batch = []
