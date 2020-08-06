@@ -351,6 +351,7 @@ class Simulator():
         self.events = events
         self.model = PriceChModel(bucket)
         self.discretizer = Discretizer(bucket)
+        self.overall = {1 for comp_code in comp_codes}
         self.samples = {}
         for comp_code in comp_codes[:10]:
             self.samples[comp_code] = [self.events[comp_code].get_price()]
@@ -410,6 +411,8 @@ class Simulator():
                     base_ch = price_ch / 5
                 else:
                     price_ch += base_ch
+                if comp_code in self.overall:
+                    price_ch -= (self.overall-1) / 100
                 price = self.events[comp_code].event['price'] * (price_ch + 1)
                 high_price = self.events[comp_code].event['price'] * (high_price_ch + 1)
                 low_price = self.events[comp_code].event['price'] * (low_price_ch + 1)
@@ -421,6 +424,10 @@ class Simulator():
                 events[comp_code] = self.events[comp_code].next(price, high_price, low_price, quote_dt)
                 if comp_code in renamed:
                     events[comp_code].event['old_comp_code'] = renamed[comp_code]
+                if comp_code in self.overall:
+                    self.overall[comp_code] *= price_ch
+                else:
+                    self.overall[comp_code] = price_ch
             self.events = events
             self.quote_dt = quote_dt
         batch = []
