@@ -351,7 +351,7 @@ class Simulator():
         self.events = events
         self.model = PriceChModel(bucket)
         self.discretizer = Discretizer(bucket)
-        self.overall = {1 for comp_code in comp_codes}
+        self.overall = {comp_code:1 for comp_code in comp_codes}
         self.samples = {}
         for comp_code in comp_codes[:10]:
             self.samples[comp_code] = [self.events[comp_code].get_price()]
