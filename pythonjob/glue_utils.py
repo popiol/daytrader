@@ -412,7 +412,7 @@ class Simulator():
                 else:
                     price_ch += base_ch
                 if comp_code in self.overall:
-                    price_ch -= (self.overall-1) / 100
+                    price_ch -= (self.overall[comp_code]-1) / 100
                 price = self.events[comp_code].event['price'] * (price_ch + 1)
                 high_price = self.events[comp_code].event['price'] * (high_price_ch + 1)
                 low_price = self.events[comp_code].event['price'] * (low_price_ch + 1)
