@@ -164,7 +164,7 @@ class Discretizer():
             val = random.uniform(start, end)
             val = val + .0001 * (offset-2)
             #val *= 1.5 if val > 0 else 1.8
-            val = math.pow(val, .5) if val > 0 else -math.pow(-val, .33)
+            val = math.pow(val+1, 2)-1 if val > 0 else math.pow(val+1, 3)-1
             outputs.append(val)
         return outputs
 
