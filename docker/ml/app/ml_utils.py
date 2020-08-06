@@ -325,7 +325,6 @@ def compare_agents(agent1, agent2, hist=False, quick=False):
             if events is None:
                 print("Stopping after", it, "iterations, quote_dt:", quote_dt)
                 break
-            prev_events = events
             quote_dt = events[0].event['quote_dt']
             agent1.test(events)
             agent2.test(events)
@@ -333,7 +332,8 @@ def compare_agents(agent1, agent2, hist=False, quick=False):
         scores2.append(agent2.score)
         print("Capital:", agent1.get_capital(), agent2.get_capital())
         print("Bought/Sold:", agent1.n_bought, "/", agent1.n_sold, "-", agent2.n_bought, "/", agent2.n_sold)
-        print("Price up/down:", np.average(agent1.price_up), "/", np.average(agent1.price_down))
+        if not quick:
+            print("Price up/down:", np.average(agent1.price_up), "/", np.average(agent1.price_down))
     score1 = np.average(scores1) + min(scores1) / 3
     score2 = np.average(scores2) + min(scores2) / 3
     return score1, score2
