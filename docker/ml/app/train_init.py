@@ -21,7 +21,7 @@ for events in hist:
     initial.test(events)
 print("Capital:", initial.get_capital())
 
-simulator.print_sample_quotes()
+#simulator.print_sample_quotes()
 
 initial = ml_utils.Agent('initial', ml_utils.bucket)
 current = ml_utils.Agent('current', ml_utils.bucket)
