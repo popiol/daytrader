@@ -372,7 +372,7 @@ class Simulator():
 
     def generate_price(self):
         price = 0
-        while price <= .1 or price > 2500:
+        while price <= 1 or price > 2500:
             price = math.pow(max(0,random.gauss(.5,.2)),6)*1000
         return round(price, 2)
 
