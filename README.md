@@ -25,3 +25,9 @@ Input data:
 * The data stored in an S3 bucket
 * The data is processed by sequence of jobs ran within an AWS Glue workflow
 * The AWS Glue jobs clean the data, transform it into the JSON format and store in DynamoDB
+
+ML model processing:
+* There are separate AWS Batch jobs for training, validation and prediction
+* Each job runs on the same Docker image but executes a different python script
+* The model is stored in an S3 bucket
+* There are several versions of the model: production model, development model, working model, initial model
